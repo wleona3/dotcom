@@ -4,9 +4,14 @@ import accessibleIconSvg from "../../static/images/icon-accessible-small.svg";
 import alertIconSvg from "../../static/images/icon-alerts-triangle.svg";
 import blueLineIconSvg from "../../static/images/icon-blue-line-default.svg";
 import busIconSvg from "../../static/images/icon-mode-bus-small.svg";
+import busIconBWSvg from "../../static/images/icon-bus-circle-bw-default.svg";
 import commuterRailIconSvg from "../../static/images/icon-mode-commuter-rail-small.svg";
+import commuterRailIconBWSvg from "../../static/images/icon-commuter-rail-circle-bw-default.svg";
 import ferryIconSvg from "../../static/images/icon-mode-ferry-small.svg";
+import ferryIconBWSvg from "../../static/images/icon-ferry-circle-bw-default.svg";
 import genericSubwayIconSvg from "../../static/images/icon-mode-subway-default.svg";
+import genericSubwayIconBWSvg from "../../static/images/icon-subway-circle-bw-default.svg";
+import genericTrolleyIconBWSvg from "../../static/images/icon-trolley-circle-bw-default.svg";
 import greenLineIconSvg from "../../static/images/icon-green-line-small.svg";
 import greenBLineIconSvg from "../../static/images/icon-green-line-b-small.svg";
 import greenCLineIconSvg from "../../static/images/icon-green-line-c-small.svg";
@@ -30,14 +35,29 @@ export const blueLineIcon = (className: string = ""): JSX.Element =>
 export const busIcon = (className: string = ""): JSX.Element =>
   renderSvg(className, busIconSvg, false);
 
+export const busIconBW = (className: string = ""): JSX.Element =>
+  renderSvg(className, busIconBWSvg, false);
+
 export const commuterRailIcon = (className: string = ""): JSX.Element =>
   renderSvg(className, commuterRailIconSvg, false);
+
+export const commuterRailIconBW = (className: string = ""): JSX.Element =>
+  renderSvg(className, commuterRailIconBWSvg, false);
 
 export const ferryIcon = (className: string = ""): JSX.Element =>
   renderSvg(className, ferryIconSvg, false);
 
+export const ferryIconBW = (className: string = ""): JSX.Element =>
+  renderSvg(className, ferryIconBWSvg, false);
+
 export const genericSubwayIcon = (className: string = ""): JSX.Element =>
   renderSvg(className, genericSubwayIconSvg, false);
+
+export const genericSubwayIconBW = (className: string = ""): JSX.Element =>
+  renderSvg(className, genericSubwayIconBWSvg, false);
+
+export const genericTrolleyIconBW = (className: string = ""): JSX.Element =>
+  renderSvg(className, genericTrolleyIconBWSvg, false);
 
 export const greenLineIcon = (className: string = ""): JSX.Element =>
   renderSvg(className, greenLineIconSvg, false);
@@ -92,6 +112,16 @@ export const modeIcon = (routeId: string): JSX.Element | undefined => {
   if (isSilverRoute(routeId)) return silverLineIcon("c-svg__icon");
 
   return busIcon("c-svg__icon-bus-small");
+};
+
+export const modeVehicleIconBW = (routeId: string): JSX.Element | undefined => {
+  if (routeId.startsWith("CR-")) return commuterRailIconBW("c-svg__icon");
+  if (routeId.startsWith("Boat-")) return ferryIconBW("c-svg__icon");
+  if (routeId.startsWith("Green") || routeId === "Mattapan")
+    return genericTrolleyIconBW("c-svg__icon");
+  if (["Red", "Orange", "Blue"].includes(routeId))
+    return genericSubwayIconBW("c-svg__icon");
+  return busIconBW("c-svg__icon");
 };
 
 export const caret = (
