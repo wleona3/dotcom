@@ -5,7 +5,8 @@ import {
   TooltipWrapper,
   modeIcon,
   parkingIcon,
-  accessibleIcon
+  accessibleIcon,
+  modeVehicleIconBW
 } from "../../../helpers/icon";
 import { Alert, Route } from "../../../__v3api";
 
@@ -150,6 +151,12 @@ const StopGraphic = (isOrigin = false, isTerminus = false): JSX.Element => {
   );
 };
 
+const VehicleGraphic = (stop: RouteStop): JSX.Element | null => (
+  <div className="m-schedule-diagram__vehicle">
+    {modeVehicleIconBW(stop.route!.id)}
+  </div>
+);
+
 const SingleStop = ({
   stop,
   onClick,
@@ -178,6 +185,7 @@ const SingleStop = ({
         {stopData.some(sd => sd.type === "merge") ? (
           <div className="m-schedule-diagram__line m-schedule-diagram__line--stop">
             {StopGraphic()}
+            {VehicleGraphic(routeStop)}
           </div>
         ) : (
           stopData.map((sd, sdIndex) => (
@@ -192,6 +200,8 @@ const SingleStop = ({
                   StopGraphic(isOrigin, sd.type === "terminus")
                 : sd.type !== "line" &&
                   StopGraphic(isOrigin, sd.type === "terminus")}
+
+              {sdIndex + 1 === stopData.length && VehicleGraphic(routeStop)}
             </div>
           ))
         )}

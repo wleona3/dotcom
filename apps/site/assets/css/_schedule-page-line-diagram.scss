@@ -136,6 +136,7 @@ $line-width: 8px; // width of the colored line in the diagram
   .m-schedule-diagram__line {
     background-color: currentColor;
     margin: 0 $line-width / 2;
+    position: relative;
     width: $line-width;
   }
 
@@ -178,6 +179,34 @@ $line-width: 8px; // width of the colored line in the diagram
   // the very last stop - line should terminate at the stop
   > .m-schedule-diagram__stop:last-child .m-schedule-diagram__lines {
     height: $base-spacing * 2;
+  }
+}
+
+// live vehicle located along line diagram
+.m-schedule-diagram__vehicle {
+  height: 100%;
+  margin-left: -$line-width;
+  margin-top: -8px;
+  position: absolute;
+
+  .m-schedule-diagram__stop--origin & {
+    top: 0;
+  }
+
+  &.m-schedule-diagram__vehicle--incoming {
+    top: -10px;
+  }
+
+  &.m-schedule-diagram__vehicle--outgoing {
+    top: 50px;
+  }
+
+  &.m-schedule-diagram__vehicle--incoming,
+  &.m-schedule-diagram__vehicle--outgoing {
+    // blinks the icon but leaves the white background alone
+    .c-svg__icon path:not(:first-of-type) {
+      animation: 2s infinite realtime-text-color-pulse;
+    }
   }
 }
 
