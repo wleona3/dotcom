@@ -153,7 +153,15 @@ const StopGraphic = (isOrigin = false, isTerminus = false): JSX.Element => {
 
 const VehicleGraphic = (stop: RouteStop): JSX.Element | null => (
   <div className="m-schedule-diagram__vehicle">
-    {modeVehicleIconBW(stop.route!.id)}
+    <TooltipWrapper
+      tooltipText={"Something"}
+      tooltipOptions={{
+        placement: "left",
+        animation: "false"
+      }}
+    >
+      {modeVehicleIconBW(stop.route!.id) || <></>}
+    </TooltipWrapper>
   </div>
 );
 
