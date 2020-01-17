@@ -152,11 +152,12 @@ export const TooltipWrapper: React.FC<{
   tooltipOptions?: object; // corresponds to Bootstrap tooltip options
   href?: string;
 }> = ({ children, tooltipText, tooltipOptions, href }): JSX.Element => {
-  const { trigger, placement, animation } = Object.assign(
+  const { trigger, placement, animation, offset } = Object.assign(
     {
       trigger: "hover focus",
       placement: "top",
-      animation: "true"
+      animation: "true",
+      offset: "0 0"
     },
     tooltipOptions
   );
@@ -170,6 +171,7 @@ export const TooltipWrapper: React.FC<{
       data-trigger={trigger}
       data-placement={placement}
       data-animation={animation}
+      data-offset={offset}
       data-selector="true"
       data-original-title={tooltipText}
       title={tooltipText}

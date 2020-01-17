@@ -157,7 +157,8 @@ const VehicleGraphic = (stop: RouteStop): JSX.Element | null => (
       tooltipText={"Something"}
       tooltipOptions={{
         placement: "left",
-        animation: "false"
+        animation: "false",
+        offset: "8px 0"
       }}
     >
       {modeVehicleIconBW(stop.route!.id) || <></>}
