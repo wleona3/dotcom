@@ -88,12 +88,10 @@ const ScheduleFinder = ({
     selectedService: null
   });
 
-  const handleUpdateOriginSearch = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleUpdateOriginSearch = (searchQuery: string): void => {
     setState({
       ...state,
-      originSearch: event.target.value
+      originSearch: searchQuery
     });
   };
 
