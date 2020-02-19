@@ -1,51 +1,20 @@
 import React, { ReactElement, useReducer, useEffect } from "react";
 import UpcomingDepartures from "./UpcomingDepartures";
-import { Route, RouteType } from "../../../__v3api";
+import { Route } from "../../../__v3api";
 import {
-  SimpleStop,
   StopPrediction,
   RoutePatternsByDirection,
   ServiceInSelector,
   ScheduleNote as ScheduleNoteType,
   SelectedDirection,
   SelectedOrigin,
-  UserInput
+  UserInput,
+  SimpleStopMap
 } from "../__schedule";
-import isSilverLine from "../../../helpers/silver-line";
 import { reducer } from "../../../helpers/fetch";
 import ServiceSelector from "./ServiceSelector";
-import { breakTextAtSlash } from "../../../helpers/text";
 import ScheduleNote from "../ScheduleNote";
-
-const stopInfo = (
-  selectedOrigin: string,
-  stops: SimpleStop[]
-): SimpleStop | undefined => stops.find(({ id }) => id === selectedOrigin);
-
-const stopNameLink = (
-  selectedOrigin: string,
-  stops: SimpleStop[]
-): ReactElement<HTMLElement> | null => {
-  const stop = stopInfo(selectedOrigin, stops);
-  return <a href={`/stops/${stop!.id}`}>{stop!.name}</a>;
-};
-
-const routePill = (
-  id: string,
-  type: RouteType,
-  name: string
-): ReactElement<HTMLElement> | null =>
-  type === 3 ? (
-    <div className="m-route-pills">
-      <div
-        className={`h1 schedule-finder__modal-route-pill u-bg--${
-          isSilverLine(id) ? "silver-line" : "bus"
-        }`}
-      >
-        {name}
-      </div>
-    </div>
-  ) : null;
+import ScheduleFinder from "../ScheduleFinder";
 
 type fetchAction =
   | { type: "FETCH_COMPLETE"; payload: StopPrediction[] }
@@ -80,20 +49,14 @@ interface Props {
   selectedDirection: SelectedDirection;
   selectedOrigin: SelectedOrigin;
   services: ServiceInSelector[];
-  stops: SimpleStop[];
+  stops: SimpleStopMap;
   routePatternsByDirection: RoutePatternsByDirection;
   today: string;
   scheduleNote: ScheduleNoteType | null;
 }
 
 const ScheduleModalContent = ({
-  route: {
-    id: routeId,
-    type: routeType,
-    name: routeName,
-    direction_names: directionNames,
-    direction_destinations: directionDestinations
-  },
+  route,
   selectedDirection,
   selectedOrigin,
   services,
@@ -102,6 +65,7 @@ const ScheduleModalContent = ({
   today,
   scheduleNote
 }: Props): ReactElement<HTMLElement> | null => {
+  const { id: routeId } = route;
   const [state, dispatch] = useReducer(reducer, {
     data: null,
     isLoading: true,
@@ -117,11 +81,6 @@ const ScheduleModalContent = ({
 
   if (selectedOrigin === null || selectedDirection === null) return null;
 
-  const directionName = directionNames[selectedDirection];
-  const directionDestination = directionDestinations[selectedDirection];
-
-  if (directionName === null || directionDestination === null) return null;
-
   const input: UserInput = {
     route: routeId,
     origin: selectedOrigin,
@@ -129,24 +88,18 @@ const ScheduleModalContent = ({
     direction: selectedDirection
   };
 
-  const destination =
-    routeId === "Green" ? "All branches" : directionDestination;
-
   return (
     <>
-      <div className="schedule-finder__modal-header">
-        {routePill(routeId, routeType, routeName)}
-        <div>
-          <div className="h3 u-small-caps" style={{ margin: 0 }}>
-            {" "}
-            {directionName}
-          </div>
-          <h2 className="h2" style={{ margin: 0 }}>
-            {breakTextAtSlash(destination)}
-          </h2>
-        </div>
-      </div>
-      <div>from {stopNameLink(selectedOrigin, stops)}</div>
+      <ScheduleFinder
+        route={route} // don't show for subway
+        services={services}
+        stops={stops}
+        directionId={selectedDirection}
+        routePatternsByDirection={routePatternsByDirection}
+        today={today}
+        scheduleNote={scheduleNote}
+      />
+
       <UpcomingDepartures state={state} input={input} />
       {scheduleNote ? (
         <ScheduleNote

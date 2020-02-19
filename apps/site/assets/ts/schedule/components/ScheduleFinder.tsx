@@ -21,7 +21,7 @@ import ScheduleModalContent from "./schedule-finder/ScheduleModalContent";
 interface Props {
   services: ServiceInSelector[];
   directionId: DirectionId;
-  route: EnhancedRoute;
+  route: Route;
   stops: SimpleStopMap;
   routePatternsByDirection: RoutePatternsByDirection;
   today: string;
