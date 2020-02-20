@@ -1,81 +1,252 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ScheduleModalContent renders 1`] = `
-Array [
-  <div
-    className="schedule-finder__modal-header"
-  >
-    <div>
-      <div
-        className="h3 u-small-caps"
-        style={
-          Object {
-            "margin": 0,
-          }
-        }
-      >
-         
-        Inbound
-      </div>
-      <h2
-        className="h2"
-        style={
-          Object {
-            "margin": 0,
-          }
-        }
-      >
-        Oak Grove
+"<ScheduleModalContent route={{...}} stops={{...}} services={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+  <ScheduleFinder route={{...}} services={{...}} stops={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+    <div className=\\"schedule-finder\\">
+      <h2 className=\\"h3 schedule-finder__heading\\">
+        <span className=\\"notranslate c-svg__icon\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+         Schedule Finder
       </h2>
+      <ErrorMessage directionError={false} originError={false} />
+      <div className=\\"schedule-finder__helptext\\">
+        Choose a stop to get schedule information and real-time departure predictions.
+      </div>
+      <div className=\\"schedule-finder__modal-inputs\\">
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_direction_select\\">
+            Choose a direction
+          </label>
+          <SelectContainer error={false} id=\\"sf_direction_select_container\\">
+            <div id=\\"sf_direction_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_direction_select\\" className=\\"c-select-custom\\" value={0} onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value={0}>
+                  INBOUND
+                   
+                  Oak Grove
+                </option>
+                <option value={1}>
+                  OUTBOUND
+                   
+                  Forest Hills
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_origin_select\\">
+            Choose an origin stop
+          </label>
+          <SelectContainer error={false} handleClick={[Function: handleOriginSelectClick]} id=\\"sf_origin_select_container\\">
+            <div id=\\"sf_origin_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_origin_select\\" className=\\"c-select-custom c-select-custom--noclick\\" value=\\"place-mlmnl\\" onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value=\\"place-mlmnl\\">
+                  Malden Center
+                </option>
+                <option value=\\"place-welln\\">
+                  Wellington
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+      </div>
+      <WrappedModal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]}>
+        <Modal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]} priorPadding=\\"0px\\" paddingRight={0} />
+      </WrappedModal>
+      <div className=\\"schedule-finder__button text-right\\">
+        <input className=\\"btn btn-primary\\" type=\\"submit\\" value=\\"Get schedules\\" onClick={[Function: handleSubmitForm]} />
+      </div>
     </div>
-  </div>,
-  <div>
-    from 
-    <a
-      href="/stops/place-mlmnl"
-    >
-      Malden Center
-    </a>
-  </div>,
-]
+  </ScheduleFinder>
+  <Component state={{...}} input={{...}} />
+  <Component services={{...}} routeId=\\"Orange\\" routePatterns={[undefined]} today=\\"2019-12-05\\" />
+</ScheduleModalContent>"
 `;
 
 exports[`ScheduleModalContent renders with a unique destination name for the Green route 1`] = `
-Array [
-  <div
-    className="schedule-finder__modal-header"
-  >
-    <div>
-      <div
-        className="h3 u-small-caps"
-        style={
-          Object {
-            "margin": 0,
-          }
-        }
-      >
-         
-        East
-      </div>
-      <h2
-        className="h2"
-        style={
-          Object {
-            "margin": 0,
-          }
-        }
-      >
-        All branches
+"<ScheduleModalContent route={{...}} stops={{...}} services={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+  <ScheduleFinder route={{...}} services={{...}} stops={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+    <div className=\\"schedule-finder\\">
+      <h2 className=\\"h3 schedule-finder__heading\\">
+        <span className=\\"notranslate c-svg__icon\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+         Schedule Finder
       </h2>
+      <ErrorMessage directionError={false} originError={false} />
+      <div className=\\"schedule-finder__helptext\\">
+        Choose a stop to get schedule information and real-time departure predictions.
+      </div>
+      <div className=\\"schedule-finder__modal-inputs\\">
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_direction_select\\">
+            Choose a direction
+          </label>
+          <SelectContainer error={false} id=\\"sf_direction_select_container\\">
+            <div id=\\"sf_direction_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_direction_select\\" className=\\"c-select-custom\\" value={0} onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value={0}>
+                  EAST
+                   
+                  East
+                </option>
+                <option value={1}>
+                  WEST
+                   
+                  West
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_origin_select\\">
+            Choose an origin stop
+          </label>
+          <SelectContainer error={false} handleClick={[Function: handleOriginSelectClick]} id=\\"sf_origin_select_container\\">
+            <div id=\\"sf_origin_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_origin_select\\" className=\\"c-select-custom c-select-custom--noclick\\" value=\\"place-mlmnl\\" onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value=\\"place-mlmnl\\">
+                  Malden Center
+                </option>
+                <option value=\\"place-welln\\">
+                  Wellington
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+      </div>
+      <WrappedModal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]}>
+        <Modal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]} priorPadding=\\"0px\\" paddingRight={0} />
+      </WrappedModal>
+      <div className=\\"schedule-finder__button text-right\\">
+        <input className=\\"btn btn-primary\\" type=\\"submit\\" value=\\"Get schedules\\" onClick={[Function: handleSubmitForm]} />
+      </div>
     </div>
-  </div>,
-  <div>
-    from 
-    <a
-      href="/stops/place-mlmnl"
-    >
-      Malden Center
-    </a>
-  </div>,
-]
+  </ScheduleFinder>
+  <Component state={{...}} input={{...}} />
+  <Component services={{...}} routeId=\\"Green\\" routePatterns={[undefined]} today=\\"2019-12-05\\" />
+</ScheduleModalContent>"
+`;
+
+exports[`ScheduleModalContent renders with schedule note if present 1`] = `
+"<ScheduleModalContent route={{...}} stops={{...}} services={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+  <ScheduleFinder route={{...}} services={{...}} stops={{...}} routePatternsByDirection={{...}} today=\\"2019-12-05\\" scheduleNote={{...}}>
+    <div className=\\"schedule-finder\\">
+      <h2 className=\\"h3 schedule-finder__heading\\">
+        <span className=\\"notranslate c-svg__icon\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+         Schedule Finder
+      </h2>
+      <ErrorMessage directionError={false} originError={false} />
+      <div className=\\"schedule-finder__helptext\\">
+        Choose a stop to get schedule information and real-time departure predictions.
+      </div>
+      <div className=\\"schedule-finder__modal-inputs\\">
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_direction_select\\">
+            Choose a direction
+          </label>
+          <SelectContainer error={false} id=\\"sf_direction_select_container\\">
+            <div id=\\"sf_direction_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_direction_select\\" className=\\"c-select-custom\\" value={0} onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value={0}>
+                  INBOUND
+                   
+                  Oak Grove
+                </option>
+                <option value={1}>
+                  OUTBOUND
+                   
+                  Forest Hills
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+        <div>
+          <label className=\\"schedule-finder__label\\" htmlFor=\\"sf_origin_select\\">
+            Choose an origin stop
+          </label>
+          <SelectContainer error={false} handleClick={[Function: handleOriginSelectClick]} id=\\"sf_origin_select_container\\">
+            <div id=\\"sf_origin_select_container\\" tabIndex={0} className=\\"c-select-custom__container \\" role=\\"button\\" onClick={[Function: onClick]} onKeyUp={[Function: onKeyUp]}>
+              <select id=\\"sf_origin_select\\" className=\\"c-select-custom c-select-custom--noclick\\" value=\\"place-mlmnl\\" onChange={[Function: onChange]} onKeyUp={[Function: onKeyUp]}>
+                <option value=\\"\\">
+                  Select
+                </option>
+                <option value=\\"place-mlmnl\\">
+                  Malden Center
+                </option>
+                <option value=\\"place-welln\\">
+                  Wellington
+                </option>
+              </select>
+              <span className=\\"notranslate c-svg__icon c-select-custom__arrow\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
+            </div>
+          </SelectContainer>
+        </div>
+      </div>
+      <WrappedModal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]}>
+        <Modal openState={false} focusElementId=\\"modal-close\\" ariaLabel={{...}} className=\\"\\" closeModal={[Function: closeModal]} priorPadding=\\"0px\\" paddingRight={0} />
+      </WrappedModal>
+      <div className=\\"schedule-finder__button text-right\\">
+        <input className=\\"btn btn-primary\\" type=\\"submit\\" value=\\"Get schedules\\" onClick={[Function: handleSubmitForm]} />
+      </div>
+    </div>
+  </ScheduleFinder>
+  <Component state={{...}} input={{...}} />
+  <ScheduleNote className=\\"m-schedule-page__schedule-notes--modal\\" scheduleNote={{...}}>
+    <div className=\\"m-schedule-page__schedule-notes m-schedule-page__schedule-notes--modal\\">
+      <h3 className=\\"m-schedule-page__schedule-note-title\\">
+        <div className=\\"m-schedule-page__schedule-note-icon\\" dangerouslySetInnerHTML={{...}} />
+        Schedule Note
+      </h3>
+      <div className=\\"m-schedule-page__schedule-note\\">
+        <h4 className=\\"m-schedule-page__service\\">
+          Peak Service
+        </h4>
+        <div className=\\"m-schedule-page__service-subheading\\">
+          Weekdays 7 AM - 9 AM, 4 PM - 6:30 PM
+        </div>
+        <p className=\\"m-schedule-page__service-note-time\\">
+          Trains arrive every 
+          5 minutes
+        </p>
+      </div>
+      <div className=\\"m-schedule-page__schedule-note\\">
+        <h4 className=\\"m-schedule-page__service\\">
+          Off Peak / Weekends
+        </h4>
+        <p className=\\"m-schedule-page__service-note-time\\">
+          Trains arrive every 
+          8-12 minutes except weekend mornings and late night
+        </p>
+        <p className=\\"m-schedule-page__service-note-time\\">
+          Trains arrive every 
+          26 minutes weekend mornings and late night
+        </p>
+      </div>
+    </div>
+  </ScheduleNote>
+</ScheduleModalContent>"
 `;

@@ -121,24 +121,30 @@
       margin-bottom: $base-spacing;
     }
   }
+
+  .c-modal__content & {
+    margin: -$base-spacing * 2;
+    margin-bottom: 0;
+    padding: $base-spacing $base-spacing * 2;
+
+    .schedule-finder__modal-inputs {
+      display: flex;
+      justify-content: space-between;
+
+      > div {
+        flex-basis: calc(50% - #{$base-spacing / 4});
+      }
+
+      @include media-breakpoint-down(sm) {
+        display: initial;
+      }
+    }
+  }
 }
 
 .schedule-finder__heading {
   color: $brand-primary;
   margin-top: 0;
-}
-
-.schedule-finder__modal-header {
-  display: flex;
-  margin-bottom: $base-spacing / 4;
-}
-
-.schedule-finder__modal-route-pill {
-  margin-bottom: 0;
-  margin-right: $base-spacing;
-  margin-top: 0;
-  padding-left: $base-spacing;
-  padding-right: $base-spacing;
 }
 
 .schedule-finder__origin-list {

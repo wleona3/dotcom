@@ -1,13 +1,13 @@
 import React from "react";
-import renderer from "react-test-renderer";
-import { mount } from "enzyme";
-import { createReactRoot } from "../../app/helpers/testUtils";
+import { ReactWrapper, mount } from "enzyme";
 import ScheduleFinder from "../components/ScheduleFinder";
 import { EnhancedRoute } from "../../__v3api";
 import {
   RoutePatternsByDirection,
   ServiceInSelector
 } from "../components/__schedule";
+import { ModalProvider } from "./../components/schedule-finder/ModalContext";
+import WrappedModal from "../../components/Modal";
 
 const services: ServiceInSelector[] = [
   {
@@ -169,21 +169,25 @@ const routePatternsByDirection = {
 } as RoutePatternsByDirection;
 
 it("renders", () => {
-  createReactRoot();
-  const tree = renderer
-    .create(
-      <ScheduleFinder
-        route={route}
-        stops={stops}
-        directionId={0}
-        services={services}
-        routePatternsByDirection={routePatternsByDirection}
-        today={today}
-        scheduleNote={null}
-      />
-    )
-    .toJSON();
-  expect(tree).toMatchSnapshot();
+  const tree = mount(
+    <ScheduleFinder
+      route={route}
+      stops={stops}
+      services={services}
+      routePatternsByDirection={routePatternsByDirection}
+      today={today}
+      scheduleNote={null}
+    />,
+    {
+      wrappingComponent: ModalProvider,
+      wrappingComponentProps: {
+        modalId: "test",
+        selectedDirection: 0,
+        selectedOrigin: null
+      }
+    }
+  );
+  expect(tree.html()).toMatchSnapshot();
 });
 
 it("defaults to the sole direction for unidirectional routes", () => {
@@ -191,233 +195,163 @@ it("defaults to the sole direction for unidirectional routes", () => {
     <ScheduleFinder
       route={oneDirectionRoute}
       stops={stops}
-      directionId={0}
       services={services}
       routePatternsByDirection={routePatternsByDirection}
       today={today}
       scheduleNote={null}
-    />
+    />,
+    {
+      wrappingComponent: ModalProvider,
+      wrappingComponentProps: {
+        modalId: "test",
+        selectedDirection: 0,
+        selectedOrigin: null
+      }
+    }
   );
 
   expect(wrapper.find("#sf_direction_select").prop("value")).toEqual(0);
 });
 
-it("opens modal after displaying error", () => {
-  document.body.innerHTML = body;
+describe("modal", () => {
+  let wrapper: ReactWrapper;
+  beforeEach(() => {
+    wrapper = mount(
+      <ScheduleFinder
+        route={route}
+        stops={stops}
+        services={services}
+        routePatternsByDirection={routePatternsByDirection}
+        today={today}
+        scheduleNote={null}
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: 0,
+          selectedOrigin: null
+        }
+      }
+    );
+  });
 
-  const wrapper = mount(
-    <ScheduleFinder
-      route={route}
-      stops={stops}
-      directionId={0}
-      services={services}
-      routePatternsByDirection={routePatternsByDirection}
-      today={today}
-      scheduleNote={null}
-    />
-  );
+  it("does not show when there are errors", () => {
+    wrapper
+      .find("#sf_direction_select")
+      .simulate("change", { target: { value: "" } });
 
-  // there should be no errors
-  expect(wrapper.exists(".error-container")).toBeFalsy();
+    wrapper
+      .find("#sf_origin_select")
+      .simulate("change", { target: { value: "" } });
 
-  wrapper.find("input").simulate("click");
+    wrapper.find("input").simulate("click"); // "Get schedules"
 
-  // now there are errors, no values were set
-  expect(wrapper.exists(".error-container")).toBeTruthy();
+    expect(wrapper.exists(".error-container")).toBeTruthy();
 
-  // the route modal should not be showing
-  expect(wrapper.exists(".schedule-finder__modal-header")).toBeFalsy();
+    // the schedule modal should not be showing
+    expect(wrapper.find(WrappedModal).prop("openState")).toBeFalsy();
+  });
 
-  wrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "0" } });
+  it("shows schedules when there are no errors", () => {
+    wrapper
+      .find("#sf_direction_select")
+      .simulate("change", { target: { value: "0" } });
 
-  wrapper.find("input").simulate("click");
+    wrapper
+      .find("#sf_origin_select")
+      .simulate("change", { target: { value: "place-welln" } });
 
-  // now there are errors, only one value is set
-  expect(wrapper.exists(".error-container")).toBeTruthy();
+    wrapper.find("input").simulate("click"); // "Get schedules"
 
-  wrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "" } });
+    expect(wrapper.exists(".error-container")).toBeFalsy();
 
-  wrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
+    // the schedule modal should be showing
+    expect(wrapper.find(WrappedModal).prop("openState")).toBeTruthy();
+  });
 
-  wrapper.find("input").simulate("click");
+  it("can be controlled with keyboard input", () => {
+    wrapper.find("#sf_origin_select").simulate("keyUp", { key: "Enter" });
+    wrapper.find("#sf_direction_select").simulate("keyUp", { key: "Enter" });
+    wrapper.find("#sf_origin_select").simulate("click");
+  });
 
-  // now there are errors, only one value is set
-  expect(wrapper.exists(".error-container")).toBeTruthy();
+  it("shows origin picker only when there are no direction errors", () => {
+    wrapper
+      .find("#sf_direction_select")
+      .simulate("change", { target: { value: "" } });
 
-  wrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "0" } });
+    wrapper
+      .find("#sf_origin_select_container")
+      .hostNodes()
+      .simulate("click");
 
-  wrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
+    expect(wrapper.exists(".error-container")).toBeTruthy();
+    let originModal = wrapper
+      .find(WrappedModal)
+      .filterWhere(
+        n => n.prop("className") === "schedule-finder__origin-modal"
+      );
 
-  wrapper.find("input").simulate("click");
+    expect(originModal.exists()).toBeFalsy();
 
-  // now the route modal should appear
-  expect(wrapper.exists(".schedule-finder__modal-header")).toBeTruthy();
+    wrapper
+      .find("#sf_direction_select")
+      .simulate("change", { target: { value: "0" } });
 
-  // and the errors should be gone
-  expect(wrapper.exists(".error-container")).toBeFalsy();
+    wrapper
+      .find("#sf_origin_select_container")
+      .hostNodes()
+      .simulate("click");
 
-  // for code cov
-  wrapper.find("#sf_origin_select").simulate("keyUp", { key: "Enter" });
-  wrapper.find("#sf_direction_select").simulate("keyUp", { key: "Enter" });
-  wrapper.find("#sf_origin_select").simulate("click");
+    expect(wrapper.exists(".error-container")).toBeFalsy();
 
-  // show origin modal
-  wrapper.find("#modal-close").simulate("click");
-  wrapper
-    .find("#sf_origin_select_container")
-    .hostNodes()
-    .simulate("click");
-  expect(wrapper.find(".schedule-finder__origin-list-item").length).toBe(3);
+    originModal = wrapper
+      .find(WrappedModal)
+      .filterWhere(
+        n => n.prop("className") === "schedule-finder__origin-modal"
+      );
 
-  // perform search
-  wrapper
-    .find(".schedule-finder__origin-search")
-    .simulate("change", { target: { value: "Wellington" } });
-  expect(wrapper.find(".schedule-finder__origin-list-item").length).toBe(1);
-  wrapper
-    .find(".schedule-finder__origin-search")
-    .simulate("change", { target: { value: "" } });
+    expect(originModal.prop("openState")).toBeTruthy();
+  });
 
-  // click origin modal line item
-  wrapper
-    .find(".schedule-finder__origin-list-item")
-    .at(0)
-    .simulate("click");
+  it("allows interactive search for origin stop", () => {
+    wrapper
+      .find("#sf_origin_select_container")
+      .hostNodes()
+      .simulate("click");
 
-  // keyup on origin modal line item
-  wrapper
-    .find("#sf_origin_select_container")
-    .hostNodes()
-    .simulate("click");
+    expect(wrapper.find(".schedule-finder__origin-list-item").length).toBe(3);
 
-  wrapper
-    .find(".schedule-finder__origin-list-item")
-    .at(2)
-    .simulate("keyUp", { key: "Enter" });
+    wrapper
+      .find("input#origin-filter")
+      .simulate("change", { target: { value: "Wellington" } });
 
-  // prevent opening origin modal when direction not set
-  wrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "" } });
+    expect(wrapper.find(".schedule-finder__origin-list-item").length).toBe(1);
 
-  wrapper
-    .find("#sf_origin_select_container")
-    .hostNodes()
-    .simulate("click");
+    wrapper
+      .find("input#origin-filter")
+      .simulate("change", { target: { value: "" } });
 
-  expect(wrapper.exists(".error-container")).toBeTruthy();
-});
+    // click origin modal line item
+    wrapper
+      .find(".schedule-finder__origin-list-item")
+      .at(0)
+      .simulate("click");
 
-it("modal renders route pill for bus lines", () => {
-  const subwayWrapper = mount(
-    <ScheduleFinder
-      stops={stops}
-      route={route}
-      directionId={0}
-      services={services}
-      routePatternsByDirection={routePatternsByDirection}
-      today={today}
-      scheduleNote={null}
-    />
-  );
-  subwayWrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "1" } });
+    // keyup on origin modal line item
+    wrapper
+      .find("#sf_origin_select_container")
+      .hostNodes()
+      .simulate("click");
 
-  subwayWrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
+    wrapper
+      .find(".schedule-finder__origin-list-item")
+      .at(2)
+      .simulate("keyUp", { key: "Enter" });
+  });
 
-  subwayWrapper.find("input").simulate("click");
-
-  expect(
-    subwayWrapper.exists(".schedule-finder__modal-route-pill")
-  ).toBeFalsy();
-
-  const busRoute: EnhancedRoute = { ...route, id: "66", name: "66", type: 3 };
-  const busWrapper = mount(
-    <ScheduleFinder
-      stops={stops}
-      route={busRoute}
-      directionId={0}
-      services={services}
-      routePatternsByDirection={routePatternsByDirection}
-      today={today}
-      scheduleNote={null}
-    />
-  );
-  busWrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "0" } });
-
-  busWrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
-
-  busWrapper.find("input").simulate("click");
-
-  expect(busWrapper.exists(".schedule-finder__modal-route-pill")).toBeTruthy();
-  expect(busWrapper.exists(".u-bg--bus")).toBeTruthy();
-});
-
-it("modal renders route pill for silver line", () => {
-  const subwayWrapper = mount(
-    <ScheduleFinder
-      stops={stops}
-      route={route}
-      directionId={0}
-      services={services}
-      routePatternsByDirection={routePatternsByDirection}
-      today={today}
-      scheduleNote={null}
-    />
-  );
-  subwayWrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "1" } });
-
-  subwayWrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
-
-  subwayWrapper.find("input").simulate("click");
-
-  expect(
-    subwayWrapper.exists(".schedule-finder__modal-route-pill")
-  ).toBeFalsy();
-
-  const busRoute: EnhancedRoute = { ...route, id: "741", name: "SL", type: 3 };
-  const busWrapper = mount(
-    <ScheduleFinder
-      stops={stops}
-      route={busRoute}
-      directionId={0}
-      services={services}
-      routePatternsByDirection={routePatternsByDirection}
-      today={today}
-      scheduleNote={null}
-    />
-  );
-  busWrapper
-    .find("#sf_direction_select")
-    .simulate("change", { target: { value: "0" } });
-
-  busWrapper
-    .find("#sf_origin_select")
-    .simulate("change", { target: { value: "place-welln" } });
-
-  busWrapper.find("input").simulate("click");
-
-  expect(busWrapper.exists(".schedule-finder__modal-route-pill")).toBeTruthy();
-  expect(busWrapper.exists(".u-bg--silver-line")).toBeTruthy();
+  afterEach(() => {
+    wrapper.unmount();
+  });
 });

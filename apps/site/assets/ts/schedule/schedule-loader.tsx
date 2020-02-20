@@ -7,6 +7,7 @@ import Map from "./components/Map";
 import { SchedulePageData } from "./components/__schedule";
 import { MapData, StaticMapData } from "../leaflet/components/__mapdata";
 import ScheduleFinder from "./components/ScheduleFinder";
+import { ModalProvider } from "./components/schedule-finder/ModalContext";
 
 const renderMap = (): void => {
   const mapDataEl = document.getElementById("js-map-data");
@@ -44,15 +45,20 @@ const renderSchedulePage = (schedulePageData: SchedulePageData): void => {
   } = schedulePageData;
   if (!scheduleNote) {
     ReactDOM.render(
-      <ScheduleFinder
-        directionId={directionId}
-        route={route}
-        stops={stops}
-        services={services}
-        routePatternsByDirection={routePatternsByDirection}
-        today={today}
-        scheduleNote={null}
-      />,
+      <ModalProvider
+        modalId={null}
+        selectedDirection={directionId}
+        selectedOrigin={null}
+      >
+        <ScheduleFinder
+          route={route}
+          stops={stops}
+          services={services}
+          routePatternsByDirection={routePatternsByDirection}
+          today={today}
+          scheduleNote={null}
+        />
+      </ModalProvider>,
       document.getElementById("react-schedule-finder-root")
     );
   }

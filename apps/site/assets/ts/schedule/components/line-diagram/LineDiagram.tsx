@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement } from "react";
 import { useFetch } from "react-async";
 import { useInterval } from "use-interval";
 import {
@@ -14,15 +14,16 @@ import {
 import SingleStop from "./SingleStop";
 import Modal from "../../../components/Modal";
 import ScheduleModalContent from "../schedule-finder/ScheduleModalContent";
-import { DirectionId, Headsign, Route } from "../../../__v3api";
+import { Headsign, Route } from "../../../__v3api";
 import ExpandableBranch from "./ExpandableBranch";
 import useFilteredList from "../../../hooks/useFilteredList";
 import SearchBox from "../../../components/SearchBox";
+import { MODAL_ACTIONS } from "../schedule-finder/reducer";
+import { useModalContext } from "../schedule-finder/ModalContext";
 
 interface Props {
   lineDiagram: LineDiagramStop[];
   route: Route;
-  directionId: DirectionId;
   routePatternsByDirection: RoutePatternsByDirection;
   services: ServiceInSelector[];
   stops: SimpleStopMap;
@@ -74,7 +75,6 @@ const getTreeDirection = (
 const LineDiagram = ({
   lineDiagram,
   route,
-  directionId,
   routePatternsByDirection,
   services,
   stops,
@@ -83,13 +83,7 @@ const LineDiagram = ({
 }: Props): ReactElement<HTMLElement> | null => {
   const routeType = route.type;
   const routeColor: string = route.color || "#000";
-  const [modalState, setModalState] = useState<{
-    selectedOrigin: RouteStop;
-    modalOpen: boolean;
-  }>({
-    selectedOrigin: lineDiagram[0].route_stop,
-    modalOpen: false
-  });
+  const { state: modalState, dispatch } = useModalContext();
 
   const {
     data: maybeLiveData,
@@ -97,9 +91,11 @@ const LineDiagram = ({
     // @ts-ignore https://github.com/async-library/react-async/issues/244
     reload: reloadLiveData
   } = useFetch(
-    `/schedules/line_api/realtime?id=${route.id}&direction_id=${directionId}`,
+    `/schedules/line_api/realtime?id=${route.id}&direction_id=${
+      modalState.selectedDirection
+    }`,
     {},
-    { json: true, watch: directionId }
+    { json: true, watch: modalState.selectedDirection }
   );
   const liveData = (maybeLiveData || {}) as LiveDataByStop;
   useInterval(() => {
@@ -120,11 +116,10 @@ const LineDiagram = ({
     );
   }, 15000);
 
-  const handleStopClick = (stop: RouteStop): void =>
-    setModalState({
-      selectedOrigin: stop,
-      modalOpen: true
-    });
+  const handleStopClick = (stop: RouteStop): void => {
+    dispatch({ type: MODAL_ACTIONS.selectOrigin, payload: stop.id });
+    dispatch({ type: MODAL_ACTIONS.openModal, payload: "schedule-ld" });
+  };
 
   const treeDirection = getTreeDirection(lineDiagram);
 
@@ -205,8 +200,8 @@ const LineDiagram = ({
         ))
       ) : (
         /* istanbul ignore next */ <div className="c-alert-item c-alert-item--low c-alert-item__top-text-container">
-          No stops {route.direction_names[directionId]} to{" "}
-          {route.direction_destinations[directionId]} matching{" "}
+          No stops {route.direction_names[modalState.selectedDirection!]} to{" "}
+          {route.direction_destinations[modalState.selectedDirection!]} matching{" "}
           <b className="u-highlight">{stopQuery}</b>. Try changing your
           direction or adjusting your search.
         </div>
@@ -326,23 +321,31 @@ const LineDiagram = ({
       <Modal
         openState={modalState.modalOpen}
         closeModal={() => {
-          setModalState({ ...modalState, modalOpen: false });
+          dispatch({
+            type: MODAL_ACTIONS.closeModal,
+            payload: modalState.modalId === "origin" ? "origin" : ""
+          });
         }}
         ariaLabel={{
-          label: `Schedules to ${route.direction_names[directionId]}`
+          label: `Schedules to ${
+            route.direction_names[modalState.selectedDirection!]
+          }`
         }}
+        className="m-schedule-diagram__modal"
       >
         {() => (
-          <ScheduleModalContent
-            route={route}
-            selectedDirection={directionId}
-            selectedOrigin={modalState.selectedOrigin.id}
-            services={services}
-            stops={stops[directionId]}
-            routePatternsByDirection={routePatternsByDirection}
-            today={today}
-            scheduleNote={scheduleNote}
-          />
+          <>
+            {modalState.modalId && (
+              <ScheduleModalContent
+                route={route}
+                services={services}
+                stops={stops}
+                routePatternsByDirection={routePatternsByDirection}
+                today={today}
+                scheduleNote={scheduleNote}
+              />
+            )}
+          </>
         )}
       </Modal>
     </>

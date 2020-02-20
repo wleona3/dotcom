@@ -1,5 +1,5 @@
 import React from "react";
-import renderer, { act } from "react-test-renderer";
+import { mount } from "enzyme";
 import { EnhancedRoute } from "../../__v3api";
 import ScheduleModalContent, {
   fetchData
@@ -8,7 +8,7 @@ import { SimpleStop } from "../components/__schedule";
 import { EnhancedJourney } from "../components/__trips";
 import departuresResponse from "../__tests__/departures.json";
 import ScheduleNote from "../components/ScheduleNote";
-import { createReactRoot } from "../../app/helpers/testUtils";
+import { ModalProvider } from "./../components/schedule-finder/ModalContext";
 
 const today = "2019-12-05";
 const route: EnhancedRoute = {
@@ -65,119 +65,73 @@ const payload: EnhancedJourney[] = departuresResponse as EnhancedJourney[];
 
 describe("ScheduleModalContent", () => {
   it("renders", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          route={route}
-          stops={stops}
-          selectedOrigin={stops[0].id}
-          selectedDirection={0}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-    });
+    const wrapper = mount(
+      <ScheduleModalContent
+        route={route}
+        stops={{ 0: stops, 1: stops }}
+        services={[]}
+        routePatternsByDirection={{}}
+        today={today}
+        scheduleNote={null}
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: 0,
+          selectedOrigin: stops[0].id
+        }
+      }
+    );
 
-    expect(tree).toMatchSnapshot();
+    expect(wrapper.debug()).toMatchSnapshot();
   });
 
   it("renders with a unique destination name for the Green route", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          route={greenRoute}
-          stops={stops}
-          selectedOrigin={stops[0].id}
-          selectedDirection={0}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-    });
+    const wrapper = mount(
+      <ScheduleModalContent
+        route={greenRoute}
+        stops={{ 0: stops, 1: stops }}
+        services={[]}
+        routePatternsByDirection={{}}
+        today={today}
+        scheduleNote={null}
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: 0,
+          selectedOrigin: stops[0].id
+        }
+      }
+    );
 
-    expect(tree).toMatchSnapshot();
-  });
-
-  it("doesn't render if selectedOrigin is null", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          route={route}
-          stops={stops}
-          selectedOrigin={null}
-          selectedDirection={0}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-      expect(tree!.toJSON()).toBeNull();
-    });
-  });
-
-  it("doesn't render if selectedDirection is null", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          route={route}
-          stops={stops}
-          selectedOrigin={stops[0].id}
-          selectedDirection={null}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-      expect(tree!.toJSON()).toBeNull();
-    });
-  });
-
-  it("doesn't render if the name for the selected direction is null", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          route={oneDirectionRoute}
-          stops={stops}
-          selectedOrigin={stops[0].id}
-          selectedDirection={1}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-      expect(tree!.toJSON()).toBeNull();
-    });
+    expect(wrapper.debug()).toMatchSnapshot();
   });
 
   it("renders with schedule note if present", () => {
-    createReactRoot();
-    const tree = renderer.create(
+    const wrapper = mount(
       <ScheduleModalContent
         route={route}
-        stops={stops}
-        selectedOrigin={stops[0].id}
-        selectedDirection={0}
+        stops={{ 0: stops, 1: stops }}
         services={[]}
         routePatternsByDirection={{}}
         today={today}
         scheduleNote={scheduleNoteData}
-      />
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: 0,
+          selectedOrigin: stops[0].id
+        }
+      }
     );
-    expect(
-      tree.root.findByType(ScheduleNote).props.scheduleNote.offpeak_service
-    ).toBe("8-12 minutes");
+
+    expect(wrapper.debug()).toMatchSnapshot();
+    expect(wrapper.find(ScheduleNote).text()).toContain("8-12 minutes");
   });
 
   describe("fetchData", () => {

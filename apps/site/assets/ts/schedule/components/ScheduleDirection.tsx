@@ -15,6 +15,7 @@ import { menuReducer, FetchAction } from "./direction/reducer";
 import { MapData, StaticMapData } from "../../leaflet/components/__mapdata";
 import Map from "../components/Map";
 import LineDiagram from "../components/line-diagram/LineDiagram";
+import { ModalProvider } from "./schedule-finder/ModalContext";
 
 export interface Props {
   route: EnhancedRoute;
@@ -181,16 +182,22 @@ const ScheduleDirection = ({
         </>
       )}
       {lineState.data && (
-        <LineDiagram
-          lineDiagram={lineState.data}
-          route={route}
-          directionId={state.directionId}
-          routePatternsByDirection={routePatternsByDirection}
-          services={services}
-          stops={stops}
-          today={today}
-          scheduleNote={scheduleNote}
-        />
+        <ModalProvider
+          modalId="schedule-ld"
+          selectedDirection={state.directionId}
+          selectedOrigin={null}
+          insideModal
+        >
+          <LineDiagram
+            lineDiagram={lineState.data}
+            route={route}
+            routePatternsByDirection={routePatternsByDirection}
+            services={services}
+            stops={stops}
+            today={today}
+            scheduleNote={scheduleNote}
+          />
+        </ModalProvider>
       )}
     </>
   );

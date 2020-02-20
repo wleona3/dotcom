@@ -19,114 +19,124 @@ Array [
       />
        Schedule Finder
     </h2>
-    <div>
+    <div
+      className="schedule-finder__helptext"
+    >
       Choose a stop to get schedule information and real-time departure predictions.
     </div>
-    <label
-      className="schedule-finder__label"
-      htmlFor="sf_direction_select"
-    >
-      Choose a direction
-    </label>
     <div
-      className="c-select-custom__container "
-      id="sf_direction_select_container"
-      onClick={[Function]}
-      onKeyUp={[Function]}
-      role="button"
-      tabIndex={0}
+      className="schedule-finder__modal-inputs"
     >
-      <select
-        className="c-select-custom"
-        id="sf_direction_select"
-        onChange={[Function]}
-        onKeyUp={[Function]}
-        value=""
-      >
-        <option
-          value=""
+      <div>
+        <label
+          className="schedule-finder__label"
+          htmlFor="sf_direction_select"
         >
-          Select
-        </option>
-        <option
-          value={0}
+          Choose a direction
+        </label>
+        <div
+          className="c-select-custom__container "
+          id="sf_direction_select_container"
+          onClick={[Function]}
+          onKeyUp={[Function]}
+          role="button"
+          tabIndex={0}
         >
-          INBOUND
-           
-          Oak Grove
-        </option>
-        <option
-          value={1}
+          <select
+            className="c-select-custom"
+            id="sf_direction_select"
+            onChange={[Function]}
+            onKeyUp={[Function]}
+            value={0}
+          >
+            <option
+              value=""
+            >
+              Select
+            </option>
+            <option
+              value={0}
+            >
+              INBOUND
+               
+              Oak Grove
+            </option>
+            <option
+              value={1}
+            >
+              OUTBOUND
+               
+              Forest Hills
+            </option>
+          </select>
+          <span
+            aria-hidden="true"
+            className="notranslate c-svg__icon c-select-custom__arrow"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "SVG",
+              }
+            }
+          />
+        </div>
+      </div>
+      <div>
+        <label
+          className="schedule-finder__label"
+          htmlFor="sf_origin_select"
         >
-          OUTBOUND
-           
-          Forest Hills
-        </option>
-      </select>
-      <span
-        aria-hidden="true"
-        className="notranslate c-svg__icon c-select-custom__arrow"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "SVG",
-          }
-        }
-      />
+          Choose an origin stop
+        </label>
+        <div
+          className="c-select-custom__container "
+          id="sf_origin_select_container"
+          onClick={[Function]}
+          onKeyUp={[Function]}
+          role="button"
+          tabIndex={0}
+        >
+          <select
+            className="c-select-custom c-select-custom--noclick"
+            id="sf_origin_select"
+            onChange={[Function]}
+            onKeyUp={[Function]}
+            value=""
+          >
+            <option
+              value=""
+            >
+              Select
+            </option>
+            <option
+              value="place-welln"
+            >
+              Wellington
+            </option>
+            <option
+              value="123"
+            >
+              Abc
+            </option>
+            <option
+              value="741"
+            >
+              SL
+            </option>
+          </select>
+          <span
+            aria-hidden="true"
+            className="notranslate c-svg__icon c-select-custom__arrow"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "SVG",
+              }
+            }
+          />
+        </div>
+      </div>
     </div>
-    <label
-      className="schedule-finder__label"
-      htmlFor="sf_origin_select"
-    >
-      Choose an origin stop
-    </label>
     <div
-      className="c-select-custom__container "
-      id="sf_origin_select_container"
-      onClick={[Function]}
-      onKeyUp={[Function]}
-      role="button"
-      tabIndex={0}
-    >
-      <select
-        className="c-select-custom c-select-custom--noclick"
-        id="sf_origin_select"
-        onChange={[Function]}
-        onKeyUp={[Function]}
-        value=""
-      >
-        <option
-          value=""
-        >
-          Select
-        </option>
-        <option
-          value="place-welln"
-        >
-          Wellington
-        </option>
-        <option
-          value="123"
-        >
-          Abc
-        </option>
-        <option
-          value="741"
-        >
-          SL
-        </option>
-      </select>
-      <span
-        aria-hidden="true"
-        className="notranslate c-svg__icon c-select-custom__arrow"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "SVG",
-          }
-        }
-      />
-    </div>
-    <div
-      className="text-right"
+      className="schedule-finder__button text-right"
     >
       <input
         className="btn btn-primary"

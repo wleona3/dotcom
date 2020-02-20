@@ -1,5 +1,5 @@
 import { Dictionary } from "lodash";
-import React, { ReactElement, useEffect, useState, useReducer } from "react";
+import React, { ReactElement, useEffect, useReducer, useState } from "react";
 import SelectContainer from "./SelectContainer";
 import {
   hasMultipleWeekdaySchedules,
@@ -13,21 +13,21 @@ import ScheduleTable from "./ScheduleTable";
 import {
   EnhancedRoutePattern,
   ServiceInSelector,
-  SelectedDirection
+  SelectedDirection,
+  SelectedOrigin
 } from "../__schedule";
 import ServiceOptGroup from "./ServiceOptGroup";
 import { Journey } from "../__trips";
 import { Service } from "../../../__v3api";
 import { stringToDateObject } from "../../../helpers/date";
+import { useModalContext } from "./ModalContext";
 
 // until we come up with a good integration test for async with loading
 // some lines in this file have been ignored from codecov
 
 interface Props {
-  stopId: string;
   services: ServiceInSelector[];
   routeId: string;
-  directionId: SelectedDirection;
   routePatterns: EnhancedRoutePattern[];
   today: string;
 }
@@ -53,7 +53,7 @@ type fetchAction =
 
 export const fetchData = (
   routeId: string,
-  stopId: string,
+  stopId: SelectedOrigin,
   selectedService: Service,
   selectedDirection: SelectedDirection,
   isCurrent: boolean,
@@ -79,10 +79,8 @@ export const fetchData = (
 };
 
 export const ServiceSelector = ({
-  stopId,
   services,
   routeId,
-  directionId,
   routePatterns,
   today
 }: Props): ReactElement<HTMLElement> | null => {
@@ -95,14 +93,29 @@ export const ServiceSelector = ({
   const todayDate = stringToDateObject(today);
   const defaultService = getDefaultService(services, todayDate);
   const [selectedService, setSelectedService] = useState(defaultService);
+  const {
+    state: { selectedDirection, selectedOrigin }
+  } = useModalContext();
 
   useEffect(
     () => {
-      /* istanbul ignore next */
-      if (!selectedService) return;
-      fetchData(routeId, stopId, selectedService, directionId, false, dispatch);
+      if (
+        routeId &&
+        selectedOrigin !== null &&
+        selectedDirection !== null &&
+        selectedService
+      ) {
+        fetchData(
+          routeId,
+          selectedOrigin,
+          selectedService,
+          selectedDirection,
+          false,
+          dispatch
+        );
+      }
     },
-    [services, routeId, directionId, stopId, selectedService, defaultService]
+    [routeId, selectedOrigin, selectedDirection, selectedService]
   );
 
   if (services.length <= 0) return null;
@@ -126,9 +139,7 @@ export const ServiceSelector = ({
             defaultValue={defaultService.id}
             onChange={(e): void => {
               const chosenService = services.find(s => s.id === e.target.value);
-              if (chosenService) {
-                setSelectedService(chosenService);
-              }
+              setSelectedService(chosenService!);
             }}
           >
             {Object.keys(servicesByOptGroup)
@@ -166,9 +177,9 @@ export const ServiceSelector = ({
             routePatterns={routePatterns}
             input={{
               route: routeId,
-              origin: stopId,
-              direction: directionId,
-              date: selectedService!.end_date
+              origin: selectedOrigin!,
+              direction: selectedDirection,
+              date: selectedService.end_date
             }}
           />
         )}

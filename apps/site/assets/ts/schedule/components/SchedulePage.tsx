@@ -8,6 +8,7 @@ import Fares from "./Fares";
 import UpcomingHolidays from "./UpcomingHolidays";
 import ScheduleNote from "./ScheduleNote";
 import ScheduleFinder from "./ScheduleFinder";
+import { ModalProvider } from "./schedule-finder/ModalContext";
 
 interface Props {
   schedulePageData: SchedulePageData;
@@ -38,15 +39,20 @@ const SchedulePage = ({
         scheduleNote={scheduleNote}
       />
     ) : (
-      <ScheduleFinder
-        route={route} // don't show for subway
-        services={services}
-        stops={stops}
-        directionId={directionId}
-        routePatternsByDirection={routePatternsByDirection}
-        today={today}
-        scheduleNote={null}
-      />
+      <ModalProvider
+        modalId="schedule-sf"
+        selectedDirection={directionId}
+        selectedOrigin={null}
+      >
+        <ScheduleFinder
+          route={route} // don't show for subway
+          services={services}
+          stops={stops}
+          routePatternsByDirection={routePatternsByDirection}
+          today={today}
+          scheduleNote={null}
+        />
+      </ModalProvider>
     )}
     <ContentTeasers teasers={teasers} />
     <PDFSchedules pdfs={pdfs} />

@@ -12,6 +12,8 @@ import * as routePatternsByDirection from "./routePatternsByDirectionData.json";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
 import simpleLiveData from "./lineDiagramData/live-data.json";
+import { ModalProvider } from "./../components/schedule-finder/ModalContext";
+import WrappedModal from "../../components/Modal";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -73,7 +75,6 @@ describe("LineDiagram without branches", () => {
       <LineDiagram
         lineDiagram={lineDiagram}
         route={route as EnhancedRoute}
-        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
@@ -81,7 +82,15 @@ describe("LineDiagram without branches", () => {
         stops={{ 0: stops, 1: stops }}
         today="2019-12-05"
         scheduleNote={null}
-      />
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: directionId,
+          selectedOrigin: null
+        }
+      }
     );
   });
 
@@ -90,7 +99,7 @@ describe("LineDiagram without branches", () => {
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
   it("has buttons to view schedules for each stop", () => {
@@ -103,17 +112,36 @@ describe("LineDiagram without branches", () => {
     );
   });
 
-  it("opens a closeable modal after clicking button", () => {
-    expect(wrapper.exists(".schedule-finder__modal-header")).toBeFalsy();
+  it("opens a modal after clicking button", () => {
+    let scheduleModal = wrapper
+      .find(WrappedModal)
+      .filterWhere(n => n.prop("className") === "m-schedule-diagram__modal");
+
+    expect(scheduleModal.prop("openState")).toBeFalsy();
     wrapper
       .find(".m-schedule-diagram__footer > button")
       .last()
       .simulate("click");
-    expect(wrapper.exists(".schedule-finder__modal-header")).toBeTruthy();
-    expect(wrapper.exists("#modal-close")).toBeTruthy();
-    wrapper.find("#modal-close").simulate("click");
-    expect(wrapper.exists(".schedule-finder__modal-header")).toBeFalsy();
-    expect(wrapper.exists("#modal-close")).toBeFalsy();
+
+    // redefine to get the updated props
+    scheduleModal = wrapper
+      .find(WrappedModal)
+      .filterWhere(n => n.prop("className") === "m-schedule-diagram__modal");
+
+    expect(scheduleModal.prop("openState")).toBeTruthy();
+
+    // close the modal
+    // there's an origin modal in here, don't use that #modal-close
+    scheduleModal
+      .find(".m-schedule-diagram__modal > #modal-close")
+      .simulate("click");
+
+    // redefine to get the updated props
+    scheduleModal = wrapper
+      .find(WrappedModal)
+      .filterWhere(n => n.prop("className") === "m-schedule-diagram__modal");
+
+    expect(scheduleModal.prop("openState")).toBeFalsy();
   });
 
   it("has a tooltip for a transit connection", () => {
@@ -180,7 +208,6 @@ describe("LineDiagram with branches going outward", () => {
       <LineDiagram
         lineDiagram={lineDiagramBranchingOut}
         route={route as EnhancedRoute}
-        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
@@ -188,7 +215,15 @@ describe("LineDiagram with branches going outward", () => {
         stops={{ 0: stops, 1: stops }}
         today="2019-12-05"
         scheduleNote={null}
-      />
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: directionId,
+          selectedOrigin: null
+        }
+      }
     );
   });
 
@@ -197,7 +232,7 @@ describe("LineDiagram with branches going outward", () => {
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
   it("identifies stops rather than stations", () => {
@@ -265,7 +300,6 @@ describe("LineDiagram for CR with branches going inward", () => {
       <LineDiagram
         lineDiagram={lineDiagramBranchingIn}
         route={CRroute as EnhancedRoute}
-        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
@@ -273,7 +307,15 @@ describe("LineDiagram for CR with branches going inward", () => {
         stops={{ 0: stops, 1: stops }}
         today="2019-12-05"
         scheduleNote={null}
-      />
+      />,
+      {
+        wrappingComponent: ModalProvider,
+        wrappingComponentProps: {
+          modalId: "test",
+          selectedDirection: directionId,
+          selectedOrigin: null
+        }
+      }
     );
   });
 
@@ -282,7 +324,7 @@ describe("LineDiagram for CR with branches going inward", () => {
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
   it("identifies stations rather than stops", () => {

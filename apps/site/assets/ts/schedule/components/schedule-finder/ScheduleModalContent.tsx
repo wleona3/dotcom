@@ -15,6 +15,11 @@ import { reducer } from "../../../helpers/fetch";
 import ServiceSelector from "./ServiceSelector";
 import ScheduleNote from "../ScheduleNote";
 import ScheduleFinder from "../ScheduleFinder";
+import {
+  ModalProvider,
+  useModalContext
+} from "./../schedule-finder/ModalContext";
+import { MODAL_ACTIONS } from "./../schedule-finder/reducer";
 
 type fetchAction =
   | { type: "FETCH_COMPLETE"; payload: StopPrediction[] }
@@ -46,8 +51,6 @@ export const fetchData = (
 
 interface Props {
   route: Route;
-  selectedDirection: SelectedDirection;
-  selectedOrigin: SelectedOrigin;
   services: ServiceInSelector[];
   stops: SimpleStopMap;
   routePatternsByDirection: RoutePatternsByDirection;
@@ -57,8 +60,6 @@ interface Props {
 
 const ScheduleModalContent = ({
   route,
-  selectedDirection,
-  selectedOrigin,
   services,
   stops,
   routePatternsByDirection,
@@ -71,19 +72,23 @@ const ScheduleModalContent = ({
     isLoading: true,
     error: false
   });
+  const { state: modalState } = useModalContext();
+  const { selectedDirection, selectedOrigin } = modalState;
+  const hasOriginAndDirection =
+    selectedOrigin !== null && selectedDirection !== null;
 
   useEffect(
     () => {
-      fetchData(routeId, selectedOrigin, selectedDirection, dispatch);
+      if (hasOriginAndDirection) {
+        fetchData(routeId, selectedOrigin, selectedDirection, dispatch);
+      }
     },
     [routeId, selectedDirection, selectedOrigin]
   );
 
-  if (selectedOrigin === null || selectedDirection === null) return null;
-
   const input: UserInput = {
     route: routeId,
-    origin: selectedOrigin,
+    origin: selectedOrigin!,
     date: today,
     direction: selectedDirection
   };
@@ -94,28 +99,28 @@ const ScheduleModalContent = ({
         route={route} // don't show for subway
         services={services}
         stops={stops}
-        directionId={selectedDirection}
         routePatternsByDirection={routePatternsByDirection}
         today={today}
         scheduleNote={scheduleNote}
       />
-
-      <UpcomingDepartures state={state} input={input} />
-      {scheduleNote ? (
-        <ScheduleNote
-          className="m-schedule-page__schedule-notes--modal"
-          scheduleNote={scheduleNote}
-        />
-      ) : (
-        <ServiceSelector
-          stopId={selectedOrigin}
-          services={services}
-          routeId={routeId}
-          directionId={selectedDirection}
-          routePatterns={routePatternsByDirection[selectedDirection]}
-          today={today}
-        />
-      )}
+      {hasOriginAndDirection ? (
+        <>
+          <UpcomingDepartures state={state} input={input} />
+          {scheduleNote ? (
+            <ScheduleNote
+              className="m-schedule-page__schedule-notes--modal"
+              scheduleNote={scheduleNote}
+            />
+          ) : (
+            <ServiceSelector
+              services={services}
+              routeId={routeId}
+              routePatterns={routePatternsByDirection[selectedDirection!]}
+              today={today}
+            />
+          )}
+        </>
+      ) : null}
     </>
   );
 };

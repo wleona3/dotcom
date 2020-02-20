@@ -1,5 +1,5 @@
-import React, { ReactElement, useState, ChangeEvent } from "react";
-import { EnhancedRoute, DirectionId } from "../../__v3api";
+import React, { ReactElement } from "react";
+import { Route, DirectionId } from "../../__v3api";
 import {
   SimpleStop,
   SimpleStopMap,
@@ -17,10 +17,11 @@ import SelectContainer from "./schedule-finder/SelectContainer";
 import ErrorMessage from "./schedule-finder/ErrorMessage";
 import OriginModalContent from "./schedule-finder/OriginModalContent";
 import ScheduleModalContent from "./schedule-finder/ScheduleModalContent";
+import { ModalProvider, useModalContext } from "./schedule-finder/ModalContext";
+import { MODAL_ACTIONS } from "./schedule-finder/reducer";
 
 interface Props {
   services: ServiceInSelector[];
-  directionId: DirectionId;
   route: Route;
   stops: SimpleStopMap;
   routePatternsByDirection: RoutePatternsByDirection;
@@ -28,31 +29,12 @@ interface Props {
   scheduleNote: ScheduleNoteType | null;
 }
 
-interface State {
-  directionError: boolean;
-  modalId: string | null;
-  modalOpen: boolean;
-  originError: boolean;
-  originSearch: string;
-  selectedDirection: SelectedDirection;
-  selectedOrigin: SelectedOrigin;
-  selectedService: string | null;
-}
-
 const parseSelectedDirection = (value: string): SelectedDirection => {
   if (value === "0") return 0;
   return 1;
 };
 
-export const stopListOrder = (
-  stops: SimpleStopMap,
-  selectedDirection: SelectedDirection,
-  directionId: DirectionId
-): SimpleStop[] =>
-  selectedDirection !== null ? stops[selectedDirection] : stops[directionId];
-
 const ScheduleFinder = ({
-  directionId,
   route,
   services,
   stops,
@@ -69,82 +51,48 @@ const ScheduleFinder = ({
     direction => directionNames[direction] !== null
   );
 
-  const [state, setState] = useState<State>({
-    directionError: false,
-    originError: false,
-    originSearch: "",
-    modalOpen: false,
-    modalId: null,
-    selectedDirection: validDirections.length === 1 ? validDirections[0] : null,
-    selectedOrigin: null,
-    selectedService: null
-  });
+  const { state, dispatch } = useModalContext();
 
   const handleUpdateOriginSearch = (searchQuery: string): void => {
-    setState({
-      ...state,
-      originSearch: searchQuery
-    });
+    if (state.originSearch !== searchQuery) {
+      dispatch({
+        type: MODAL_ACTIONS.updateOriginSearch,
+        payload: searchQuery
+      });
+    }
   };
 
   const handleSubmitForm = (): void => {
     if (state.selectedDirection === null || state.selectedOrigin === null) {
-      setState({
-        ...state,
-        selectedOrigin: state.selectedOrigin,
-        directionError: state.selectedDirection === null,
-        originError: state.selectedOrigin === null
+      dispatch({
+        type: MODAL_ACTIONS.setErrors,
+        payload: {
+          directionError: state.selectedDirection === null,
+          originError: state.selectedOrigin === null
+        }
       });
-      return;
+      return; // don't open schedules modal
     }
 
-    setState({
-      ...state,
-      directionError: false,
-      originError: false,
-      modalId: "schedule",
-      modalOpen: true
-    });
+    dispatch({ type: MODAL_ACTIONS.openModal, payload: "schedule-sf" });
   };
 
-  const handleChangeDirection = (direction: SelectedDirection): void => {
-    setState({ ...state, selectedDirection: direction, selectedOrigin: null });
-  };
-
-  const handleChangeOrigin = (
-    origin: SelectedOrigin,
-    autoSubmit: boolean
-  ): void => {
-    if (state.selectedDirection !== null && autoSubmit) {
-      setState({
-        ...state,
-        selectedOrigin: origin,
-        modalId: "schedule",
-        directionError: false,
-        originError: false
-      });
-    } else {
-      setState({
-        ...state,
-        selectedOrigin: origin
-      });
-    }
+  const handleChangeOrigin = (origin: SelectedOrigin): void => {
+    dispatch({ type: MODAL_ACTIONS.selectOrigin, payload: origin });
   };
 
   const handleOriginSelectClick = (): void => {
     if (state.selectedDirection === null) {
-      setState({
-        ...state,
-        directionError: true
+      dispatch({
+        type: MODAL_ACTIONS.setErrors,
+        payload: {
+          directionError: state.selectedDirection === null
+        }
       });
-      return;
+      return; // don't open origin modal
     }
 
-    setState({
-      ...state,
-      modalOpen: true,
-      modalId: "origin"
-    });
+    dispatch({ type: MODAL_ACTIONS.openModal, payload: "origin" });
   };
 
   return (
@@ -156,135 +104,160 @@ const ScheduleFinder = ({
         directionError={state.directionError}
         originError={state.originError}
       />
-      <div>
-        Choose a stop to get schedule information and real-time departure
-        predictions.
+      {!state.insideModal && (
+        <div className="schedule-finder__helptext">
+          Choose a stop to get schedule information and real-time departure
+          predictions.
+        </div>
+      )}
+      <div className="schedule-finder__modal-inputs">
+        <div>
+          <label
+            className="schedule-finder__label"
+            htmlFor="sf_direction_select"
+          >
+            Choose a direction
+          </label>
+          <SelectContainer
+            error={state.directionError}
+            id="sf_direction_select_container"
+          >
+            <select
+              id="sf_direction_select"
+              className="c-select-custom"
+              value={
+                state.selectedDirection !== null ? state.selectedDirection : ""
+              }
+              onChange={e => {
+                dispatch({
+                  type: MODAL_ACTIONS.selectDirection,
+                  payload:
+                    e.target.value === ""
+                      ? null
+                      : parseSelectedDirection(e.target.value)
+                });
+              }}
+              onKeyUp={e =>
+                handleReactEnterKeyPress(e, () => {
+                  handleSubmitForm();
+                })
+              }
+            >
+              {!state.insideModal && <option value="">Select</option>}
+              {validDirections.map(direction => (
+                <option key={direction} value={direction}>
+                  {directionNames[direction]!.toUpperCase()}{" "}
+                  {directionDestinations[direction]!}
+                </option>
+              ))}
+            </select>
+          </SelectContainer>
+        </div>
+        <div>
+          <label className="schedule-finder__label" htmlFor="sf_origin_select">
+            Choose an origin stop
+          </label>
+          <SelectContainer
+            error={state.originError}
+            handleClick={handleOriginSelectClick}
+            id="sf_origin_select_container"
+          >
+            <select
+              id="sf_origin_select"
+              className="c-select-custom c-select-custom--noclick"
+              value={state.selectedOrigin || ""}
+              onChange={e =>
+                handleChangeOrigin(e.target.value ? e.target.value : null)
+              }
+              onKeyUp={e =>
+                handleReactEnterKeyPress(e, () => {
+                  handleSubmitForm();
+                })
+              }
+            >
+              <option value="">Select</option>
+              {state.selectedDirection !== null
+                ? stops[state.selectedDirection].map(
+                    ({ id, name }: SimpleStop) => (
+                      <option key={id} value={id}>
+                        {name}
+                      </option>
+                    )
+                  )
+                : null}
+            </select>
+          </SelectContainer>
+        </div>
       </div>
-      <label className="schedule-finder__label" htmlFor="sf_direction_select">
-        Choose a direction
-      </label>
-      <SelectContainer
-        error={state.directionError}
-        id="sf_direction_select_container"
-      >
-        <select
-          id="sf_direction_select"
-          className="c-select-custom"
-          value={
-            state.selectedDirection !== null ? state.selectedDirection : ""
-          }
-          onChange={e =>
-            handleChangeDirection(
-              e.target.value !== ""
-                ? parseSelectedDirection(e.target.value)
-                : null
-            )
-          }
-          onKeyUp={e =>
-            handleReactEnterKeyPress(e, () => {
-              handleSubmitForm();
-            })
-          }
-        >
-          <option value="">Select</option>
-          {validDirections.map(direction => (
-            <option key={direction} value={direction}>
-              {directionNames[direction]!.toUpperCase()}{" "}
-              {directionDestinations[direction]!}
-            </option>
-          ))}
-        </select>
-      </SelectContainer>
-      <label className="schedule-finder__label" htmlFor="sf_origin_select">
-        Choose an origin stop
-      </label>
-      <SelectContainer
-        error={state.originError}
-        handleClick={handleOriginSelectClick}
-        id="sf_origin_select_container"
-      >
-        <select
-          id="sf_origin_select"
-          className="c-select-custom c-select-custom--noclick"
-          value={state.selectedOrigin || ""}
-          onChange={e =>
-            handleChangeOrigin(e.target.value ? e.target.value : null, false)
-          }
-          onKeyUp={e =>
-            handleReactEnterKeyPress(e, () => {
-              handleSubmitForm();
-            })
-          }
-        >
-          <option value="">Select</option>
-          {stopListOrder(stops, state.selectedDirection, directionId).map(
-            ({ id, name }: SimpleStop) => (
-              <option key={id} value={id}>
-                {name}
-              </option>
-            )
-          )}
-        </select>
-      </SelectContainer>
-      <Modal
-        openState={state.modalOpen}
-        focusElementId={
-          state.modalId === "origin" ? "origin-filter" : "modal-close"
-        }
-        ariaLabel={{
-          label:
-            state.modalId === "origin"
-              ? "Choose Origin Stop"
-              : "Choose Schedule"
-        }}
-        className={
-          state.modalId === "origin" ? "schedule-finder__origin-modal" : ""
-        }
-        closeModal={() => {
-          setState({
-            ...state,
-            modalOpen: false,
-            modalId: null
-          });
-        }}
-      >
-        {() => (
-          <>
-            {state.modalId === "origin" && (
-              <OriginModalContent
-                selectedDirection={state.selectedDirection}
-                selectedOrigin={state.selectedOrigin}
-                originSearch={state.originSearch}
-                stops={stops[state.selectedDirection!] || []}
-                handleChangeOrigin={handleChangeOrigin}
-                handleUpdateOriginSearch={handleUpdateOriginSearch}
-                directionId={directionId}
-              />
-            )}
-            {state.modalId === "schedule" && (
-              <ScheduleModalContent
-                route={route}
-                selectedDirection={state.selectedDirection}
-                selectedOrigin={state.selectedOrigin}
-                services={services}
-                stops={stops[state.selectedDirection!]}
-                routePatternsByDirection={routePatternsByDirection}
-                today={today}
-                scheduleNote={scheduleNote}
-              />
-            )}
-          </>
-        )}
-      </Modal>
 
-      <div className="text-right">
-        <input
-          className="btn btn-primary"
-          type="submit"
-          value="Get schedules"
-          onClick={handleSubmitForm}
-        />
-      </div>
+      {(!state.insideModal ||
+        (state.insideModal && state.modalId === "origin")) && (
+        <Modal
+          openState={state.modalOpen}
+          focusElementId={
+            state.modalId === "origin" ? "origin-filter" : "modal-close"
+          }
+          ariaLabel={{
+            label:
+              state.modalId === "origin"
+                ? "Choose Origin Stop"
+                : "Choose Schedule"
+          }}
+          className={
+            state.modalId === "origin" ? "schedule-finder__origin-modal" : ""
+          }
+          closeModal={() => {
+            dispatch({
+              type: MODAL_ACTIONS.closeModal,
+              payload: state.modalId === "origin" ? "origin" : ""
+            });
+          }}
+        >
+          {() => (
+            <>
+              {state.modalId === "origin" && (
+                <OriginModalContent
+                  selectedDirection={state.selectedDirection}
+                  selectedOrigin={state.selectedOrigin}
+                  originSearch={state.originSearch}
+                  stops={stops[state.selectedDirection!] || []}
+                  handleChangeOrigin={handleChangeOrigin}
+                  handleUpdateOriginSearch={handleUpdateOriginSearch}
+                  directionId={state.selectedDirection!}
+                />
+              )}
+              {state.modalId !== "origin" && (
+                <ModalProvider
+                  insideModal
+                  modalId="schedule-sf"
+                  selectedDirection={state.selectedDirection}
+                  selectedOrigin={state.selectedOrigin}
+                >
+                  <ScheduleModalContent
+                    route={route}
+                    services={services}
+                    stops={stops}
+                    routePatternsByDirection={routePatternsByDirection}
+                    today={today}
+                    scheduleNote={scheduleNote}
+                  />
+                </ModalProvider>
+              )}
+            </>
+          )}
+        </Modal>
+      )}
+
+      {!state.insideModal && (
+        <div className="schedule-finder__button text-right">
+          <input
+            className="btn btn-primary"
+            type="submit"
+            value="Get schedules"
+            onClick={handleSubmitForm}
+          />
+        </div>
+      )}
     </div>
   );
 };
