@@ -191,6 +191,7 @@ const ScheduleDirection = ({
           <LineDiagram
             lineDiagram={lineState.data}
             route={route}
+            directionId={state.directionId}
             routePatternsByDirection={routePatternsByDirection}
             services={services}
             stops={stops}

@@ -15,11 +15,7 @@ import { reducer } from "../../../helpers/fetch";
 import ServiceSelector from "./ServiceSelector";
 import ScheduleNote from "../ScheduleNote";
 import ScheduleFinder from "../ScheduleFinder";
-import {
-  ModalProvider,
-  useModalContext
-} from "./../schedule-finder/ModalContext";
-import { MODAL_ACTIONS } from "./../schedule-finder/reducer";
+import { useModalContext } from "../schedule-finder/ModalContext";
 
 type fetchAction =
   | { type: "FETCH_COMPLETE"; payload: StopPrediction[] }
@@ -83,7 +79,7 @@ const ScheduleModalContent = ({
         fetchData(routeId, selectedOrigin, selectedDirection, dispatch);
       }
     },
-    [routeId, selectedDirection, selectedOrigin]
+    [routeId, selectedDirection, selectedOrigin, hasOriginAndDirection]
   );
 
   const input: UserInput = {

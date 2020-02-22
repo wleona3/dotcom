@@ -14,7 +14,7 @@ import {
 import SingleStop from "./SingleStop";
 import Modal from "../../../components/Modal";
 import ScheduleModalContent from "../schedule-finder/ScheduleModalContent";
-import { Headsign, Route } from "../../../__v3api";
+import { Headsign, Route, DirectionId } from "../../../__v3api";
 import ExpandableBranch from "./ExpandableBranch";
 import useFilteredList from "../../../hooks/useFilteredList";
 import SearchBox from "../../../components/SearchBox";
@@ -24,6 +24,7 @@ import { useModalContext } from "../schedule-finder/ModalContext";
 interface Props {
   lineDiagram: LineDiagramStop[];
   route: Route;
+  directionId: DirectionId;
   routePatternsByDirection: RoutePatternsByDirection;
   services: ServiceInSelector[];
   stops: SimpleStopMap;
@@ -75,6 +76,7 @@ const getTreeDirection = (
 const LineDiagram = ({
   lineDiagram,
   route,
+  directionId,
   routePatternsByDirection,
   services,
   stops,
@@ -91,11 +93,9 @@ const LineDiagram = ({
     // @ts-ignore https://github.com/async-library/react-async/issues/244
     reload: reloadLiveData
   } = useFetch(
-    `/schedules/line_api/realtime?id=${route.id}&direction_id=${
-      modalState.selectedDirection
-    }`,
+    `/schedules/line_api/realtime?id=${route.id}&direction_id=${directionId}`,
     {},
-    { json: true, watch: modalState.selectedDirection }
+    { json: true, watch: directionId }
   );
   const liveData = (maybeLiveData || {}) as LiveDataByStop;
   useInterval(() => {
@@ -200,8 +200,8 @@ const LineDiagram = ({
         ))
       ) : (
         /* istanbul ignore next */ <div className="c-alert-item c-alert-item--low c-alert-item__top-text-container">
-          No stops {route.direction_names[modalState.selectedDirection!]} to{" "}
-          {route.direction_destinations[modalState.selectedDirection!]} matching{" "}
+          No stops {route.direction_names[directionId]} to{" "}
+          {route.direction_destinations[directionId]} matching{" "}
           <b className="u-highlight">{stopQuery}</b>. Try changing your
           direction or adjusting your search.
         </div>

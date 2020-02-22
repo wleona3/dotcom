@@ -27,7 +27,6 @@ const SchedulePage = ({
     schedule_note: scheduleNote,
     services,
     stops,
-    direction_id: directionId,
     route_patterns: routePatternsByDirection,
     today
   }
@@ -41,7 +40,7 @@ const SchedulePage = ({
     ) : (
       <ModalProvider
         modalId="schedule-sf"
-        selectedDirection={directionId}
+        selectedDirection={null}
         selectedOrigin={null}
       >
         <ScheduleFinder

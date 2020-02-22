@@ -17,7 +17,7 @@ import SelectContainer from "./schedule-finder/SelectContainer";
 import ErrorMessage from "./schedule-finder/ErrorMessage";
 import OriginModalContent from "./schedule-finder/OriginModalContent";
 import ScheduleModalContent from "./schedule-finder/ScheduleModalContent";
-import { ModalProvider, useModalContext } from "./schedule-finder/ModalContext";
+import { useModalContext } from "./schedule-finder/ModalContext";
 import { MODAL_ACTIONS } from "./schedule-finder/reducer";
 
 interface Props {
@@ -227,21 +227,14 @@ const ScheduleFinder = ({
                 />
               )}
               {state.modalId !== "origin" && (
-                <ModalProvider
-                  insideModal
-                  modalId="schedule-sf"
-                  selectedDirection={state.selectedDirection}
-                  selectedOrigin={state.selectedOrigin}
-                >
-                  <ScheduleModalContent
-                    route={route}
-                    services={services}
-                    stops={stops}
-                    routePatternsByDirection={routePatternsByDirection}
-                    today={today}
-                    scheduleNote={scheduleNote}
-                  />
-                </ModalProvider>
+                <ScheduleModalContent
+                  route={route}
+                  services={services}
+                  stops={stops}
+                  routePatternsByDirection={routePatternsByDirection}
+                  today={today}
+                  scheduleNote={scheduleNote}
+                />
               )}
             </>
           )}

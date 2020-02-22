@@ -75,6 +75,7 @@ describe("LineDiagram without branches", () => {
       <LineDiagram
         lineDiagram={lineDiagram}
         route={route as EnhancedRoute}
+        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
@@ -208,6 +209,7 @@ describe("LineDiagram with branches going outward", () => {
       <LineDiagram
         lineDiagram={lineDiagramBranchingOut}
         route={route as EnhancedRoute}
+        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
@@ -300,6 +302,7 @@ describe("LineDiagram for CR with branches going inward", () => {
       <LineDiagram
         lineDiagram={lineDiagramBranchingIn}
         route={CRroute as EnhancedRoute}
+        directionId={directionId}
         routePatternsByDirection={
           routePatternsByDirection as RoutePatternsByDirection
         }
