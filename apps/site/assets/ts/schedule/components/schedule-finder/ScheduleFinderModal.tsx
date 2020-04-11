@@ -11,7 +11,7 @@ import Modal from "../../../components/Modal";
 import OriginModalContent from "./OriginModalContent";
 import ScheduleModalContent from "./ScheduleModalContent";
 
-export type Mode = "origin" | "schedule";
+export type Mode = "origin" | "schedule" | "destination";
 
 interface Props {
   closeModal: () => void;
@@ -19,6 +19,7 @@ interface Props {
   initialDirection: DirectionId;
   initialMode: Mode;
   initialOrigin: SelectedOrigin;
+  initialDestination: string;
   originChanged?: (origin: SelectedOrigin) => void;
   route: Route;
   routePatternsByDirection: RoutePatternsByDirection;
@@ -34,6 +35,7 @@ export default ({
   initialDirection,
   initialMode,
   initialOrigin,
+  initialDestination,
   originChanged,
   route,
   routePatternsByDirection,
@@ -45,10 +47,12 @@ export default ({
   const [direction, setDirection] = useState(initialDirection);
   const [mode, setMode] = useState(initialMode);
   const [origin, setOrigin] = useState(initialOrigin);
+  const [destination, setDestination] = useState(initialDestination);
 
   const handleChangeDirection = (newDirection: DirectionId): void => {
     setDirection(newDirection);
     setOrigin(null);
+    setDestination(null);
     setMode("origin");
     if (directionChanged) directionChanged(newDirection);
     if (originChanged) originChanged(null);
@@ -56,6 +60,7 @@ export default ({
 
   const handleChangeOrigin = (newOrigin: SelectedOrigin): void => {
     setOrigin(newOrigin);
+    setDestination(null);
     setMode("schedule");
     if (originChanged) originChanged(newOrigin);
   };
@@ -64,6 +69,14 @@ export default ({
     <OriginModalContent
       handleChangeOrigin={handleChangeOrigin}
       selectedOrigin={origin}
+      stops={stops[direction] || []}
+    />
+  );
+
+  const destinationModalContent = (): ReactElement => (
+    <DestinationModalContent
+      handleChangeDestination={handleChangeDestination}
+      selectedDestination={destination}
       stops={stops[direction] || []}
     />
   );

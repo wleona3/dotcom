@@ -5,6 +5,7 @@ import TableRow from "./TableRow";
 import { UserInput } from "../../components/__schedule";
 import renderSvg from "../../../helpers/render-svg";
 import arrowIcon from "../../../../static/images/icon-down-arrow.svg";
+import ScheduleFinderModal, { Mode as ModalMode } from "./ScheduleFinderModal";
 
 interface Props {
   journeys: Journey[];
@@ -38,7 +39,8 @@ const ScheduleTable = ({
   ) as {
     [key: string]: EnhancedRoutePattern;
   };
-
+  const [modalMode, setModalMode] = useState<ModalMode>("destination");
+  const [modalOpen, setModalOpen] = useState(false);
   const [selectedDestination, setDestination] = useState<string | null>(null);
 
   if (journeys.length === 0) {
@@ -55,6 +57,11 @@ const ScheduleTable = ({
     ({ trip: { route_pattern_id: routePatternId } }) =>
       isSchoolTrip(routePatternsById, routePatternId)
   );
+
+  const openDestinationModal = (): void => {
+    setModalMode("destination");
+    setModalOpen(true);
+  };
 
   return (
     <>
