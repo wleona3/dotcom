@@ -269,6 +269,14 @@
     background: $brand-primary-lightest-contrast;
     border: $border;
   }
+
+  &__arrivals-header {
+    background: $white;
+
+    td > * {
+      vertical-align: middle;
+    }
+  }
 }
 
 .schedule-table__row {
@@ -326,6 +334,34 @@
   }
 }
 
+.schedule-table__button {
+  background: transparent;
+  border: 0;
+  color: $brand-primary;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0;
+  vertical-align: middle;
+
+  path {
+    fill: currentColor;
+  }
+
+  span {
+    vertical-align: inherit;
+  }
+
+  .fa-times-circle {
+    margin-left: $base-spacing / 4;
+  }
+}
+
+.schedule-table__arrival-time {
+  color: $brand-primary;
+  font-weight: bold;
+  margin-right: $base-spacing / 2;
+}
+
 .trip-details-table {
   width: 100%;
 
@@ -369,6 +405,10 @@
     }
   }
 }
+
+// .schedule-table__arrival-time {
+
+// }
 
 .schedule-table__track {
   text-transform: capitalize;

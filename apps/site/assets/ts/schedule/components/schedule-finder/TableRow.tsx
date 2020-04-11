@@ -12,12 +12,14 @@ interface TableRowProps {
   journey: Journey;
   isSchoolTrip: boolean;
   anySchoolTrips: boolean;
+  selectedDestination: null | string;
 }
 
 interface AccordionProps {
   input: UserInput;
   journey: Journey;
   contentComponent: () => ReactElement<HTMLElement>;
+  selectedDestination: null | string;
 }
 
 type fetchAction =
@@ -112,7 +114,8 @@ const CrTableRow = ({
 export const Accordion = ({
   input,
   journey,
-  contentComponent
+  contentComponent,
+  selectedDestination
 }: AccordionProps): ReactElement<HTMLElement> => {
   const [expanded, setExpanded] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
@@ -147,7 +150,18 @@ export const Accordion = ({
         tabIndex={0}
       >
         {contentComponent()}
-        <td className="schedule-table__cell schedule-table__cell--tiny">
+        <td
+          className={`schedule-table__cell ${
+            selectedDestination
+              ? "schedule-table__cell--arrivals"
+              : "schedule-table__cell--tiny"
+          }`}
+        >
+          {selectedDestination && (
+            <span className="schedule-table__arrival-time u-nowrap u-tabular-nums">
+              06:66 PM
+            </span>
+          )}
           {expanded
             ? caret("c-expandable-block__header-caret--white", expanded)
             : caret("c-expandable-block__header-caret", expanded)}
@@ -171,7 +185,8 @@ const TableRow = ({
   input,
   journey,
   anySchoolTrips,
-  isSchoolTrip
+  isSchoolTrip,
+  selectedDestination
 }: TableRowProps): ReactElement<HTMLElement> | null => {
   const contentComponent =
     journey.route.type !== 2
@@ -189,6 +204,7 @@ const TableRow = ({
       input={input}
       journey={journey}
       contentComponent={contentComponent}
+      selectedDestination={selectedDestination}
     />
   );
 };

@@ -131,6 +131,7 @@ const TableRow = ({
       input={getAdjustedInput(input, journey)}
       journey={journey}
       contentComponent={contentComponent}
+      selectedDestination={null}
     />
   );
 };
