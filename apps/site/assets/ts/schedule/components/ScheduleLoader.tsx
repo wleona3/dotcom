@@ -41,7 +41,8 @@ export const ScheduleLoader = ({
       type: "CHANGE_DIRECTION",
       newStoreValues: {
         selectedDirection: direction,
-        selectedOrigin: null
+        selectedOrigin: null,
+        selectedDestination: null
       }
     });
   };

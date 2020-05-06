@@ -11,7 +11,7 @@ import Modal from "../../../components/Modal";
 import StopSearchModalContent from "./StopSearchModalContent";
 import ScheduleModalContent from "./ScheduleModalContent";
 
-export type Mode = "origin" | "schedule";
+export type Mode = "origin" | "schedule" | "destination";
 
 interface Props {
   closeModal: () => void;
