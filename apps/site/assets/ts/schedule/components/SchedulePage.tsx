@@ -70,11 +70,7 @@ const SchedulePage = ({
           />
           {modalOpen && (
             <ScheduleFinderModal
-              closeModal={closeModal}
               directionChanged={changeDirection}
-              initialMode={modalMode}
-              initialDirection={selectedDirection}
-              initialOrigin={selectedOrigin}
               handleOriginSelectClick={handleOriginSelectClick}
               originChanged={changeOrigin}
               route={route}

@@ -1,4 +1,5 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import useSWR from "swr";
 import { updateInLocation } from "use-query-params";
 import {
@@ -10,16 +11,16 @@ import {
   StopData,
   ServiceInSelector,
   ScheduleNote as ScheduleNoteType,
-  SelectedOrigin
+  SelectedOrigin,
+  SelectedStopId
 } from "../__schedule";
 import SingleStop from "./SingleStop";
-import ScheduleFinderModal, {
-  Mode as ModalMode
-} from "../schedule-finder/ScheduleFinderModal";
+import ScheduleFinderModal from "../schedule-finder/ScheduleFinderModal";
 import { DirectionId, Headsign, Route } from "../../../__v3api";
 import ExpandableBranch from "./ExpandableBranch";
 import useFilteredList from "../../../hooks/useFilteredList";
 import SearchBox from "../../../components/SearchBox";
+import { StoreProps } from "../../store/ScheduleStore";
 
 interface Props {
   lineDiagram: LineDiagramStop[];
@@ -85,14 +86,8 @@ const LineDiagram = ({
 }: Props): ReactElement<HTMLElement> | null => {
   const routeType = route.type;
   const routeColor: string = route.color || "#000";
-  const [initialDirection, setInitialDirection] = useState<DirectionId>(
-    directionId
-  );
-  const [initialOrigin, setInitialOrigin] = useState<SelectedOrigin>(
-    lineDiagram[0].route_stop.id
-  );
-  const [modalMode, setModalMode] = useState<ModalMode>("schedule");
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const modalIsOpen = useSelector((store: StoreProps) => store.modalOpen);
 
   const { data: maybeLiveData } = useSWR(
     `/schedules/line_api/realtime?id=${
@@ -122,10 +117,14 @@ const LineDiagram = ({
     const isDestination = isTerminus && !isBeginning;
     const reverseDirectionId = directionId === 0 ? 1 : 0;
 
-    setInitialDirection(isDestination ? reverseDirectionId : directionId);
-    setInitialOrigin(stop.id);
-    setModalMode("schedule");
-    setIsOpen(true);
+    dispatch({
+      type: "INITIALIZE",
+      newStoreValues: {
+        selectedDirection: isDestination ? reverseDirectionId : directionId,
+        selectedOrigin: stop.id
+      }
+    });
+    dispatch({ type: "OPEN_MODAL", newStoreValues: { modalMode: "schedule" } });
 
     // modify URL:
     updateURL(stop.id, directionId);
@@ -220,27 +219,29 @@ const LineDiagram = ({
   );
 
   const handleOriginSelectClick = (): void => {
-    setModalMode("origin");
-    setIsOpen(true);
+    dispatch({ type: "OPEN_MODAL", newStoreValues: { modalMode: "origin" } });
   };
 
   const directionChanged = (newDirection: DirectionId): void => {
-    setInitialDirection(newDirection);
+    dispatch({
+      type: "CHANGE_DIRECTION",
+      newStoreValues: { selectedDirection: newDirection }
+    });
   };
 
-  const originChanged = (newOrigin: SelectedOrigin): void => {
-    setInitialOrigin(newOrigin);
+  const originChanged = (newOrigin: SelectedStopId): void => {
+    dispatch({
+      type: "CHANGE_ORIGIN",
+      newStoreValues: { selectedDirection: newOrigin }
+    });
     if (newOrigin) {
-      setModalMode("schedule");
+      dispatch({
+        type: "OPEN_MODAL",
+        newStoreValues: { modalMode: "schedule" }
+      });
     } else {
-      setModalMode("origin");
+      dispatch({ type: "OPEN_MODAL", newStoreValues: { modalMode: "origin" } });
     }
-  };
-
-  const closeModal = (): void => {
-    setIsOpen(false);
-    // clear parameters from URL when closing the modal:
-    updateURL("");
   };
 
   const stationsOrStops =
@@ -328,12 +329,8 @@ const LineDiagram = ({
         </div>
       )}
 
-      {isOpen && (
+      {modalIsOpen && (
         <ScheduleFinderModal
-          closeModal={closeModal}
-          initialMode={modalMode}
-          initialDirection={initialDirection}
-          initialOrigin={initialOrigin}
           handleOriginSelectClick={handleOriginSelectClick}
           directionChanged={directionChanged}
           originChanged={originChanged}

@@ -39,12 +39,10 @@ const ScheduleFinder = ({
   routePatternsByDirection,
   today,
   scheduleNote,
-  modalMode,
   selectedOrigin,
   changeDirection,
   changeOrigin,
-  modalOpen,
-  closeModal
+  modalOpen
 }: Props): ReactElement<HTMLElement> => {
   const openOriginModal = (): void => {
     const currentState = getCurrentState();

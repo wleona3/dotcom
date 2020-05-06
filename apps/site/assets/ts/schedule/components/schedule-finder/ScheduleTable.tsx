@@ -1,8 +1,12 @@
-import React, { ReactElement } from "react";
-import { EnhancedRoutePattern } from "../__schedule";
+import React, { ReactElement, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { EnhancedRoutePattern, SelectedStopId } from "../__schedule";
 import { Journey } from "../__trips";
 import TableRow from "./TableRow";
 import { UserInput } from "../../components/__schedule";
+import renderSvg from "../../../helpers/render-svg";
+import { StoreProps } from "../../store/ScheduleStore";
+import arrowIcon from "../../../../static/images/icon-down-arrow.svg";
 
 interface Props {
   journeys: Journey[];
@@ -36,6 +40,21 @@ const ScheduleTable = ({
   ) as {
     [key: string]: EnhancedRoutePattern;
   };
+
+  const dispatch = useDispatch();
+
+  const selectedDestination: SelectedStopId = useSelector(
+    (store: StoreProps) => store.selectedDestination
+  );
+
+  useEffect(
+    () => {
+      if (selectedDestination) {
+        console.log("fetch arrivals from:", selectedDestination);
+      }
+    },
+    [selectedDestination]
+  );
 
   const firstTrip = journeys[0];
   const lastTrip = journeys.length > 1 ? journeys[journeys.length - 1] : null;
@@ -78,9 +97,41 @@ const ScheduleTable = ({
             )}
             <th scope="col" colSpan={2} className="schedule-table__cell">
               <span className="pull-left">Destination</span>
-              Trip Details
+              <button
+                type="button"
+                className="schedule-table__button"
+                onClick={() =>
+                  dispatch({
+                    type: "OPEN_MODAL",
+                    newStoreValues: { modalMode: "destination" }
+                  })
+                }
+              >
+                <span>Compare arrivals</span>
+                {renderSvg("c-svg__icon", arrowIcon)}
+              </button>
             </th>
           </tr>
+          {selectedDestination && (
+            <tr className="schedule-table__arrivals-header">
+              <td colSpan={3} className="schedule-table__cell text-right">
+                <strong>Arriving at: </strong>
+                <button
+                  type="button"
+                  className="schedule-table__button"
+                  onClick={() =>
+                    dispatch({
+                      type: "CHANGE_DESTINATION",
+                      newStoreValues: { selectedDestination: null }
+                    })
+                  }
+                >
+                  {selectedDestination}
+                  <i aria-hidden="true" className="fa fa-fw fa-times-circle" />
+                </button>
+              </td>
+            </tr>
+          )}
         </thead>
         <tbody>
           {journeys.map((journey: Journey) => (
