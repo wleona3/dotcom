@@ -96,11 +96,7 @@ const ScheduleFinder = ({
 
       {modalOpen && (
         <ScheduleFinderModal
-          closeModal={closeModal}
           directionChanged={changeDirection}
-          initialMode={modalMode}
-          initialDirection={directionId}
-          initialOrigin={selectedOrigin}
           handleOriginSelectClick={handleOriginSelectClick}
           originChanged={changeOrigin}
           route={route}
