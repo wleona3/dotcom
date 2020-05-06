@@ -156,8 +156,9 @@ export const ServiceSelector = ({
       )}
 
       {/* istanbul ignore next */ !state.isLoading &&
-        /* istanbul ignore next */ state.data && (
-          /* istanbul ignore next */ <ScheduleTable
+        /* istanbul ignore next */ state.data &&
+        /* istanbul ignore next */ (state.data.length ? (
+          <ScheduleTable
             journeys={state.data!}
             routePatterns={routePatterns}
             input={{
@@ -167,7 +168,11 @@ export const ServiceSelector = ({
               date: selectedService!.end_date
             }}
           />
-        )}
+        ) : (
+          <div className="callout u-bold text-center">
+            There is no scheduled service for this time period.
+          </div>
+        ))}
     </>
   );
 };
