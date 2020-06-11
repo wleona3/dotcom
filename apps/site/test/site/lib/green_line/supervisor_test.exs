@@ -1,6 +1,5 @@
 defmodule Site.GreenLine.CacheSupervisorTest do
   use ExUnit.Case
-  alias Site.GreenLine.DateAgent
 
   import Site.GreenLine.CacheSupervisor
 
@@ -15,13 +14,12 @@ defmodule Site.GreenLine.CacheSupervisorTest do
     date = Util.service_date()
 
     case lookup(date) do
-      nil -> :ok
-      pid -> DateAgent.stop(pid)
+      nil ->
+        assert {:ok, pid} = start_child(date)
+        assert pid == lookup(date)
+
+      pid ->
+        assert pid == lookup(date)
     end
-
-    assert lookup(date) == nil
-
-    assert {:ok, pid} = start_child(date)
-    assert pid == lookup(date)
   end
 end
