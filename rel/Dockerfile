@@ -1,5 +1,5 @@
-# The elixir image was built with debian stretch, use the node debian-stretch base
-FROM node:12.18.2-stretch
+# The elixir image was built with debian buster, use the node debian-buster base
+FROM node:12.18.2-buster
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	libssl1.1 libsctp1 curl \
@@ -16,4 +16,4 @@ RUN mkdir /root/work
 
 WORKDIR /root/work
 
-CMD ["/root/rel/site/bin/startup", "foreground"]
+CMD ["/root/rel/site/bin/startup", "start"]

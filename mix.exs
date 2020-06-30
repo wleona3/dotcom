@@ -18,6 +18,32 @@ defmodule DotCom.Mixfile do
         ignore_warnings: ".dialyzer.ignore-warnings"
       ],
       deps: deps(),
+      releases: [
+        site: [
+          version: "0.0.1",
+          applications: [
+            stops: :permanent,
+            routes: :permanent,
+            alerts: :permanent,
+            holiday: :permanent,
+            schedules: :permanent,
+            algolia: :permanent,
+            feedback: :permanent,
+            zones: :permanent,
+            fares: :permanent,
+            cms: :permanent,
+            vehicles: :permanent,
+            google_maps: :permanent,
+            util: :permanent,
+            predictions: :permanent,
+            trip_plan: :permanent,
+            services: :permanent,
+            route_patterns: :permanent,
+            repo_cache: :permanent,
+            site: :permanent
+          ]
+        ]
+      ],
 
       # docs
       name: "MBTA Website",
