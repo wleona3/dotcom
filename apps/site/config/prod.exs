@@ -111,11 +111,11 @@ config :phoenix, :serve_endpoints, true
 # for the new static assets to be served after a hot upgrade:
 #
 
-config :site, SiteWeb.ViewHelpers, google_tag_manager_id: "${GOOGLE_TAG_MANAGER_ID}"
+config :site, SiteWeb.ViewHelpers, google_tag_manager_id: System.get_env("GOOGLE_TAG_MANAGER_ID")
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
 
-config :sentry, dsn: "${SENTRY_DSN}"
+config :sentry, dsn: System.get_env("SENTRY_DSN")
 
 config :site, OldSiteFileController,
   response_fn: {SiteWeb.OldSiteFileController, :redirect_through_cdn}
