@@ -20,10 +20,9 @@ sudo swapon /swapfile
 
 # Ensure cache directories exist
 CACHE=$SEMAPHORE_CACHE_DIR
-mkdir -p "$CACHE/asdf/installs" "$CACHE/mix/deps" "$CACHE/npm"
+mkdir -p "$CACHE/asdf/installs" "$CACHE/npm"
 
 export MIX_ENV=test
-export MIX_DEPS_PATH=$CACHE/mix/deps
 
 # Install asdf and link cached languages
 ASDF_GIT=https://github.com/asdf-vm/asdf.git

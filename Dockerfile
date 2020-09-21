@@ -1,4 +1,4 @@
-FROM elixir:1.8.1
+FROM elixir:1.10.3
 
 WORKDIR /root
 
@@ -13,7 +13,7 @@ RUN mix local.hex --force && \
 
 # Install node/npm
 # Instructions from https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
   apt-get install -y nodejs
 
 # Clean up
@@ -36,4 +36,4 @@ WORKDIR /root/apps/site/
 RUN mix phx.digest
 
 WORKDIR /root
-RUN mix release --verbose
+RUN mix release

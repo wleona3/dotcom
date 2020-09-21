@@ -1,5 +1,5 @@
-# The elixir image was built with debain stretch, use the node debain-stretch base
-FROM node:8.15.0-stretch
+# The elixir image was built with debian stretch, use the node debian-stretch base
+FROM node:12.18.2-stretch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	libssl1.1 libsctp1 curl \
