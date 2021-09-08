@@ -16,7 +16,8 @@ defmodule SiteWeb.ScheduleController.TripViewController do
   plug(SiteWeb.ScheduleController.ScheduleError)
   plug(:zone_map)
 
-  def show(%{assigns: %{route: %Route{type: 2, id: route_id}}, query_params: params} = conn, _) do
+  def show(%{assigns: %{route: %Route{type: type, id: route_id}}, query_params: params} = conn, _)
+      when type in [2, 4] do
     redirect(conn, to: timetable_path(conn, :show, route_id, params))
   end
 

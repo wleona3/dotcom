@@ -1,5 +1,5 @@
 defmodule SiteWeb.ScheduleController.TimetableController do
-  @moduledoc "Handles the Timetable tab for commuter rail routes."
+  @moduledoc "Handles the Timetable tab for commuter rail and ferry routes."
   use SiteWeb, :controller
   alias Plug.Conn
   alias Routes.Route
@@ -32,7 +32,7 @@ defmodule SiteWeb.ScheduleController.TimetableController do
     conn
     |> assign(
       :meta_description,
-      "MBTA #{conn.assigns.route.name} Commuter Rail stations and " <>
+      "MBTA #{conn.assigns.route.name} stations and " <>
         "schedules, including timetables, maps, fares, real-time updates, parking and accessibility information, " <>
         "and connections."
     )
