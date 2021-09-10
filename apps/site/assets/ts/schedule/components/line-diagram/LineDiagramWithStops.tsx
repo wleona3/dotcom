@@ -6,6 +6,7 @@ import { CommonLineDiagramProps } from "./__line-diagram";
 import useStopPositions, { RefList } from "./graphics/useStopPositions";
 import StopCard from "./StopCard";
 import { hasPredictionTime } from "../../../models/prediction";
+import { HeadsignWithCrowding } from "../../../__v3api";
 
 export const StopRefContext = React.createContext<[RefList, () => void]>([
   {},
@@ -20,11 +21,11 @@ const LineDiagramWithStops = (
   // create a ref for each stop - we will use this to track the location of the stop so we can place the line diagram bubbles
   const [stopRefsMap, updateAllStopCoords] = useStopPositions(stops);
 
+  console.log(liveData)
   const anyCrowding = Object.values(liveData).some(
-    ({ headsigns }): boolean =>
+    (headsigns): boolean =>
       headsigns
-        ? headsigns
-            .filter(hasPredictionTime)
+        ? headsigns.filter(hasPredictionTime)
             .some(
               ({ time_data_with_crowding_list: timeData }): boolean =>
                 !!timeData[0].crowding

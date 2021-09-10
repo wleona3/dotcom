@@ -12,7 +12,7 @@ import {
   isDiversion,
   isCurrentAlert
 } from "../../../models/alert";
-import { Alert, Route } from "../../../__v3api";
+import { Alert, HeadsignWithCrowding, Route } from "../../../__v3api";
 import MatchHighlight from "../../../components/MatchHighlight";
 import StopFeatures from "./StopFeatures";
 import { StopRefContext } from "./LineDiagramWithStops";
@@ -69,10 +69,9 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
   const diversionAlert = stopAlerts.find(
     alert => isDiversion(alert) && isCurrentAlert(alert)
   );
-  const hasLivePredictions =
-    liveData &&
-    liveData.headsigns.length &&
-    liveData.headsigns.some(hasPredictionTime);
+  const hasLivePredictions = liveData ? liveData.some(
+    hasPredictionTime
+  ) : false;
   const showPrediction = hasLivePredictions && !isDestination;
   const showDiversion =
     diversionAlert && !(hasLivePredictions && isDestination);
@@ -103,7 +102,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
           {StopConnections(routeStop.connections)}
           {showPrediction ? (
             <StopPredictions
-              headsigns={liveData!.headsigns}
+              headsigns={liveData as HeadsignWithCrowding[]}
               isCommuterRail={
                 !!routeStop.route && isACommuterRailRoute(routeStop.route)
               }

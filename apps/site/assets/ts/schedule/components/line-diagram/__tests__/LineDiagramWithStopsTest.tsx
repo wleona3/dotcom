@@ -58,7 +58,7 @@ const liveData = (simpleLiveData as unknown) as LiveDataByStop;
 const liveDataWithCrowding = (cloneDeep(
   simpleLiveData
 ) as unknown) as LiveDataByStop;
-(liveDataWithCrowding["line-stop2"].headsigns[0].time_data_with_crowding_list[0]
+(liveDataWithCrowding["line-stop2"][0].time_data_with_crowding_list[0]
   .crowding as CrowdingType) = "not_crowded";
 const store = createLineDiagramCoordStore(lineDiagram);
 const spy = jest.spyOn(UseStopPositions, "default");

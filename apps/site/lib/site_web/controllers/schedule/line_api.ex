@@ -6,25 +6,25 @@ defmodule SiteWeb.ScheduleController.LineApi do
   alias Alerts.Stop, as: AlertsStop
   alias RoutePatterns.RoutePattern
   alias Routes.Route
-  alias Schedules.Repo, as: SchedulesRepo
+  # alias Schedules.Repo, as: SchedulesRepo
   alias Site.TransitNearMe
   alias SiteWeb.ScheduleController.Line.DiagramFormat
   alias SiteWeb.ScheduleController.Line.DiagramHelpers
   alias SiteWeb.ScheduleController.Line.Helpers, as: LineHelpers
-  alias Stops.Repo, as: StopsRepo
+  # alias Stops.Repo, as: StopsRepo
   alias Stops.RouteStop
-  alias Vehicles.Repo, as: VehiclesRepo
-  alias Vehicles.Vehicle
+  # alias Vehicles.Repo, as: VehiclesRepo
+  # alias Vehicles.Vehicle
 
   import SiteWeb.StopController, only: [json_safe_alerts: 2]
 
-  @typep simple_vehicle :: %{
-           id: String.t(),
-           headsign: String.t() | nil,
-           status: String.t(),
-           trip_name: String.t() | nil,
-           crowding: Vehicle.crowding() | nil
-         }
+  # @typep simple_vehicle :: %{
+  #          id: String.t(),
+  #          headsign: String.t() | nil,
+  #          status: String.t(),
+  #          trip_name: String.t() | nil,
+  #          crowding: Vehicle.crowding() | nil
+  #        }
 
   @spec show(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def show(conn, %{"id" => route_id, "direction_id" => direction_id}) do
@@ -80,32 +80,33 @@ defmodule SiteWeb.ScheduleController.LineApi do
         now: now
       )
 
-    vehicles_by_stop =
-      route_id
-      |> expand_route_id()
-      |> Stream.flat_map(&VehiclesRepo.route(&1, direction_id: String.to_integer(direction_id)))
-      |> Stream.map(&update_vehicle_with_parent_stop(&1))
-      |> Enum.group_by(& &1.stop_id)
+    # vehicles_by_stop =
+    #   route_id
+    #   |> expand_route_id()
+    #   |> Stream.flat_map(&VehiclesRepo.route(&1, direction_id: String.to_integer(direction_id)))
+    #   |> Stream.map(&update_vehicle_with_parent_stop(&1))
+    #   |> Enum.group_by(& &1.stop_id)
 
     combined_data_by_stop =
       Map.keys(headsigns_by_stop)
-      |> Stream.concat(Map.keys(vehicles_by_stop))
-      |> Stream.uniq()
+      # |> Stream.concat(Map.keys(vehicles_by_stop))
+      # |> Stream.uniq()
       |> Stream.map(fn stop_id ->
-        {stop_id,
-         %{
-           headsigns: Map.get(headsigns_by_stop, stop_id, []),
-           vehicles: Map.get(vehicles_by_stop, stop_id, []) |> Enum.map(&simple_vehicle_map(&1))
-         }}
+        {stop_id, Map.get(headsigns_by_stop, stop_id, [])
+        #  %{
+        #    headsigns: Map.get(headsigns_by_stop, stop_id, [])#,
+          #  vehicles: Map.get(vehicles_by_stop, stop_id, []) |> Enum.map(&simple_vehicle_map(&1))
+        #  }
+        }
       end)
       |> Enum.into(%{})
 
     Jason.encode!(combined_data_by_stop)
   end
 
-  @spec expand_route_id(Route.id_t()) :: [Route.id_t()]
-  defp expand_route_id("Green"), do: GreenLine.branch_ids()
-  defp expand_route_id(route_id), do: [route_id]
+  # @spec expand_route_id(Route.id_t()) :: [Route.id_t()]
+  # defp expand_route_id("Green"), do: GreenLine.branch_ids()
+  # defp expand_route_id(route_id), do: [route_id]
 
   @spec get_line_data(Route.t(), LineHelpers.direction_id(), RoutePattern.id_t() | nil) :: [
           DiagramHelpers.stop_with_bubble_info()
@@ -168,28 +169,28 @@ defmodule SiteWeb.ScheduleController.LineApi do
     end)
   end
 
-  @spec simple_vehicle_map(Vehicle.t()) :: simple_vehicle
-  defp simple_vehicle_map(%Vehicle{id: id, status: status, trip_id: trip_id, crowding: crowding}) do
-    case SchedulesRepo.trip(trip_id) do
-      nil ->
-        %{id: id, status: status}
+  # @spec simple_vehicle_map(Vehicle.t()) :: simple_vehicle
+  # defp simple_vehicle_map(%Vehicle{id: id, status: status, trip_id: trip_id, crowding: crowding}) do
+  #   case SchedulesRepo.trip(trip_id) do
+  #     nil ->
+  #       %{id: id, status: status}
 
-      %{headsign: headsign, name: name} ->
-        %{
-          id: id,
-          headsign: headsign,
-          status: status,
-          trip_name: name,
-          crowding: crowding
-        }
-    end
-  end
+  #     %{headsign: headsign, name: name} ->
+  #       %{
+  #         id: id,
+  #         headsign: headsign,
+  #         status: status,
+  #         trip_name: name,
+  #         crowding: crowding
+  #       }
+  #   end
+  # end
 
-  @spec update_vehicle_with_parent_stop(Vehicle.t()) :: Vehicle.t()
-  defp update_vehicle_with_parent_stop(vehicle) do
-    case StopsRepo.get_parent(vehicle.stop_id) do
-      nil -> vehicle
-      parent_stop -> %{vehicle | stop_id: parent_stop.id}
-    end
-  end
+  # @spec update_vehicle_with_parent_stop(Vehicle.t()) :: Vehicle.t()
+  # defp update_vehicle_with_parent_stop(vehicle) do
+  #   case StopsRepo.get_parent(vehicle.stop_id) do
+  #     nil -> vehicle
+  #     parent_stop -> %{vehicle | stop_id: parent_stop.id}
+  #   end
+  # end
 end

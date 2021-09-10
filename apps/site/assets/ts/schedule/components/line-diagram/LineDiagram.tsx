@@ -162,7 +162,7 @@ const LineDiagramAndStopListPage = ({
     url => fetch(url).then(response => response.json()),
     { refreshInterval: 15000 }
   );
-  const liveData = (maybeLiveData || {}) as LiveDataByStop;
+  const liveData = (maybeLiveData || []) as LiveDataByStop;
 
   /**
    * Putting it all together

@@ -7,10 +7,7 @@ export interface CommonLineDiagramProps {
   liveData: LiveDataByStop;
 }
 
-export interface LiveData {
-  headsigns: HeadsignWithCrowding[];
-  vehicles: LineDiagramVehicle[];
-}
+export type LiveData = HeadsignWithCrowding[];
 
 export interface LiveDataByStop {
   [stopId: string]: LiveData;

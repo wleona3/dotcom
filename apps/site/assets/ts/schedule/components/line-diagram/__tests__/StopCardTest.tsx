@@ -57,7 +57,7 @@ lineDiagramBranchingIn.forEach(({ route_stop }) => {
 });
 
 const handleStopClick = () => {};
-const liveData = { headsigns: [], vehicles: [] };
+const liveData = [] as HeadsignWithCrowding[];
 const store = createLineDiagramCoordStore(lineDiagram);
 
 describe("StopCard", () => {
@@ -128,10 +128,7 @@ const predictionHeadsign: HeadsignWithCrowding = {
   ],
   train_number: null
 };
-const liveDataWithPrediction = {
-  headsigns: [predictionHeadsign],
-  vehicles: []
-};
+const liveDataWithPrediction = [predictionHeadsign];
 it.only("indicates predictions if available", () => {
   const wrapper = mount(
     <redux.Provider store={store}>

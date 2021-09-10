@@ -1,6 +1,6 @@
 import { max } from "lodash";
 import React, { ReactElement } from "react";
-import { LineDiagramStop } from "../../__schedule";
+import { LineDiagramStop, LineDiagramVehicle } from "../../__schedule";
 import {
   hasBranchLines,
   isBranchTerminusStop,
@@ -15,7 +15,7 @@ import { routeToModeName } from "../../../../helpers/css";
 import { LiveDataByStop } from "../__line-diagram";
 import VehicleIcons from "../VehicleIcons";
 import { getCurrentState } from "../../../store/ScheduleStore";
-import { DirectionId } from "../../../../__v3api";
+import { DirectionId, HeadsignWithCrowding } from "../../../../__v3api";
 import { isAGreenLineRoute } from "../../../../models/route";
 import { BASE_LINE_WIDTH, DiagonalHatchPattern } from "./graphic-helpers";
 
@@ -64,18 +64,16 @@ const LiveVehicleIconSet = ({
   const stopId = stop.route_stop.id;
   if (!liveData || !liveData[stopId]) return null;
   // Hide vehicles arriving to the origin from 'off the line'
-  const vehicleData = stop.route_stop["is_beginning?"]
-    ? liveData[stopId].vehicles.filter(vehicle => vehicle.status === "stopped")
-    : liveData[stopId].vehicles;
+  const vehicleData: LineDiagramVehicle[] = [];
 
-  const headsignsForStop = liveData[stopId].headsigns;
+  const headsignsForStop = liveData[stopId];
 
   return (
     <VehicleIcons
       key={`${stopId}-vehicles`}
       stop={stop.route_stop}
       vehicles={vehicleData}
-      headsigns={headsignsForStop}
+      headsigns={headsignsForStop as HeadsignWithCrowding[]}
     />
   );
 };
