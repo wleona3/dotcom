@@ -1,8 +1,4 @@
-import {
-  vehicleName,
-  vehicleRealtimeStatusText,
-  crowdingDescriptions
-} from "../vehicle";
+import { vehicleName, crowdingDescriptions } from "../vehicle";
 import { LineDiagramVehicle } from "../../schedule/components/__schedule";
 
 it.each`
@@ -18,15 +14,6 @@ it.each`
     expect(vehicleName(routeType)).toBe(expectedName);
   }
 );
-
-const v1 = { status: "in_transit" } as LineDiagramVehicle;
-const v2 = { status: "incoming" } as LineDiagramVehicle;
-const v3 = { status: "stopped" } as LineDiagramVehicle;
-it("vehicleRealtimeStatusText returns appropriate text for a vehicle", () => {
-  expect(vehicleRealtimeStatusText(v1)).toBe("is on the way to");
-  expect(vehicleRealtimeStatusText(v2)).toBe("is arriving at");
-  expect(vehicleRealtimeStatusText(v3)).toBe("has arrived at");
-});
 
 it.each`
   crowding           | description

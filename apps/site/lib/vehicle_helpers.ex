@@ -10,9 +10,10 @@ defmodule VehicleHelpers do
   alias SiteWeb.ScheduleController.VehicleLocations
 
   import Routes.Route, only: [vehicle_name: 1]
-  import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
+  import Phoenix.HTML.Tag, only: [content_tag: 2]
   import Phoenix.HTML, only: [safe_to_string: 1]
-  import SiteWeb.ViewHelpers, only: [format_schedule_time: 1]
+
+  require Logger
 
   @type tooltip_index_key :: {Trip.id_t() | nil, Stop.id_t()} | Stop.id_t()
   @type tooltip_index :: %{
@@ -25,33 +26,21 @@ defmodule VehicleHelpers do
   construct a convenient map that can be used in views / templates to determine if a tooltip is available
   and to fetch all of the required data
   """
-  @spec build_tooltip_index(Route.t(), VehicleLocations.t(), [Prediction.t()]) :: tooltip_index
-  def build_tooltip_index(route, vehicle_locations, vehicle_predictions) do
-    indexed_predictions = index_vehicle_predictions(vehicle_predictions)
-
+  @spec build_tooltip_index(Route.t(), VehicleLocations.t()) :: tooltip_index
+  def build_tooltip_index(route, vehicle_locations) do
     vehicle_locations
     |> Stream.reject(fn {{_trip_id, stop_id}, _status} -> is_nil(stop_id) end)
     |> Enum.reduce(%{}, fn vehicle_location, output ->
       {{trip_id, child_stop_id}, vehicle_status} = vehicle_location
-
-      {prediction, trip} =
-        if trip_id do
-          {
-            prediction_for_stop(indexed_predictions, trip_id, child_stop_id),
-            Schedules.Repo.trip(trip_id)
-          }
-        else
-          {nil, nil}
-        end
 
       parent_stop = Stops.Repo.get_parent(child_stop_id)
       stop_id = stop_id(parent_stop, child_stop_id)
 
       tooltip = %VehicleTooltip{
         vehicle: vehicle_status,
-        prediction: prediction,
+        prediction: Vehicles.Vehicle.prediction(vehicle_status),
         stop_name: stop_name(parent_stop),
-        trip: trip,
+        trip: Vehicles.Vehicle.trip(vehicle_status),
         route: route
       }
 
@@ -59,21 +48,6 @@ defmodule VehicleHelpers do
       |> Map.put(stop_id, tooltip)
       |> Map.put({trip_id, stop_id}, tooltip)
     end)
-  end
-
-  @spec prediction_for_stop(VehicleLocations.t(), String.t(), String.t()) :: Prediction.t() | nil
-  defp prediction_for_stop(vehicle_predictions, trip_id, stop_id) do
-    Map.get(vehicle_predictions, {trip_id, stop_id})
-  end
-
-  @spec index_vehicle_predictions([Prediction.t()]) :: %{
-          {String.t(), String.t()} => Prediction.t()
-        }
-  defp index_vehicle_predictions(predictions) do
-    predictions
-    |> Stream.filter(&(&1.trip && &1.stop))
-    |> Stream.map(&{{&1.trip.id, &1.stop.id}, &1})
-    |> Enum.into(Map.new())
   end
 
   @spec stop_name(Stops.Stop.t() | nil) :: String.t()
@@ -138,48 +112,42 @@ defmodule VehicleHelpers do
       else
         stop_name
       end
+    trip_text = headsign_trip_text(trip, stop_name, vehicle, route)
+    status_text = vehicle_status_with_stop(prediction, vehicle, stop_name)
+    track_text = status_text(route, prediction)
 
-    time_text = prediction_time_text(prediction)
-    status_text = prediction_status_text(prediction)
-    stop_text = realtime_stop_text(trip, stop_name, vehicle, route)
-    build_tooltip(time_text, status_text, stop_text)
+    sign = trip_text ++ status_text ++ track_text
+    sign
+    |> maybe_log_strange_status(vehicle, prediction, trip)
+    |> build_tooltip()
   end
 
-  @spec prediction_status_text(Prediction.t() | nil) :: iodata
-  defp prediction_status_text(%Prediction{status: status, track: track})
+  @spec status_text(Route.t(), Prediction.t() | nil) :: iodata
+  defp status_text(%Route{type: 2}, %Prediction{status: "Departed"}) do
+    []
+  end
+
+  defp status_text(%Route{type: 2}, %Prediction{status: status, track: track})
        when not is_nil(track) and not is_nil(status) do
-    [String.capitalize(status), " on track ", track]
+    [", #{String.downcase(status)} on track ", track]
   end
 
-  defp prediction_status_text(_) do
+  defp status_text(%Route{type: 2}, %Prediction{track: track})
+       when not is_nil(track) do
+    [" on track ", track]
+  end
+
+  defp status_text(_, _) do
     []
   end
 
-  @spec prediction_time_text(Prediction.t() | nil) :: iodata
-  defp prediction_time_text(nil) do
-    []
-  end
-
-  defp prediction_time_text(%Prediction{time: nil}) do
-    []
-  end
-
-  defp prediction_time_text(%Prediction{time: time, departing?: true}) do
-    ["Expected departure at ", format_schedule_time(time)]
-  end
-
-  defp prediction_time_text(%Prediction{time: time}) do
-    ["Expected arrival at ", format_schedule_time(time)]
-  end
-
-  @spec realtime_stop_text(Trip.t() | nil, String.t(), Vehicle.t() | nil, Route.t()) :: iodata
-  defp realtime_stop_text(trip, stop_name, %Vehicle{status: status}, route) do
+  @spec headsign_trip_text(Trip.t() | nil, String.t(), Vehicle.t() | nil, Route.t()) :: iodata
+  defp headsign_trip_text(trip, _stop_name, _vehicle, route) do
     [
       display_headsign_text(route, trip),
       String.downcase(vehicle_name(route)),
       display_trip_name(route, trip)
-    ] ++
-      realtime_status_with_stop(status, stop_name)
+    ]
   end
 
   @spec display_headsign_text(Route.t(), Trip.t() | nil) :: iodata
@@ -187,12 +155,16 @@ defmodule VehicleHelpers do
   defp display_headsign_text(%{name: name}, _), do: [name, " "]
   defp display_headsign_text(_, _), do: ""
 
-  @spec realtime_status_with_stop(atom, String.t()) :: iodata()
-  defp realtime_status_with_stop(_status, "") do
+  @spec vehicle_status_with_stop(Prediction.t() | nil, Vehicle.t(), String.t()) :: iodata()
+  defp vehicle_status_with_stop(_prediction, _vehicles, "") do
     []
   end
 
-  defp realtime_status_with_stop(status, stop_name) do
+  defp vehicle_status_with_stop(%Prediction{status: "Departed"}, _vehicle, stop_name) do
+    [" has left ", stop_name]
+  end
+
+  defp vehicle_status_with_stop(_prediction, %Vehicle{status: status}, stop_name) do
     [
       realtime_status_text(status),
       stop_name
@@ -208,24 +180,42 @@ defmodule VehicleHelpers do
   defp display_trip_name(%{type: 2}, %{name: name}), do: [" ", name]
   defp display_trip_name(_, _), do: ""
 
-  @spec build_tooltip(iodata, iodata, iodata) :: String.t()
-  defp build_tooltip(time_text, status_text, stop_text) do
-    time_tag = do_build_tooltip(time_text)
-    status_tag = do_build_tooltip(status_text)
-    stop_tag = do_build_tooltip(stop_text)
-
+  @spec build_tooltip(iodata) :: String.t()
+  defp build_tooltip(text) do
     :div
-    |> content_tag([stop_tag, time_tag, status_tag])
+    |> content_tag(text)
     |> safe_to_string
     |> String.replace(~s("), ~s('))
   end
 
-  @spec do_build_tooltip(iodata) :: Phoenix.HTML.Safe.t()
-  defp do_build_tooltip([]) do
-    ""
+  # Log for further investigation later
+  # "South Station train 872 is on the way to Back Bay, all aboard on track 2"
+  def maybe_log_strange_status(text, vehicle, prediction, trip) do
+    string = Enum.join(text)
+
+    [
+      &all_aboard_but_not/1,
+      &departed_but_confusing/1
+    ]
+    |> Enum.each(fn condition ->
+      if condition.(string) do
+        Logger.info("module=#{__MODULE__} tooltip_status text=\"#{string}\" vehicle=#{vehicle.id} trip=#{trip.id} prediction=#{if prediction, do: prediction.id, else: ""}")
+      end
+    end)
+
+    text
   end
 
-  defp do_build_tooltip(text) do
-    content_tag(:p, text, class: 'prediction-tooltip')
+  defp departed_but_confusing(string) do
+    has_phrases(string, ["on the way to", "has left"]) or has_phrases(string, ["is arriving", "has left"]) or
+    has_phrases(string, ["arrived at", "has left"]) or has_phrases(string, ["on track", "has left"])
+  end
+
+  defp all_aboard_but_not(string) do
+    has_phrases(string, ["on the way to", "all aboard"]) or has_phrases(string, ["is arriving", "all aboard"])
+  end
+
+  defp has_phrases(string, phrase_list) do
+    Enum.all?(phrase_list, &String.contains?(string, &1))
   end
 end

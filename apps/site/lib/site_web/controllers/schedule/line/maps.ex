@@ -142,10 +142,12 @@ defmodule SiteWeb.ScheduleController.Line.Maps do
         icon: "vehicle-bordered-expanded",
         rotation_angle: vt.vehicle.bearing,
         vehicle_crowding: vt.vehicle.crowding,
+        vehicle_status: vt.vehicle.status,
         tooltip_text:
           vt
           |> VehicleHelpers.tooltip()
-          |> Floki.text()
+          |> Floki.text(),
+        stop_id: vt.vehicle.stop_id
       )
     end)
   end

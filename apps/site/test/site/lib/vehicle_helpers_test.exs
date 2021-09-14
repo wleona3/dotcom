@@ -2,7 +2,6 @@ defmodule Site.VehicleHelpersTest do
   use ExUnit.Case, async: true
 
   import VehicleHelpers
-  import SiteWeb.ViewHelpers, only: [format_schedule_time: 1]
 
   @locations %{
     {"CR-483658-501", "place-sstat"} => %Vehicles.Vehicle{
@@ -15,23 +14,13 @@ defmodule Site.VehicleHelpersTest do
     }
   }
 
-  @predictions [
-    %Predictions.Prediction{
-      departing?: true,
-      time: ~N[2018-05-01T11:00:00],
-      status: "On Time",
-      trip: %Schedules.Trip{id: "CR-483658-501", shape_id: "9850002"},
-      stop: %Stops.Stop{id: "place-sstat"}
-    }
-  ]
-
   @route %Routes.Route{name: "Framingham/Worcester Line", type: 2}
 
-  @tooltips build_tooltip_index(@route, @locations, @predictions)
+  @tooltips build_tooltip_index(@route, @locations)
 
   @tooltip_base @tooltips["place-sstat"]
 
-  describe "build_tooltip_index/3" do
+  describe "build_tooltip_index/2" do
     test "translate child stop to parent stop" do
       locations = %{
         {"CR-Weekday-Fall-20-531", "South Station-02"} => %Vehicles.Vehicle{
@@ -45,7 +34,7 @@ defmodule Site.VehicleHelpersTest do
       }
 
       assert @route
-             |> build_tooltip_index(locations, @predictions)
+             |> build_tooltip_index(locations)
              |> Map.has_key?("place-sstat")
     end
 
@@ -62,7 +51,7 @@ defmodule Site.VehicleHelpersTest do
       }
 
       assert @route
-             |> build_tooltip_index(locations, @predictions)
+             |> build_tooltip_index(locations)
              |> Map.has_key?("place-NHRML-0254")
     end
 
@@ -79,7 +68,7 @@ defmodule Site.VehicleHelpersTest do
 
     test "it does not return a tooltip if a vehicle has a null stop_id" do
       null_location = %{{"trip-1", nil} => %Vehicles.Vehicle{}}
-      tooltips = build_tooltip_index(@route, Enum.concat(@locations, null_location), @predictions)
+      tooltips = build_tooltip_index(@route, Enum.concat(@locations, null_location))
 
       assert length(Map.keys(tooltips)) == 2
       assert Map.has_key?(tooltips, {"CR-483658-501", "place-sstat"})
@@ -96,7 +85,7 @@ defmodule Site.VehicleHelpersTest do
 
     test "it does return a tooltip if a vehicle has a null trip_id" do
       null_trip = %{{nil, "place-sstat"} => %Vehicles.Vehicle{}}
-      tooltips = build_tooltip_index(@route, null_trip, [])
+      tooltips = build_tooltip_index(@route, null_trip)
       tooltip_base = tooltips["place-sstat"]
       assert length(Map.keys(tooltips)) == 2
       assert Map.has_key?(tooltips, {nil, "place-sstat"})
@@ -106,39 +95,6 @@ defmodule Site.VehicleHelpersTest do
       assert tooltip_base.prediction == nil
       assert tooltip_base.vehicle == %Vehicles.Vehicle{}
     end
-
-    test "it uses the prediction corresponding to the vehicle's current stop" do
-      locations = %{
-        {"trip_1", "stop_1"} => %Vehicles.Vehicle{
-          stop_id: "stop_1",
-          trip_id: "trip_1"
-        }
-      }
-
-      predictions = [
-        %Predictions.Prediction{
-          departing?: false,
-          time: ~N[2017-01-01T11:10:00],
-          status: "On Time",
-          trip: %Schedules.Trip{id: "trip_1"},
-          stop: %Stops.Stop{id: "stop_2"}
-        },
-        correct_prediction = %Predictions.Prediction{
-          departing?: true,
-          time: ~N[2017-01-01T11:00:00],
-          status: "On Time",
-          trip: %Schedules.Trip{id: "trip_1"},
-          stop: %Stops.Stop{id: "stop_1"}
-        }
-      ]
-
-      route = %Routes.Route{type: 2}
-
-      tooltips = build_tooltip_index(route, locations, predictions)
-      tooltip = tooltips[{"trip_1", "stop_1"}]
-
-      assert tooltip.prediction == correct_prediction
-    end
   end
 
   describe "tooltip/1" do
@@ -146,32 +102,6 @@ defmodule Site.VehicleHelpersTest do
       tooltip = %{@tooltip_base | prediction: nil}
       assert tooltip(@tooltip_base) =~ "11:00 AM"
       refute tooltip(tooltip) =~ "11:00 AM"
-    end
-
-    test "when a prediction has a time, gives the arrival time" do
-      tooltip = %{
-        @tooltip_base
-        | prediction: %{
-            @tooltip_base.prediction
-            | departing?: false,
-              time: ~N[2017-01-01T13:00:00]
-          }
-      }
-
-      assert tooltip(tooltip) =~ "Expected arrival at 1:00 PM"
-    end
-
-    test "when a prediction is departing, gives the departing time" do
-      tooltip = %{
-        @tooltip_base
-        | prediction: %{
-            @tooltip_base.prediction
-            | departing?: true,
-              time: ~N[2017-01-01T12:00:00]
-          }
-      }
-
-      assert tooltip(tooltip) =~ "Expected departure at 12:00 PM"
     end
 
     test "when a prediction does not have a time, gives nothing" do
@@ -245,7 +175,6 @@ defmodule Site.VehicleHelpersTest do
 
     test "creates a tooltip for the prediction" do
       time = ~N[2017-02-17T05:46:28]
-      formatted_time = format_schedule_time(time)
 
       result =
         tooltip(%{
@@ -254,7 +183,6 @@ defmodule Site.VehicleHelpersTest do
         })
 
       assert result =~ "Now boarding on track 4"
-      assert result =~ "Expected arrival at #{formatted_time}"
     end
 
     test "Displays text based on vehicle status" do
@@ -288,15 +216,7 @@ defmodule Site.VehicleHelpersTest do
 
   describe "prediction_for_stop/2" do
     test "do not crash if vehicle prediction does not contain a trip" do
-      predictions = [
-        %Predictions.Prediction{
-          departing?: true,
-          time: ~N[2017-01-01T11:00:00],
-          status: "On Time"
-        }
-      ]
-
-      tooltips = build_tooltip_index(@route, @locations, predictions)
+      tooltips = build_tooltip_index(@route, @locations)
       tooltip = tooltips["place-sstat"]
       assert tooltip(tooltip) =~ "train 501 has arrived"
     end
@@ -312,6 +232,38 @@ defmodule Site.VehicleHelpersTest do
       shape = %Routes.Shape{id: "9850002"}
       vehicle_polylines = get_vehicle_polylines(@locations, [shape])
       assert vehicle_polylines == []
+    end
+  end
+
+  describe "maybe_log_strange_status/4" do
+    test "logs certain things" do
+      old_level = Logger.level()
+
+      on_exit(fn ->
+        Logger.configure(level: old_level)
+      end)
+
+      Logger.configure(level: :info)
+
+      vehicle = %Vehicles.Vehicle{id: "v1"}
+      prediction = %Predictions.Prediction{id: "p1"}
+      trip = %Schedules.Trip{id: "t1"}
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          ["vehicle", " is on the way to", " stop"]
+          |> maybe_log_strange_status(vehicle, prediction, trip)
+
+          ["vehicle", " is arriving at", " stop", ", all aboard", " on track 1"]
+          |> maybe_log_strange_status(vehicle, prediction, trip)
+        end)
+
+      assert log =~ "tooltip_status"
+      assert log =~ vehicle.id
+      assert log =~ prediction.id
+      assert log =~ trip.id
+      assert log =~ "text=\"vehicle is arriving at stop, all aboard on track 1\""
+      refute log =~ "text=\"vehicle is on the way to stop\""
     end
   end
 end

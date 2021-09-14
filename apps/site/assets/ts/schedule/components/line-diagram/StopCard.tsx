@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from "react";
 import { LineDiagramStop, RouteStop } from "../__schedule";
 import { isACommuterRailRoute, isAGreenLineRoute } from "../../../models/route";
-import { LiveData } from "./__line-diagram";
 import { isMergeStop, diagramWidth } from "./line-diagram-helpers";
 import StopConnections from "./StopConnections";
 import StopPredictions from "./StopPredictions";
@@ -21,7 +20,7 @@ import { effectNameForAlert } from "../../../components/Alerts";
 interface StopCardProps {
   stop: LineDiagramStop;
   onClick: (stop: RouteStop) => void;
-  liveData?: LiveData;
+  liveHeadsigns: HeadsignWithCrowding[];
   searchQuery?: string;
 }
 
@@ -52,7 +51,7 @@ const MaybeAlert = (alerts: Alert[]): JSX.Element | null => {
 };
 
 const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
-  const { stop, onClick, liveData, searchQuery } = props;
+  const { stop, onClick, liveHeadsigns, searchQuery } = props;
   const {
     stop_data: stopData,
     route_stop: routeStop,
@@ -69,9 +68,9 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
   const diversionAlert = stopAlerts.find(
     alert => isDiversion(alert) && isCurrentAlert(alert)
   );
-  const hasLivePredictions = liveData ? liveData.some(
-    hasPredictionTime
-  ) : false;
+  const hasLivePredictions = liveHeadsigns
+    ? liveHeadsigns.some(hasPredictionTime)
+    : false;
   const showPrediction = hasLivePredictions && !isDestination;
   const showDiversion =
     diversionAlert && !(hasLivePredictions && isDestination);
@@ -102,7 +101,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
           {StopConnections(routeStop.connections)}
           {showPrediction ? (
             <StopPredictions
-              headsigns={liveData as HeadsignWithCrowding[]}
+              headsigns={liveHeadsigns}
               isCommuterRail={
                 !!routeStop.route && isACommuterRailRoute(routeStop.route)
               }

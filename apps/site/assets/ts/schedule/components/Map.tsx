@@ -1,11 +1,4 @@
-import React, {
-  ReactElement,
-  useReducer,
-  useEffect,
-  Dispatch,
-  useRef
-} from "react";
-import { initChannel, stopChannel, SocketEvent } from "./Channel";
+import React, { ReactElement, useRef } from "react";
 import Map from "../../leaflet/components/Map";
 import getBounds from "../../leaflet/bounds";
 import {
@@ -13,6 +6,7 @@ import {
   MapMarker as Marker
 } from "../../leaflet/components/__mapdata";
 import CrowdingPill from "./line-diagram/CrowdingPill";
+import useVehicleMarkersChannel from "../../hooks/useVehicleChannel";
 
 interface Props {
   channel: string;
@@ -20,37 +14,6 @@ interface Props {
   currentShapes: string[];
   currentStops: string[];
 }
-
-interface EventData {
-  marker: Marker;
-}
-
-type Action = SocketEvent<EventData[]>;
-
-interface ActionWithChannel {
-  action: Action;
-  channel: string;
-}
-
-const setupChannels = (
-  channel: string,
-  dispatch: Dispatch<ActionWithChannel>
-): void => {
-  dispatch({ action: { event: "setChannel", data: [] }, channel });
-  /* istanbul ignore next */
-  initChannel<EventData[]>(channel, (action: Action) =>
-    dispatch({ action, channel })
-  );
-  /* istanbul ignore next */
-  initChannel<EventData[]>("vehicles:remove", (action: Action) =>
-    dispatch({ action, channel })
-  );
-};
-
-const stopChannels = (channel: string): void => {
-  stopChannel(channel);
-  stopChannel("vehicles:remove");
-};
 
 export const iconOpts = (
   icon: string | null
@@ -82,7 +45,7 @@ export const iconOpts = (
 const zIndex = (icon: string | null): number | undefined =>
   icon === "vehicle-bordered-expanded" ? 1000 : undefined;
 
-const updateMarker = (marker: Marker): Marker => ({
+export const updateMarker = (marker: Marker): Marker => ({
   ...marker,
   tooltip: (
     <div>
@@ -99,81 +62,17 @@ const updateMarker = (marker: Marker): Marker => ({
   z_index: zIndex(marker.icon) // eslint-disable-line camelcase
 });
 
-const isVehicleMarker = (marker: Marker): boolean =>
+export const isVehicleMarker = (marker: Marker): boolean =>
   marker.icon ? marker.icon.includes("vehicle") : false;
 
-interface IdHash {
+export interface IdHash {
   [id: string]: true;
 }
 
-const shouldRemoveMarker = (id: string | null, idHash: IdHash): boolean =>
-  id !== null && idHash[id] === true;
-
-interface State {
-  channel: string;
-  markers: Marker[];
-}
-
-export const reducer = (
-  state: State,
-  actionWithChannel: ActionWithChannel
-): State => {
-  const { action, channel } = actionWithChannel;
-  if (channel !== state.channel && action.event !== "setChannel") return state;
-  switch (action.event) {
-    case "setChannel":
-      return { ...state, channel, markers: [] };
-    case "reset":
-      return {
-        ...state,
-        markers: state.markers
-          .filter(marker => !isVehicleMarker(marker))
-          .concat(
-            action.data.map(({ marker }: EventData) => updateMarker(marker))
-          )
-      };
-
-    case "add":
-      return {
-        ...state,
-        markers: state.markers.concat(
-          action.data.map(({ marker }) => updateMarker(marker))
-        )
-      };
-
-    case "update":
-      if (action.data.length === 0) {
-        return state;
-      }
-      // Filter out the existing marker if necessary, always add new marker
-      return {
-        ...state,
-        markers: [
-          updateMarker(action.data[0].marker),
-          ...state.markers.filter(
-            marker => marker.id !== action.data[0].marker.id
-          )
-        ]
-      };
-    case "remove":
-      return {
-        ...state,
-        markers: state.markers.filter(
-          marker =>
-            !shouldRemoveMarker(
-              marker.id,
-              action.data.reduce((acc: IdHash, id: string) => {
-                acc[id] = true;
-                return acc;
-              }, {})
-            )
-        )
-      };
-    default:
-      /* istanbul ignore next */
-      throw new Error(`unexpected event: ${action}`);
-  }
-};
+export const shouldRemoveMarker = (
+  id: string | null,
+  idHash: IdHash
+): boolean => id !== null && idHash[id] === true;
 
 export default ({
   data,
@@ -181,17 +80,7 @@ export default ({
   currentShapes,
   currentStops
 }: Props): ReactElement<HTMLElement> | null => {
-  const [state, dispatch] = useReducer(reducer, {
-    channel,
-    markers: data.markers
-  });
-  useEffect(
-    () => {
-      setupChannels(channel, dispatch);
-      return () => stopChannels(channel);
-    },
-    [channel, dispatch]
-  );
+  const state = useVehicleMarkersChannel(channel);
   const stopMarkers = data.stop_markers
     ? data.stop_markers
         .filter(mark => currentStops.includes(mark.id as string))
@@ -203,7 +92,7 @@ export default ({
     polylines: data.polylines.filter(p =>
       currentShapes.some(shape => shape === p.id)
     ),
-    markers: state.markers.concat(stopMarkers)
+    markers: state.concat(stopMarkers)
   };
   const bounds = useRef(getBounds(stopMarkers));
   return (

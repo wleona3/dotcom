@@ -1,6 +1,6 @@
 import { max } from "lodash";
 import React, { ReactElement } from "react";
-import { LineDiagramStop, LineDiagramVehicle } from "../../__schedule";
+import { LineDiagramStop } from "../../__schedule";
 import {
   hasBranchLines,
   isBranchTerminusStop,
@@ -12,16 +12,13 @@ import Line from "./Line";
 import Merges from "./Merge";
 import Stop from "./Stop";
 import { routeToModeName } from "../../../../helpers/css";
-import { LiveDataByStop } from "../__line-diagram";
-import VehicleIcons from "../VehicleIcons";
 import { getCurrentState } from "../../../store/ScheduleStore";
-import { DirectionId, HeadsignWithCrowding } from "../../../../__v3api";
+import { DirectionId } from "../../../../__v3api";
 import { isAGreenLineRoute } from "../../../../models/route";
 import { BASE_LINE_WIDTH, DiagonalHatchPattern } from "./graphic-helpers";
 
 interface DiagramProps {
   lineDiagram: LineDiagramStop[];
-  liveData: LiveDataByStop | null;
 }
 
 const branchingDescription = (lineDiagram: LineDiagramStop[]): string => {
@@ -52,34 +49,9 @@ const diagramDescription = (
   return text;
 };
 
-interface VehicleIconSetProps {
-  stop: LineDiagramStop;
-  liveData: LiveDataByStop | null;
-}
-
-const LiveVehicleIconSet = ({
-  stop,
-  liveData
-}: VehicleIconSetProps): ReactElement<HTMLElement> | null => {
-  const stopId = stop.route_stop.id;
-  if (!liveData || !liveData[stopId]) return null;
-  // Hide vehicles arriving to the origin from 'off the line'
-  const vehicleData: LineDiagramVehicle[] = [];
-
-  const headsignsForStop = liveData[stopId];
-
-  return (
-    <VehicleIcons
-      key={`${stopId}-vehicles`}
-      stop={stop.route_stop}
-      vehicles={vehicleData}
-      headsigns={headsignsForStop as HeadsignWithCrowding[]}
-    />
-  );
-};
-
-const Diagram = (props: DiagramProps): ReactElement<HTMLElement> | null => {
-  const { lineDiagram, liveData } = props;
+const Diagram = ({
+  lineDiagram
+}: DiagramProps): ReactElement<HTMLElement> | null => {
   const { selectedDirection } = getCurrentState();
   const width = diagramWidth(
     max(lineDiagram.map(ld => ld.stop_data.length)) || 1
@@ -87,13 +59,6 @@ const Diagram = (props: DiagramProps): ReactElement<HTMLElement> | null => {
 
   return (
     <>
-      {lineDiagram.map(stop => (
-        <LiveVehicleIconSet
-          key={stop.route_stop.id}
-          stop={stop}
-          liveData={liveData}
-        />
-      ))}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         role="img"

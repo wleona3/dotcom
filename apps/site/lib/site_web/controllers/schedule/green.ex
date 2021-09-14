@@ -119,7 +119,7 @@ defmodule SiteWeb.ScheduleController.Green do
   end
 
   def predictions(conn, opts) do
-    {predictions, vehicle_predictions} =
+    {predictions} =
       if SiteWeb.ScheduleController.Predictions.should_fetch_predictions?(conn) do
         predictions_fn = opts[:predictions_fn] || (&Predictions.Repo.all/1)
 
@@ -134,17 +134,13 @@ defmodule SiteWeb.ScheduleController.Green do
             on_timeout: :kill_task
           )
 
-        vehicle_predictions =
-          SiteWeb.ScheduleController.Predictions.vehicle_predictions(conn, predictions_fn)
-
-        {flat_map_results(predictions_stream), vehicle_predictions}
+        {flat_map_results(predictions_stream)}
       else
-        {[], []}
+        {[]}
       end
 
     conn
     |> assign(:predictions, predictions)
-    |> assign(:vehicle_predictions, vehicle_predictions)
   end
 
   def vehicle_locations(conn, opts) do

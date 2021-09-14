@@ -1,6 +1,8 @@
-import { BranchDirection } from "./__line-diagram";
+import { BranchDirection, LiveDataByStop } from "./__line-diagram";
 import { LineDiagramStop } from "../__schedule";
 import { BRANCH_SPACING, BASE_LINE_WIDTH } from "./graphics/graphic-helpers";
+import { hasPredictionTime } from "../../../models/prediction";
+import { HeadsignWithCrowding } from "../../../__v3api";
 
 export const isMergeStop = (stop: LineDiagramStop): boolean =>
   stop.stop_data.some(sd => sd.type === "merge"); // always on branch
@@ -64,3 +66,18 @@ export const isStopOnMainLine = ({ stop_data }: LineDiagramStop): boolean =>
 
 export const diagramWidth = (maxBranches: number): number =>
   BASE_LINE_WIDTH + maxBranches * BRANCH_SPACING + BASE_LINE_WIDTH;
+
+export const headsignsWithPredictions = (
+  headsigns: HeadsignWithCrowding[]
+): HeadsignWithCrowding[] => headsigns.filter(hasPredictionTime);
+
+export const hasCrowding = (liveData: LiveDataByStop): boolean =>
+  Object.values(liveData).some(
+    (headsigns): boolean =>
+      headsigns.length > 0
+        ? headsignsWithPredictions(headsigns).some(
+            ({ time_data_with_crowding_list: timeData }): boolean =>
+              !!timeData[0].crowding
+          )
+        : false
+  );

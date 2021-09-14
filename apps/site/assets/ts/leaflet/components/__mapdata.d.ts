@@ -26,6 +26,7 @@ export interface MapMarker {
   shape_id?: string;
   vehicle_crowding?: CrowdingType;
   stop_id?: string;
+  vehicle_status?: "in_transit" | "incoming" | "stopped";
 }
 
 export interface Polyline {

@@ -1,60 +1,35 @@
 import React, { ReactElement } from "react";
-import { hasBranchLines } from "./line-diagram-helpers";
 import Diagram from "./graphics/Diagram";
-import StopListWithBranches from "./StopListWithBranches";
-import { CommonLineDiagramProps } from "./__line-diagram";
 import useStopPositions, { RefList } from "./graphics/useStopPositions";
-import StopCard from "./StopCard";
-import { hasPredictionTime } from "../../../models/prediction";
-import { HeadsignWithCrowding } from "../../../__v3api";
+import LiveVehicles from "./LiveVehicleIcons";
+import { LineDiagramStop, RouteStop } from "../__schedule";
+import StopCardList from "./StopCardList";
 
 export const StopRefContext = React.createContext<[RefList, () => void]>([
   {},
   () => {}
 ]);
 
-const LineDiagramWithStops = (
-  props: CommonLineDiagramProps
-): ReactElement<HTMLElement> => {
-  const { stops, handleStopClick, liveData } = props;
-
+const LineDiagramWithStops = (props: {
+  stops: LineDiagramStop[];
+  predictionUrl: string;
+  handleStopClick: (stop: RouteStop) => void;
+  channel: string;
+}): ReactElement<HTMLElement> => {
+  const { stops, handleStopClick, predictionUrl, channel } = props;
   // create a ref for each stop - we will use this to track the location of the stop so we can place the line diagram bubbles
   const [stopRefsMap, updateAllStopCoords] = useStopPositions(stops);
 
-  console.log(liveData)
-  const anyCrowding = Object.values(liveData).some(
-    (headsigns): boolean =>
-      headsigns
-        ? headsigns.filter(hasPredictionTime)
-            .some(
-              ({ time_data_with_crowding_list: timeData }): boolean =>
-                !!timeData[0].crowding
-            )
-        : false
-  );
-
   return (
     <StopRefContext.Provider value={[stopRefsMap, updateAllStopCoords]}>
-      <div
-        className={`m-schedule-diagram ${
-          !anyCrowding ? "u-no-crowding-data" : ""
-        }`}
-      >
-        <Diagram lineDiagram={stops} liveData={liveData} />
-        {hasBranchLines(stops) ? (
-          <StopListWithBranches {...props} />
-        ) : (
-          <ol>
-            {stops.map(stop => (
-              <StopCard
-                key={stop.route_stop.id}
-                stop={stop}
-                onClick={handleStopClick}
-                liveData={liveData[stop.route_stop.id]}
-              />
-            ))}
-          </ol>
-        )}
+      <div className="m-schedule-diagram">
+        <LiveVehicles channel={channel} />
+        <Diagram lineDiagram={stops} />
+        <StopCardList
+          stops={stops}
+          predictionUrl={predictionUrl}
+          handleStopClick={handleStopClick}
+        />
       </div>
     </StopRefContext.Provider>
   );

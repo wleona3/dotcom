@@ -189,7 +189,7 @@ const LineDiagramAndStopListPage = ({
                   key={stop.route_stop.id}
                   stop={stop}
                   onClick={handleStopClick}
-                  liveData={liveData[stop.route_stop.id]}
+                  liveHeadsigns={liveData[stop.route_stop.id]}
                   searchQuery={stopQuery}
                 />
               )
@@ -208,7 +208,14 @@ const LineDiagramAndStopListPage = ({
           <LineDiagramWithStops
             stops={lineDiagram}
             handleStopClick={handleStopClick}
-            liveData={liveData}
+            predictionUrl={
+              route.type !== 4
+                ? `/schedules/line_api/realtime?id=${
+                    route.id
+                  }&direction_id=${directionId}`
+                : ""
+            }
+            channel={`vehicles:${route.id}:${directionId}`}
           />
         </Provider>
       )}

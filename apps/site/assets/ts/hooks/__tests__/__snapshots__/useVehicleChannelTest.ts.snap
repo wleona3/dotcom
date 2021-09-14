@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LiveVehicles renders vehicles if the channel returns vehicles 1`] = `
+"<LiveVehicles channel=\\"vehicles:MyRoute:0\\">
+  <VehicleIcons stop_id=\\"test-stop\\" vehicles={{...}}>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+  </VehicleIcons>
+</LiveVehicles>"
+`;
+
+exports[`VehicleIcons renders and matches snapshot 1`] = `
+"<Provider store={{...}}>
+  <VehicleIcons stop_id=\\"test-stop\\" vehicles={{...}}>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 1</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 2</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+    <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
+      <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\" tooltipOptions={{...}}>
+        <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\" title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\"> tooltip text for vehicle 3</div>\\">
+          <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+        </span>
+      </TooltipWrapper>
+    </div>
+  </VehicleIcons>
+</Provider>"
+`;

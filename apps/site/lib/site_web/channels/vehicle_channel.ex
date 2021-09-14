@@ -41,9 +41,10 @@ defmodule SiteWeb.VehicleChannel do
         }
   @spec build_marker(Vehicles.Vehicle.t()) :: data_map
   def build_marker(%Vehicles.Vehicle{} = vehicle) do
-    route = Routes.Repo.get(vehicle.route_id)
+    route = Vehicles.Vehicle.route(vehicle)
     stop_name = get_stop_name(vehicle.stop_id)
-    trip = Schedules.Repo.trip(vehicle.trip_id)
+    trip = Vehicles.Vehicle.trip(vehicle)
+    prediction = Vehicles.Vehicle.prediction(vehicle)
 
     %{
       data: %{vehicle: vehicle, stop_name: stop_name},
@@ -56,9 +57,10 @@ defmodule SiteWeb.VehicleChannel do
           rotation_angle: vehicle.bearing,
           shape_id: trip && trip.shape_id,
           vehicle_crowding: vehicle.crowding,
+          vehicle_status: vehicle.status,
           tooltip_text:
             %VehicleTooltip{
-              prediction: nil,
+              prediction: prediction,
               vehicle: vehicle,
               route: route,
               stop_name: stop_name,
@@ -66,7 +68,7 @@ defmodule SiteWeb.VehicleChannel do
             }
             |> VehicleHelpers.tooltip()
             |> Floki.text(),
-          stop_id: vehicle.stop_id
+          stop_id: get_stop_parent(vehicle.stop_id)
         )
     }
   end
@@ -80,6 +82,18 @@ defmodule SiteWeb.VehicleChannel do
     case Stops.Repo.get_parent(stop_id) do
       nil -> ""
       %Stops.Stop{name: name} -> name
+    end
+  end
+
+  @spec get_stop_parent(String.t() | nil) :: String.t()
+  defp get_stop_parent(nil) do
+    ""
+  end
+
+  defp get_stop_parent(stop_id) do
+    case Stops.Repo.get_parent(stop_id) do
+      nil -> ""
+      %Stops.Stop{id: id} -> id
     end
   end
 end

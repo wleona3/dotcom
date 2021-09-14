@@ -1,6 +1,5 @@
 {
-  "line-stop1": {
-    "headsigns": [
+  "line-stop1": [
       {
         "name": "Dest1",
         "train_number": null,
@@ -38,25 +37,7 @@
         ]
       }
     ],
-    "vehicles": [
-      {
-        "id": "veh1",
-        "headsign": "Dest1",
-        "status": "incoming",
-        "trip_name": "",
-        "crowding": null
-      },
-      {
-        "id": "veh2",
-        "headsign": null,
-        "status": "in_transit",
-        "trip_name": "",
-        "crowding": null
-      }
-    ]
-  },
-  "line-stop2": {
-    "headsigns": [
+  "line-stop2": [
       {
         "name": "Dest2",
         "train_number": null,
@@ -75,15 +56,5 @@
           }
         ]
       }
-    ],
-    "vehicles": [
-      {
-        "id": "veh3",
-        "headsign": "Dest2",
-        "status": "in_transit",
-        "trip_name": "",
-        "crowding": null
-      }
     ]
-  }
 }

@@ -68,7 +68,7 @@ describe("StopCard", () => {
         <StopCard
           stop={lineDiagram[0]}
           onClick={handleStopClick}
-          liveData={liveData}
+          liveHeadsigns={liveData}
         />
       </redux.Provider>
     );
@@ -135,7 +135,7 @@ it.only("indicates predictions if available", () => {
       <StopCard
         stop={lineDiagram[2]}
         onClick={handleStopClick}
-        liveData={liveDataWithPrediction}
+        liveHeadsigns={liveDataWithPrediction}
       />
     </redux.Provider>
   );
@@ -165,7 +165,7 @@ it.each`
         <StopCard
           stop={lineDiagram[index]}
           onClick={handleStopClick}
-          liveData={liveData}
+          liveHeadsigns={liveData}
         />
       </redux.Provider>
     );
@@ -190,7 +190,7 @@ it.each`
         <StopCard
           stop={lineDiagram[index]}
           onClick={handleStopClick}
-          liveData={liveData}
+          liveHeadsigns={liveData}
         />
       </redux.Provider>
     );

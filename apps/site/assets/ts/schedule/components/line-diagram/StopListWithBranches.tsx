@@ -2,8 +2,8 @@ import { isArray, last } from "lodash";
 import React from "react";
 import StopCard from "./StopCard";
 import ExpandableBranch from "./ExpandableBranch";
-import { CommonLineDiagramProps } from "./__line-diagram";
-import { LineDiagramStop } from "../__schedule";
+import { LiveDataByStop } from "./__line-diagram";
+import { LineDiagramStop, RouteStop } from "../__schedule";
 import { lineDiagramIndexes, isOnBranchLine } from "./line-diagram-helpers";
 
 // build branched diagram structure
@@ -48,12 +48,21 @@ const buildBranchedLineDiagram = (
   return branchedDiagram;
 };
 
-export const Branch = (props: CommonLineDiagramProps): React.ReactElement => {
+export const Branch = (props: {
+  stops: LineDiagramStop[];
+  handleStopClick: (stop: RouteStop) => void;
+  liveData: LiveDataByStop;
+}): React.ReactElement => {
   const { stops, handleStopClick, liveData } = props;
   return (
     <li>
       {stops.length > 2 ? (
-        <ExpandableBranch key={`${stops[0].route_stop.id}-branch`} {...props} />
+        <ExpandableBranch
+          key={`${stops[0].route_stop.id}-branch`}
+          stops={stops}
+          handleStopClick={handleStopClick}
+          liveData={liveData}
+        />
       ) : (
         <ol>
           {stops.map(stop => (
@@ -61,7 +70,7 @@ export const Branch = (props: CommonLineDiagramProps): React.ReactElement => {
               key={stop.route_stop.id}
               stop={stop}
               onClick={handleStopClick}
-              liveData={liveData[stop.route_stop.id]}
+              liveHeadsigns={liveData[stop.route_stop.id]}
             />
           ))}
         </ol>
@@ -70,20 +79,23 @@ export const Branch = (props: CommonLineDiagramProps): React.ReactElement => {
   );
 };
 
-const StopListWithBranches = (
-  props: CommonLineDiagramProps
-): React.ReactElement => {
-  const { stops, ...other } = props;
+const StopListWithBranches = (props: {
+  stops: LineDiagramStop[];
+  handleStopClick: (stop: RouteStop) => void;
+  liveData: LiveDataByStop;
+}): React.ReactElement => {
+  const { stops, handleStopClick, liveData } = props;
   const lineDiagramWithBranches = buildBranchedLineDiagram(stops);
   return (
-    <ol>
+    <>
       {lineDiagramWithBranches.map(stopOrStops => {
         if (isArray(stopOrStops)) {
           return (
             <Branch
               key={stopOrStops[0].route_stop.id}
               stops={stopOrStops}
-              {...other}
+              handleStopClick={handleStopClick}
+              liveData={liveData}
             />
           );
         }
@@ -94,11 +106,11 @@ const StopListWithBranches = (
             key={stopOrStops.route_stop.id}
             stop={stopOrStops}
             onClick={props.handleStopClick}
-            liveData={props.liveData[stopOrStops.route_stop.id]}
+            liveHeadsigns={props.liveData[stopOrStops.route_stop.id]}
           />
         );
       })}
-    </ol>
+    </>
   );
 };
 

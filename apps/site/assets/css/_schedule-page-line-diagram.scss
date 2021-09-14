@@ -278,6 +278,7 @@
   $icon-size: 18px;
   position: absolute;
   transform: scale(1, -1); // point down
+  transition: top 1s ease;
   z-index: 3;
 
   &-tooltip {

@@ -5,11 +5,9 @@ import {
   timeForCommuterRail,
   statusForCommuterRail
 } from "../../../helpers/prediction-helpers";
-import {
-  isSkippedOrCancelled,
-  hasPredictionTime
-} from "../../../models/prediction";
+import { isSkippedOrCancelled } from "../../../models/prediction";
 import LiveCrowdingIcon from "./LiveCrowdingIcon";
+import { headsignsWithPredictions } from "./line-diagram-helpers";
 
 interface StopPredictions {
   headsigns: HeadsignWithCrowding[];
@@ -42,7 +40,7 @@ const StopPredictions = ({
   isCommuterRail
 }: StopPredictions): JSX.Element => {
   let predictions: JSX.Element[];
-  const liveHeadsigns = headsigns.filter(hasPredictionTime);
+  const liveHeadsigns = headsignsWithPredictions(headsigns);
 
   if (isCommuterRail) {
     // Display at most 1 prediction for Commuter Rail

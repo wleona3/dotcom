@@ -28,16 +28,13 @@ defmodule SiteWeb.ScheduleController.Predictions do
   def do_call(conn, opts) do
     if should_fetch_predictions?(conn) do
       predictions_task = fn -> predictions(conn, opts[:predictions_fn]) end
-      vehicle_predictions_task = fn -> vehicle_predictions(conn, opts[:predictions_fn]) end
 
       conn
       |> AsyncAssign.async_assign_default(:predictions, predictions_task, [])
-      |> AsyncAssign.async_assign_default(:vehicle_predictions, vehicle_predictions_task, [])
       |> AsyncAssign.await_assign_all_default(__MODULE__)
     else
       conn
       |> assign(:predictions, [])
-      |> assign(:vehicle_predictions, [])
     end
   end
 
@@ -104,25 +101,5 @@ defmodule SiteWeb.ScheduleController.Predictions do
     Enum.filter(predictions, fn pred ->
       pred.trip != nil || pred.status != nil
     end)
-  end
-
-  @spec vehicle_predictions(Plug.Conn.t(), predictions_fn) :: [Prediction.t()]
-  def vehicle_predictions(%{assigns: %{vehicle_locations: vehicle_locations}}, predictions_fn) do
-    {trips, stops} =
-      vehicle_locations
-      |> Map.keys()
-      |> Enum.unzip()
-
-    stops = stops |> Enum.reject(&is_nil/1) |> Enum.uniq() |> Enum.join(",")
-    trips = trips |> Enum.reject(&is_nil/1) |> Enum.join(",")
-
-    case predictions_fn.(trip: trips, stop: stops) do
-      {:error, _} -> []
-      list -> list
-    end
-  end
-
-  def vehicle_predictions(_conn, _) do
-    []
   end
 end

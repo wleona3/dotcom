@@ -1,8 +1,8 @@
 import { max, times } from "lodash";
 import React, { ReactElement, useState, useContext } from "react";
 import ExpandableBlock from "../../../components/ExpandableBlock";
-import { LineDiagramStop } from "../__schedule";
-import { CommonLineDiagramProps } from "./__line-diagram";
+import { LineDiagramStop, RouteStop } from "../__schedule";
+import { LiveDataByStop } from "./__line-diagram";
 import { StopRefContext } from "./LineDiagramWithStops";
 import { diagramWidth } from "./line-diagram-helpers";
 import {
@@ -53,9 +53,11 @@ const BranchToggle = (
   );
 };
 
-const ExpandableBranch = (
-  props: CommonLineDiagramProps
-): ReactElement<HTMLElement> => {
+const ExpandableBranch = (props: {
+  stops: LineDiagramStop[];
+  handleStopClick: (stop: RouteStop) => void;
+  liveData: LiveDataByStop;
+}): ReactElement<HTMLElement> => {
   const { stops, handleStopClick, liveData } = props;
   const [isExpanded, setIsExpanded] = useState(false);
   const updateAllStopCoords = useContext(StopRefContext)[1];
@@ -88,7 +90,7 @@ const ExpandableBranch = (
               key={stop.route_stop.id}
               stop={stop}
               onClick={handleStopClick}
-              liveData={liveData[stop.route_stop.id]}
+              liveHeadsigns={liveData[stop.route_stop.id]}
             />
           ))}
         </>

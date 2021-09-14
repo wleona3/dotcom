@@ -1,12 +1,12 @@
 defmodule Site.MapHelpers.Markers do
-  alias GoogleMaps.MapData.{Marker, Symbol}
-  alias Vehicles.Vehicle
-  alias Routes.Route
+  alias GoogleMaps.MapData.Marker
+  # alias Vehicles.Vehicle
+  # alias Routes.Route
   alias Stops.Stop
 
-  @z_index %{
-    vehicle: 1_000
-  }
+  # @z_index %{
+  #   vehicle: 1_000
+  # }
 
   @doc """
   Builds marker data for a stop that will be displayed in a Google Map.

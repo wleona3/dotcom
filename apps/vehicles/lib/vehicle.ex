@@ -30,4 +30,23 @@ defmodule Vehicles.Vehicle do
           status: status,
           crowding: crowding | nil
         }
+
+  def prediction(%__MODULE__{
+        route_id: route_id,
+        trip_id: trip_id,
+        stop_id: stop_id,
+        direction_id: direction_id
+      }) do
+    Predictions.Repo.all(
+      route: route_id,
+      stop: stop_id,
+      trip: trip_id,
+      direction_id: direction_id
+    )
+    |> List.first()
+  end
+
+  def trip(%__MODULE__{trip_id: trip_id}), do: Schedules.Repo.trip(trip_id)
+
+  def route(%__MODULE__{route_id: route_id}), do: Routes.Repo.get(route_id)
 end

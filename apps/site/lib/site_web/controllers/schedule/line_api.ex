@@ -92,11 +92,13 @@ defmodule SiteWeb.ScheduleController.LineApi do
       # |> Stream.concat(Map.keys(vehicles_by_stop))
       # |> Stream.uniq()
       |> Stream.map(fn stop_id ->
-        {stop_id, Map.get(headsigns_by_stop, stop_id, [])
-        #  %{
-        #    headsigns: Map.get(headsigns_by_stop, stop_id, [])#,
+        {
+          stop_id,
+          Map.get(headsigns_by_stop, stop_id, [])
+          #  %{
+          #    headsigns: Map.get(headsigns_by_stop, stop_id, [])#,
           #  vehicles: Map.get(vehicles_by_stop, stop_id, []) |> Enum.map(&simple_vehicle_map(&1))
-        #  }
+          #  }
         }
       end)
       |> Enum.into(%{})
