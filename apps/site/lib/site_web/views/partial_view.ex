@@ -83,10 +83,12 @@ defmodule SiteWeb.PartialView do
   List type is determined by the first teaser's :type value. Avoid creating
   a single list with multiple, mixed content types.
   """
-  @spec render_teasers([Teaser.t()], Conn.t(), Keyword.t()) :: Phoenix.HTML.safe()
+  @spec render_teasers([Teaser.t()] | nil, Conn.t(), Keyword.t()) :: Phoenix.HTML.safe()
   def render_teasers(teasers, conn, opts \\ [])
 
   def render_teasers([], _, _), do: {:safe, []}
+
+  def render_teasers(nil, _, _), do: {:safe, []}
 
   def render_teasers(teasers, conn, opts) do
     display_fields =
