@@ -144,9 +144,9 @@ defmodule Site.TransitNearMe do
       {:error, error} ->
         _ =
           Logger.warn(
-            "module=#{__MODULE__} route_id=#{route_id} date=#{DateTime.to_string(date)} Other error fetching schedule: #{
-              inspect(error)
-            }"
+            "module=#{__MODULE__} route_id=#{route_id} date=#{
+              Timex.format!(date, "%Y-%m-%d", :strftime)
+            } Other error fetching schedule: #{inspect(error)}"
           )
 
         %{}
