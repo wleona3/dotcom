@@ -65,7 +65,8 @@ defmodule SiteWeb.VehicleChannel do
               trip: trip
             }
             |> VehicleHelpers.tooltip()
-            |> Floki.text()
+            |> Floki.text(),
+          stop_id: vehicle.stop_id
         )
     }
   end
