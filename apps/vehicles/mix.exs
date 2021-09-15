@@ -43,9 +43,9 @@ defmodule Vehicles.Mixfile do
       {:repo_cache, in_umbrella: true},
       {:routes, in_umbrella: true},
       {:bypass, "~> 1.0", only: :test},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:server_sent_event_stage, "~> 0.3"},
-      {:gen_stage, "~> 0.13"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:server_sent_event_stage, "~> 1.0"},
+      {:gen_stage, "~> 1.1"},
       {:exvcr_helpers, in_umbrella: true, only: :test}
     ]
   end
