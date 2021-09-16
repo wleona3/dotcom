@@ -48,6 +48,7 @@ defmodule V3Api.Mixfile do
       {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:bypass, "~> 1.0", only: :test},
       {:server_sent_event_stage, "~> 1.0"},
+      {:castore, "~> 0.1.11"},
       {:gen_stage, "~> 1.1"},
       {:json_api, in_umbrella: true},
       {:util, in_umbrella: true},
