@@ -24,7 +24,8 @@ defmodule Vehicles do
       |> stream_children()
 
     [
-      supervisor(Phoenix.PubSub.PG2, [Vehicles.PubSub, []]),
+      # Start the PubSub system
+      {Phoenix.PubSub, name: Vehicles.PubSub},
       Vehicles.Repo
       | streams
     ]

@@ -35,6 +35,8 @@ defmodule Site.Application do
       supervisor(Site.Stream.Vehicles, []),
       supervisor(Site.React, []),
       supervisor(Site.RealtimeSchedule, []),
+      # Start the PubSub system
+      {Phoenix.PubSub, name: Site.PubSub},
       supervisor(SiteWeb.Endpoint, [])
     ]
 
