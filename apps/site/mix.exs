@@ -46,7 +46,7 @@ defmodule Site.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.5"},
+      {:phoenix, "~> 1.5.12"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
