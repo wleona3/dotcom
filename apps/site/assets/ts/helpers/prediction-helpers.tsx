@@ -28,20 +28,21 @@ export const timeForCommuterRail = (
     return delayForCommuterRail(data, className);
   }
 
-  let time = prediction ? prediction.time : scheduledTime;
+  let time = (prediction && prediction.time) ? prediction.time : scheduledTime;
 
   // when 'On time', show the scheduled time only if it's later than the predicted time:
-  if (
+  // or show scheduled time if no prediction.time
+  if ((
     scheduledTime &&
-    prediction &&
+    prediction && prediction.time &&
     prediction.time[2] !== "min" &&
     compareStringTimes(prediction.time, scheduledTime) === "lt"
-  ) {
+  ) || (prediction && !prediction.time)) {
     // "On time"
     time = scheduledTime;
   }
 
-  return <div className={className}>{time!.join("")}</div>;
+  return <div className={className}>{time ? time!.join("") : null}</div>;
 };
 
 export const statusForCommuterRail = ({

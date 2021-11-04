@@ -157,7 +157,10 @@ defmodule Site.RealtimeSchedule do
     end)
   end
 
-  @spec date_sorter(DateTime.t(), DateTime.t()) :: boolean
+  @spec date_sorter(DateTime.t() | nil, DateTime.t() | nil) :: boolean
+  defp date_sorter(nil, nil), do: true
+  defp date_sorter(nil, _), do: true
+  defp date_sorter(_, nil), do: false
   defp date_sorter(date1, date2) do
     case DateTime.compare(date1, date2) do
       :lt -> true
@@ -186,7 +189,6 @@ defmodule Site.RealtimeSchedule do
             "page[limit]": @predicted_schedules_per_stop
           ]
           |> predictions_fn.()
-          |> Enum.filter(& &1.time)
 
         {key, next_two_predictions}
       end)
@@ -336,7 +338,7 @@ defmodule Site.RealtimeSchedule do
   @spec format_prediction_time(map | nil, DateTime.t()) :: map | nil
   defp format_prediction_time(nil, _), do: nil
 
-  defp format_prediction_time(prediction, now) do
+  defp format_prediction_time(%{time: time} = prediction, now) when not is_nil(time) do
     seconds = DateTime.diff(prediction.time, now)
     route_type = Route.type_atom(prediction.route)
 
@@ -345,6 +347,8 @@ defmodule Site.RealtimeSchedule do
       | time: TransitNearMe.format_prediction_time(prediction.time, now, route_type, seconds)
     }
   end
+
+  defp format_prediction_time(prediction, _), do: prediction
 
   @spec format_schedule_time(map | nil) :: map | nil
   defp format_schedule_time(nil), do: nil

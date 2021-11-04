@@ -72,12 +72,16 @@ const renderTimeCommuterRail = (
 const renderTimeDefault = (
   time: string[],
   modifier: string
-): ReactElement<HTMLElement> => (
-  <div className={`m-tnm-sidebar__time ${modifier}`}>
-    <div className="m-tnm-sidebar__time-number">{time[0]}</div>
-    <div className="m-tnm-sidebar__time-mins">{time[2]}</div>
-  </div>
-);
+): ReactElement<HTMLElement> | null => {
+  if (!time) return null;
+
+  return (
+    <div className={`m-tnm-sidebar__time ${modifier}`}>
+      <div className="m-tnm-sidebar__time-number">{time[0]}</div>
+      <div className="m-tnm-sidebar__time-mins">{time[2]}</div>
+    </div>
+  );
+}
 
 const renderTime = (
   tnmTime: PredictedOrScheduledTime,
@@ -88,7 +92,7 @@ const renderTime = (
   // eslint-disable-next-line camelcase
   const { prediction, scheduled_time } = tnmTime;
   // eslint-disable-next-line camelcase
-  const time = prediction ? prediction.time : scheduled_time!;
+  const time = (prediction && prediction.time) ? prediction.time : scheduled_time!;
 
   const classModifier =
     !prediction && [0, 1, 3].includes(routeType)
