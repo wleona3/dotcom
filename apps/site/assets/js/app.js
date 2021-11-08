@@ -369,3 +369,5 @@ tripPlannerWidget();
 eventPageSetup();
 previousEventsButton();
 pslPageSetup();
+
+console.log("app js loaded")

@@ -6,6 +6,7 @@ export const onload = () =>
   });
 
 export const addAlertItemEventHandlers = () => {
+  throw "addAlertItemEventHandlers error"
   if (typeof document !== "undefined") {
     [...document.querySelectorAll(`.${ITEM_SELECTOR}`)].forEach(alertItem => {
       alertItem.addEventListener("click", handleAlertItemClick);

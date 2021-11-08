@@ -4,6 +4,9 @@ interface Window {
   decodeURIComponent(component: string): string;
   encodeURIComponent(component: string): string;
   google: any;
+  sentry?: {
+    dsn: string;
+  };
 }
 
 declare module "*.svg" {

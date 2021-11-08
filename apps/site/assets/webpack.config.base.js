@@ -139,7 +139,8 @@ module.exports = {
       "window.jQuery": "jquery",
       "window.$": "jquery",
       phoenix: "phoenix",
-      autocomplete: "autocomplete.js"
+      autocomplete: "autocomplete.js",
+      Sentry: "sentry"
     })
   ],
 
