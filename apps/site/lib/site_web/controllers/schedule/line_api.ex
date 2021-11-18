@@ -6,13 +6,14 @@ defmodule SiteWeb.ScheduleController.LineApi do
   alias Alerts.Stop, as: AlertsStop
   alias RoutePatterns.RoutePattern
   alias Routes.Route
+  alias Predictions.Prediction
   alias Schedules.Repo, as: SchedulesRepo
   alias Site.TransitNearMe
   alias SiteWeb.ScheduleController.Line.DiagramFormat
   alias SiteWeb.ScheduleController.Line.DiagramHelpers
   alias SiteWeb.ScheduleController.Line.Helpers, as: LineHelpers
   alias Stops.Repo, as: StopsRepo
-  alias Stops.RouteStop
+  alias Stops.{RouteStop, Stop}
   alias Vehicles.Repo, as: VehiclesRepo
   alias Vehicles.Vehicle
 
@@ -59,11 +60,11 @@ defmodule SiteWeb.ScheduleController.LineApi do
   """
   @spec realtime(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def realtime(conn, %{"id" => route_id, "direction_id" => direction_id}) do
-    cache_key = {route_id, direction_id, conn.assigns.date}
+    cache_key = {route_id, direction_id, conn.assigns.date_time}
 
     payload =
       ConCache.get_or_store(:line_diagram_realtime_cache, cache_key, fn ->
-        do_realtime(route_id, direction_id, conn.assigns.date, conn.assigns.date_time)
+        do_realtime(route_id, direction_id, conn.assigns.date_time)
       end)
 
     conn
@@ -71,12 +72,11 @@ defmodule SiteWeb.ScheduleController.LineApi do
     |> send_resp(200, payload)
   end
 
-  defp do_realtime(route_id, direction_id, date, now) do
+  defp do_realtime(route_id, direction_id, now) do
     headsigns_by_stop =
-      TransitNearMe.time_data_for_route_by_stop(
+      headsigns_by_stop(
         route_id,
         String.to_integer(direction_id),
-        date: date,
         now: now
       )
 
@@ -101,6 +101,109 @@ defmodule SiteWeb.ScheduleController.LineApi do
       |> Enum.into(%{})
 
     Jason.encode!(combined_data_by_stop)
+  end
+
+  # @type enhanced_time_data_by_stop :: %{
+  #         Stop.id_t() => [enhanced_time_data()]
+  #       }
+
+  # @type enhanced_time_data :: %{
+  #         # Headsign name
+  #         name: String.t(),
+  #         time_data_with_crowding_list: [
+  #           time_data_with_crowding()
+  #         ],
+  #         train_number: String.t() | nil
+  #       }
+
+  # @type time_data_with_crowding :: %{
+  #         time_data: time_data(),
+  #         crowding: Vehicle.crowding() | nil,
+  #         predicted_schedule: PredictedSchedule
+  #       }
+
+  # @type time_data :: %{
+  #         required(:scheduled_time) => [String.t()] | nil,
+  #         required(:prediction) => simple_prediction() | nil,
+  #         required(:delay) => integer
+  #       }
+
+  # @type simple_prediction :: %{
+  #         required(:seconds) => integer,
+  #         required(:time) => [String.t()],
+  #         required(:status) => String.t() | nil,
+  #         required(:track) => String.t() | nil,
+  #         required(:schedule_relationship) => Prediction.schedule_relationship()
+  #       }
+
+  @doc """
+  Gets all schedules for a route and compiles appropriate headsign_data for each stop.
+  Returns a map indexed by stop_id
+  """
+  ######### formerly time_data_for_route_by_stop
+  @spec headsigns_by_stop(Route.id_t(), 1 | 0, Keyword.t()) ::
+          headsigns_new_thing()
+  def headsigns_by_stop(route_id, direction_id, opts) do
+    opts = Keyword.put(opts, :direction_id, direction_id)
+    now = Keyword.fetch!(opts, :now)
+
+    PredictedSchedule.Repo.get(route_id, nil, opts)
+    |> Enum.filter(
+      &(!PredictedSchedule.last_stop?(&1) and TransitNearMe.after_min_time?(&1, now))
+    )
+    |> Enum.group_by(&PredictedSchedule.stop(&1).id)
+    |> do_headsigns_by_stop()
+  end
+
+  @type headsign_data :: %{
+          # status_text: String.t(), # constructued from track, train number (trip name), status fields
+          headsign_name: Trip.headsign() | nil,
+          trip_name: String.t() | nil,
+          status: String.t() | nil,
+          track: String.t() | nil,
+          vehicle_crowding: Vehicles.Vehicle.crowding() | nil,
+          predicted_time: DateTime.t() | nil,
+          scheduled_time: DateTime.t() | nil,
+          delay: integer(),
+          skipped_or_cancelled: boolean()
+        }
+
+  @type headsigns_new_thing :: %{
+          Stop.id_t() => [headsign_data()]
+        }
+
+  @spec do_headsigns_by_stop(%{
+          Stop.id_t() => [PredictedSchedule.t()]
+        }) :: headsigns_new_thing()
+  defp do_headsigns_by_stop(predicted_schedules_by_stop) do
+    for {stop_id, predicted_schedules} <- predicted_schedules_by_stop, into: %{} do
+      headsigns =
+        predicted_schedules
+        |> Enum.map(fn %PredictedSchedule{schedule: schedule, prediction: prediction} = ps ->
+          trip_name =
+            case PredictedSchedule.trip(ps) do
+              %Schedules.Trip{name: name} -> name
+              _ -> nil
+            end
+
+          %{
+            # status_text: PredictedSchedule.status_text(ps),
+            headsign_name: PredictedSchedule.headsign(ps),
+            trip_name: trip_name,
+            status: PredictedSchedule.status(ps),
+            track: if(prediction, do: Map.from_struct(prediction) |> Map.get(:track)),
+            vehicle_crowding: PredictedSchedule.vehicle_crowding(ps),
+            predicted_time: if(prediction, do: Map.from_struct(prediction) |> Map.get(:time)),
+            scheduled_time: if(schedule, do: Map.from_struct(schedule) |> Map.get(:time)),
+            delay: PredictedSchedule.delay(ps),
+            skipped_or_cancelled:
+              if(prediction, do: Prediction.is_skipped_or_cancelled?(prediction), else: false),
+            departing?: if(prediction, do: Map.from_struct(prediction) |> Map.get(:departing?))
+          }
+        end)
+
+      {stop_id, headsigns}
+    end
   end
 
   @spec expand_route_id(Route.id_t()) :: [Route.id_t()]

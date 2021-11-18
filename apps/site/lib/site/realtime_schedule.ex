@@ -157,7 +157,11 @@ defmodule Site.RealtimeSchedule do
     end)
   end
 
-  @spec date_sorter(DateTime.t(), DateTime.t()) :: boolean
+  @spec date_sorter(DateTime.t() | nil, DateTime.t() | nil) :: boolean
+  defp date_sorter(nil, nil), do: true
+  defp date_sorter(nil, _), do: true
+  defp date_sorter(_, nil), do: false
+
   defp date_sorter(date1, date2) do
     case DateTime.compare(date1, date2) do
       :lt -> true
@@ -186,7 +190,8 @@ defmodule Site.RealtimeSchedule do
             "page[limit]": @predicted_schedules_per_stop
           ]
           |> predictions_fn.()
-          |> Enum.filter(& &1.time)
+
+        # stopped filtering by time
 
         {key, next_two_predictions}
       end)
@@ -287,8 +292,8 @@ defmodule Site.RealtimeSchedule do
 
       {name, direction_id,
        predictions
-       |> PredictedSchedule.group(schedules)
-       |> Enum.slice(0, 2)
+       |> PredictedSchedule.build(schedules)
+       |> first_two_with_time()
        |> Enum.map(&shrink_predicted_schedule(&1, now))}
     end)
     |> Enum.filter(fn {_name, _direction_id, predicted_schedules} ->
@@ -297,6 +302,25 @@ defmodule Site.RealtimeSchedule do
     |> Enum.into(%{}, fn {name, direction_id, predicted_schedules} ->
       {name, %{direction_id: direction_id, predicted_schedules: predicted_schedules}}
     end)
+  end
+
+  #### Used to just need first two, but now we need best first two since we're letting in nil prediction times.
+  @spec first_two_with_time([PredictedSchedule.t()]) :: [PredictedSchedule.t()]
+  defp first_two_with_time(predicted_schedules) do
+    Enum.filter(predicted_schedules, fn
+      %PredictedSchedule{prediction: %{time: time}, schedule: nil} ->
+        not is_nil(time)
+
+      %PredictedSchedule{prediction: nil, schedule: %{time: time}} ->
+        not is_nil(time)
+
+      %PredictedSchedule{prediction: %{time: p_time}, schedule: %{time: s_time}} ->
+        not is_nil(p_time) or not is_nil(s_time)
+
+      _ ->
+        false
+    end)
+    |> Enum.slice(0, 2)
   end
 
   @spec shrink_predicted_schedule(PredictedSchedule.t(), DateTime.t()) :: map
@@ -336,7 +360,7 @@ defmodule Site.RealtimeSchedule do
   @spec format_prediction_time(map | nil, DateTime.t()) :: map | nil
   defp format_prediction_time(nil, _), do: nil
 
-  defp format_prediction_time(prediction, now) do
+  defp format_prediction_time(%{time: time} = prediction, now) when not is_nil(time) do
     seconds = DateTime.diff(prediction.time, now)
     route_type = Route.type_atom(prediction.route)
 
@@ -345,6 +369,8 @@ defmodule Site.RealtimeSchedule do
       | time: TransitNearMe.format_prediction_time(prediction.time, now, route_type, seconds)
     }
   end
+
+  defp format_prediction_time(prediction, _), do: prediction
 
   @spec format_schedule_time(map | nil) :: map | nil
   defp format_schedule_time(nil), do: nil

@@ -230,9 +230,10 @@ defmodule SiteWeb.StopController do
 
   @spec schedules_for_route(Route.t(), Stop.id_t(), DateTime.t()) :: route_with_directions | nil
   defp schedules_for_route(%Route{} = route, stop_id, now) do
+    # These are getting nil in the predicted schedule when they can actually have schedules?
     directions =
       route.id
-      |> PredictedSchedule.get(stop_id, now: now)
+      |> PredictedSchedule.Repo.get(stop_id, now: now)
       |> TransitNearMe.get_direction_map(now: now)
       |> filter_headsigns()
 

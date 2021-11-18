@@ -1,47 +1,61 @@
 import React, { ReactElement } from "react";
-import { PredictedOrScheduledTime } from "../__v3api";
+import { HeadsignWithCrowding, PredictedOrScheduledTime } from "../__v3api";
 import { isSkippedOrCancelled } from "../models/prediction";
 import { TripPrediction } from "../schedule/components/__trips";
-import { compareStringTimes } from "./date";
 
-const delayForCommuterRail = (
-  data: PredictedOrScheduledTime,
-  className = ""
-): ReactElement<HTMLElement> => (
-  <>
-    <div className={`${className ? `${className}--delayed` : ""}`}>
-      {data.scheduled_time!.join("")}
-    </div>
-    <div className={className}>
-      {data.prediction && data.prediction.time.join("")}
-    </div>
-  </>
-);
+export const predictedOrScheduledTime = (
+  data: PredictedOrScheduledTime
+): string[] | null => {
+  const { prediction, scheduled_time: scheduledTime } = data;
+  const time = prediction && prediction.time ? prediction.time : scheduledTime;
+  return time;
+};
 
-export const timeForCommuterRail = (
-  data: PredictedOrScheduledTime,
-  className = ""
-): ReactElement<HTMLElement> => {
-  const { delay, prediction, scheduled_time: scheduledTime } = data;
-
-  if (delay >= 5 && prediction) {
-    return delayForCommuterRail(data, className);
+type PredictionForCommuterRailType =
+  | Pick<HeadsignWithCrowding, "delay" | "predicted_time" | "scheduled_time">
+  | PredictedOrScheduledTime;
+export const PredictionForCommuterRail = ({
+  data,
+  modifier
+}: {
+  data: PredictionForCommuterRailType;
+  modifier?: string;
+}): ReactElement<HTMLElement> | null => {
+  // TODO: When done refactoring elsewhere, simplify this to only need the dates and delay.
+  const isOldVersion = (
+    d: PredictionForCommuterRailType
+  ): d is PredictedOrScheduledTime =>
+    (d as PredictedOrScheduledTime).prediction !== undefined;
+  let predicted_time;
+  let scheduled_time;
+  let delay: number;
+  if (isOldVersion(data)) {
+    // data came from journey/realtime
+    delay = data.delay;
+    scheduled_time = data.scheduled_time;
+    predicted_time = data.prediction ? data.prediction!.time : null;
+  } else {
+    // came from HeadsignWithCrowding
+    delay = data.delay;
+    scheduled_time = data.scheduled_time;
+    predicted_time = data.predicted_time;
   }
 
-  let time = prediction ? prediction.time : scheduledTime;
+  // if no time, that means there's neither a scheduled nor predicted time.
+  // can't show anything in that case.
+  if (!predicted_time && !scheduled_time) return null;
 
-  // when 'On time', show the scheduled time only if it's later than the predicted time:
-  if (
-    scheduledTime &&
-    prediction &&
-    prediction.time[2] !== "min" &&
-    compareStringTimes(prediction.time, scheduledTime) === "lt"
-  ) {
-    // "On time"
-    time = scheduledTime;
-  }
-
-  return <div className={className}>{time!.join("")}</div>;
+  const hasDelay = delay! && delay >= 5 && predicted_time!;
+  return (
+    <>
+      {hasDelay ? (
+        <div className={modifier ? `${modifier}--delayed` : ""}>
+          {scheduled_time}
+        </div>
+      ) : null}
+      <div className={modifier}>{predicted_time || scheduled_time}</div>
+    </>
+  );
 };
 
 export const statusForCommuterRail = ({

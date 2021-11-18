@@ -277,8 +277,11 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   end
 
   @spec journey_has_valid_departure?(Journey.t()) :: boolean
-  defp journey_has_valid_departure?(%{departure: departure}),
-    do: !PredictedSchedule.empty?(struct(PredictedSchedule, departure))
+  defp journey_has_valid_departure?(%{departure: %PredictedSchedule{} = departure}),
+    do: !PredictedSchedule.empty?(departure)
+
+  defp journey_has_valid_departure?(%{departure: %{} = departure}),
+    do: !PredictedSchedule.empty?(PredictedSchedule.from_maps(departure))
 
   defp journey_has_valid_departure?(_), do: true
 
@@ -330,11 +333,7 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   # If there's a prediction and a schedule, use the schedule time
   @spec set_departure_time(Journey.t()) :: Journey.t()
   defp set_departure_time(%{departure: departure} = journey) do
-    departure_time =
-      case departure do
-        %{schedule: nil, prediction: p} -> p.time
-        %{schedule: s, prediction: _} -> s.time
-      end
+    departure_time = PredictedSchedule.from_maps(departure) |> PredictedSchedule.time()
 
     update_in(
       journey,
@@ -442,28 +441,39 @@ defmodule SiteWeb.ScheduleController.FinderApi do
     )
   end
 
-  def maybe_add_delay(%{prediction: nil} = schedule_and_prediction),
-    do: schedule_and_prediction
+  # def maybe_add_delay(%{prediction: nil} = schedule_and_prediction),
+  #   do: schedule_and_prediction
 
-  def maybe_add_delay(%{prediction: %{time: nil}} = schedule_and_prediction),
-    do: schedule_and_prediction
+  # def maybe_add_delay(%{prediction: %{time: nil}} = schedule_and_prediction),
+  #   do: schedule_and_prediction
 
-  def maybe_add_delay(%{schedule: nil} = schedule_and_prediction),
-    do: schedule_and_prediction
+  # def maybe_add_delay(%{schedule: nil} = schedule_and_prediction),
+  #   do: schedule_and_prediction
 
-  def maybe_add_delay(%{schedule: %{time: nil}} = schedule_and_prediction),
-    do: schedule_and_prediction
+  # def maybe_add_delay(%{schedule: %{time: nil}} = schedule_and_prediction),
+  #   do: schedule_and_prediction
 
-  def maybe_add_delay(
-        %{schedule: %{time: schedule_time}, prediction: %{time: prediction_time}} =
-          schedule_and_prediction
-      ) do
-    delay = DateTime.diff(prediction_time, schedule_time)
-    Map.put_new(schedule_and_prediction, :delay, delay)
-  end
+  # def maybe_add_delay(
+  #       %{schedule: %{time: schedule_time}, prediction: %{time: prediction_time}} =
+  #         schedule_and_prediction
+  #     ) do
+  #   delay = DateTime.diff(prediction_time, schedule_time)
+  #   Map.put_new(schedule_and_prediction, :delay, delay)
+  # end
 
   defp add_delays(schedules_and_predictions) do
-    Enum.map(schedules_and_predictions, &maybe_add_delay/1)
+    # Can this just use PredictedSchedules.delay?
+    # Enum.map(schedules_and_predictions, &maybe_add_delay/1)
+    Enum.map(schedules_and_predictions, fn predicted_schedule_map ->
+      ps = PredictedSchedule.from_maps(predicted_schedule_map)
+      delay = PredictedSchedule.delay(ps)
+
+      if delay > 0 do
+        Map.put_new(predicted_schedule_map, :delay, delay)
+      else
+        predicted_schedule_map
+      end
+    end)
   end
 
   # Converts a DateTime to a simple string

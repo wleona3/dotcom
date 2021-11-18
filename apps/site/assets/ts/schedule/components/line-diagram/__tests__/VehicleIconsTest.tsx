@@ -9,12 +9,7 @@ import {
 } from "../../__schedule";
 import VehicleIcons from "../VehicleIcons";
 import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
-import {
-  Prediction,
-  PredictedOrScheduledTime,
-  PredictedOrScheduledTimeWithCrowding,
-  HeadsignWithCrowding
-} from "../../../../__v3api";
+import { HeadsignWithCrowding } from "../../../../__v3api";
 
 // mock the redux state
 jest.spyOn(redux, "useSelector").mockImplementation(selector =>
@@ -182,11 +177,16 @@ it("VehicleIcons includes the track number for commuter rail, when available", (
     }
   ];
 
-  const prediction = { track: "999", time: ["14", " ", "min"] } as Prediction;
-  const timeData = { prediction: prediction } as PredictedOrScheduledTime;
-  const tdwcl = { time_data: timeData } as PredictedOrScheduledTimeWithCrowding;
   const headsignWithCrowding = {
-    time_data_with_crowding_list: [tdwcl]
+    headsign_name: "Destination",
+    trip_name: "18",
+    status: "incoming",
+    track: "999",
+    vehicle_crowding: null,
+    predicted_time: new Date(), // 14min
+    scheduled_time: null,
+    delay: 0,
+    skipped_or_cancelled: false
   } as HeadsignWithCrowding;
 
   const crWrapper = mount(

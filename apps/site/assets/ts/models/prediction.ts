@@ -11,12 +11,5 @@ export const isSkippedOrCancelled = (
     : false;
 
 export const hasPredictionTime = ({
-  time_data_with_crowding_list: timeDataList
-}: HeadsignWithCrowding): boolean =>
-  !!(
-    timeDataList &&
-    timeDataList[0] &&
-    timeDataList[0].time_data &&
-    timeDataList[0].time_data.prediction &&
-    timeDataList[0].time_data.prediction.time
-  );
+  predicted_time
+}: HeadsignWithCrowding): boolean => !!predicted_time;

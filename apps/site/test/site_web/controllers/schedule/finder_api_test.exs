@@ -7,7 +7,7 @@ defmodule SiteWeb.ScheduleController.FinderApiTest do
   alias Routes.Route
   alias Services.Repo, as: ServicesRepo
   alias Schedules.{Schedule, Trip}
-  alias SiteWeb.ScheduleController.FinderApi
+  # alias SiteWeb.ScheduleController.FinderApi
   alias Stops.Stop
 
   import Mock
@@ -423,28 +423,28 @@ defmodule SiteWeb.ScheduleController.FinderApiTest do
     end
   end
 
-  describe "maybe_add_delay/1" do
-    test "doesn't choke on missing schedules" do
-      prediction_without_schedule = %{
-        prediction: @prediction,
-        schedule: nil
-      }
+  # describe "maybe_add_delay/1" do
+  #   test "doesn't choke on missing schedules" do
+  #     prediction_without_schedule = %{
+  #       prediction: @prediction,
+  #       schedule: nil
+  #     }
 
-      assert FinderApi.maybe_add_delay(prediction_without_schedule) == prediction_without_schedule
-    end
+  #     assert FinderApi.maybe_add_delay(prediction_without_schedule) == prediction_without_schedule
+  #   end
 
-    test "doesn't choke on schedule missing time" do
-      schedule_without_time = %Schedule{@schedule | time: nil}
+  #   test "doesn't choke on schedule missing time" do
+  #     schedule_without_time = %Schedule{@schedule | time: nil}
 
-      prediction_and_schedule_without_time = %{
-        prediction: @prediction,
-        schedule: schedule_without_time
-      }
+  #     prediction_and_schedule_without_time = %{
+  #       prediction: @prediction,
+  #       schedule: schedule_without_time
+  #     }
 
-      assert FinderApi.maybe_add_delay(prediction_and_schedule_without_time) ==
-               prediction_and_schedule_without_time
-    end
-  end
+  #     assert FinderApi.maybe_add_delay(prediction_and_schedule_without_time) ==
+  #              prediction_and_schedule_without_time
+  #   end
+  # end
 
   defp get_valid_trip_params(%{id: route_id, stop: _, direction: _} = params, conn) do
     date = get_valid_trip_date(route_id)

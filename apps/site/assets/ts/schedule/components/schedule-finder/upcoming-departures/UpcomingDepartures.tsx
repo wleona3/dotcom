@@ -5,9 +5,9 @@ import Loading from "../../../../components/Loading";
 import { reducer } from "../../../../helpers/fetch";
 import { modeIcon } from "../../../../helpers/icon";
 import {
-  timeForCommuterRail,
   trackForCommuterRail,
-  statusForCommuterRail
+  statusForCommuterRail,
+  PredictionForCommuterRail
 } from "../../../../helpers/prediction-helpers";
 import { breakTextAtSlash } from "../../../../helpers/text";
 import { isABusRoute } from "../../../../models/route";
@@ -120,17 +120,16 @@ export const CrTableRow = ({
   const trainNumber = trip.name ? `Train ${trip.name}` : null;
 
   const statusWithTrain = [trainNumber, status].filter(x => x).join(" · ");
-
   return (
     <>
       <td className="schedule-table__cell schedule-table__cell--headsign">
         {modeIcon(route.id)} {breakTextAtSlash(trip.headsign)}
       </td>
       <td className="schedule-table__cell text-right">
-        {timeForCommuterRail(
-          realtime,
-          "u-tabular-nums u-nowrap schedule-table__times"
-        )}
+        <PredictionForCommuterRail
+          data={realtime}
+          modifier="u-tabular-nums u-nowrap schedule-table__times"
+        />
         <div className="u-nowrap">
           {statusWithTrain}
           {track && (
@@ -177,7 +176,6 @@ const TableRow = ({
   journey: EnhancedJourney;
 }): ReactElement<HTMLElement> | null => {
   const { realtime } = journey;
-
   if (realtime.prediction === null) return null;
 
   const contentComponent =

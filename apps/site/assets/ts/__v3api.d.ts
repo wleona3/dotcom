@@ -21,9 +21,15 @@ export interface Headsign {
 }
 
 export interface HeadsignWithCrowding {
-  name: string;
-  time_data_with_crowding_list: PredictedOrScheduledTimeWithCrowding[];
-  train_number: string | null;
+  headsign_name: string | null;
+  trip_name: string | null;
+  status: string | null;
+  track: string | null;
+  vehicle_crowding: CrowdingType;
+  predicted_time: Date | null;
+  scheduled_time: Date | null;
+  delay: number;
+  skipped_or_cancelled: boolean;
 }
 
 export interface PredictedOrScheduledTimeWithCrowding {
