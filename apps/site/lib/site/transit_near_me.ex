@@ -6,7 +6,6 @@ defmodule Site.TransitNearMe do
   require Logger
 
   alias GoogleMaps.Geocode.Address
-  alias PredictedSchedule.Display
   alias Predictions.Prediction
   alias Routes.Route
   alias Schedules.{Schedule, Trip}
@@ -140,33 +139,26 @@ defmodule Site.TransitNearMe do
     }
   end
 
-  @spec format_prediction_time(DateTime.t(), DateTime.t(), atom, integer) ::
-          [String.t()] | String.t()
-  def format_prediction_time(%DateTime{} = time, _now, :commuter_rail, _) do
-    format_time(time)
-  end
+  # @spec format_prediction_time(DateTime.t(), DateTime.t(), atom, integer) ::
+  #         String.t()
+  # def format_prediction_time(%DateTime{} = time, _now, :commuter_rail, _) do
+  #   format_time(time)
+  # end
 
-  def format_prediction_time(%DateTime{} = time, now, :subway, seconds) when seconds > 30 do
-    Display.do_time_difference(time, now, &format_time/1, 120)
-  end
+  # def format_prediction_time(%DateTime{} = time, now, :subway, seconds) when seconds > 30 do
+  #   Display.do_time_difference(time, now, &format_time/1, 120)
+  # end
 
-  def format_prediction_time(_, _, :subway, _), do: ["arriving"]
+  # def format_prediction_time(_, _, :subway, _), do: "arriving"
 
-  def format_prediction_time(%DateTime{} = time, now, :bus, seconds) when seconds > 60 do
-    Display.do_time_difference(time, now, &format_time/1, 120)
-  end
+  # def format_prediction_time(%DateTime{} = time, now, :bus, seconds) when seconds > 60 do
+  #   Display.do_time_difference(time, now, &format_time/1, 120)
+  # end
 
-  def format_prediction_time(_, _, :bus, _), do: ["arriving"]
+  # def format_prediction_time(_, _, :bus, _), do: "arriving"
 
-  @spec format_time(DateTime.t()) :: [String.t()]
-  def format_time(time) do
-    [time, am_pm] =
-      time
-      |> Timex.format!("{h12}:{m} {AM}")
-      |> String.split(" ")
-
-    [time, " ", am_pm]
-  end
+  # @spec format_time(DateTime.t()) :: String.t()
+  # def format_time(time), do: Timex.format!(time, "{h12}:{m} {AM}")
 
   @spec sort_by_time([{DateTime.t() | nil, any}]) ::
           {DateTime.t() | nil, [any]}
@@ -438,7 +430,7 @@ defmodule Site.TransitNearMe do
   # end
 
   defp scheduled_time(%PredictedSchedule{schedule: %Schedule{time: time}}) do
-    format_time(time)
+    SiteWeb.TimeHelpers.format_time(time)
   end
 
   defp scheduled_time(%PredictedSchedule{}) do
@@ -459,7 +451,10 @@ defmodule Site.TransitNearMe do
 
     prediction
     |> Map.take([:status, :track, :schedule_relationship])
-    |> Map.put(:time, format_prediction_time(prediction.time, now, route_type, seconds))
     |> Map.put(:seconds, seconds)
+    |> Map.put(
+      :time,
+      SiteWeb.TimeHelpers.format_prediction_time(prediction.time, now, route_type)
+    )
   end
 end

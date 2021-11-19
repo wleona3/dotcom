@@ -2,7 +2,7 @@ defmodule Site.VehicleHelpersTest do
   use ExUnit.Case, async: true
 
   import VehicleHelpers
-  import SiteWeb.ViewHelpers, only: [format_schedule_time: 1]
+  import SiteWeb.TimeHelpers, only: [format_schedule_time: 1]
 
   @locations %{
     {"CR-502273-501", "place-sstat"} => %Vehicles.Vehicle{

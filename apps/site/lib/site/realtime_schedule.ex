@@ -16,7 +16,6 @@ defmodule Site.RealtimeSchedule do
   alias Schedules.RepoCondensed, as: SchedulesRepo
   alias Schedules.ScheduleCondensed
   alias Site.JsonHelpers
-  alias Site.TransitNearMe
   alias Stops.Repo, as: StopsRepo
   alias Stops.Stop
 
@@ -361,12 +360,11 @@ defmodule Site.RealtimeSchedule do
   defp format_prediction_time(nil, _), do: nil
 
   defp format_prediction_time(%{time: time} = prediction, now) when not is_nil(time) do
-    seconds = DateTime.diff(prediction.time, now)
     route_type = Route.type_atom(prediction.route)
 
     %{
       prediction
-      | time: TransitNearMe.format_prediction_time(prediction.time, now, route_type, seconds)
+      | time: SiteWeb.TimeHelpers.format_prediction_time(prediction.time, now, route_type)
     }
   end
 
@@ -376,5 +374,5 @@ defmodule Site.RealtimeSchedule do
   defp format_schedule_time(nil), do: nil
 
   defp format_schedule_time(%{time: time} = schedule),
-    do: %{schedule | time: TransitNearMe.format_time(time)}
+    do: %{schedule | time: SiteWeb.TimeHelpers.format_time(time)}
 end
