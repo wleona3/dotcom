@@ -10,7 +10,7 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   alias Predictions.Prediction
   alias Routes.Route
   alias Schedules.{Schedule, Trip}
-  alias Site.TransitNearMe
+  # alias Site.TransitNearMe
   alias SiteWeb.ControllerHelpers
   alias SiteWeb.ScheduleController.TripInfo, as: Trips
   alias SiteWeb.ScheduleController.VehicleLocations, as: Vehicles
@@ -23,15 +23,15 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   @type react_strings :: [{react_keys, String.t()}]
   @type converted_values :: {Date.t(), integer, boolean}
 
-  @type enhanced_journey :: %{
-          departure: PredictedSchedule.t() | nil,
-          arrival: PredictedSchedule.t() | nil,
-          trip: Trip.t() | nil,
-          realtime: TransitNearMe.time_data() | nil
-        }
+  # @type enhanced_journey :: %{
+  #         departure: PredictedSchedule.t() | nil,
+  #         arrival: PredictedSchedule.t() | nil,
+  #         trip: Trip.t() | nil,
+  #         realtime: TransitNearMe.time_data() | nil
+  #       }
 
   # How many seconds a departure is considered recent
-  @recent_departure_max_age 600
+  # @recent_departure_max_age 600
 
   # Leverage the JourneyList module to return a simplified set of trips
   @spec journeys(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -75,7 +75,7 @@ defmodule SiteWeb.ScheduleController.FinderApi do
       schedules
       |> JourneyList.build_predictions_only(predictions, stop_id, nil)
       |> Map.get(:journeys, [])
-      |> Enum.map(&enhance_journeys/1)
+      # |> Enum.map(&enhance_journeys/1)
       |> prepare_journeys_for_json()
 
     json(conn, journeys)
@@ -223,17 +223,14 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   end
 
   # Add detailed prediction data to journeys known to have predictions.
-  @spec enhance_journeys(Journey.t()) :: map
-  defp enhance_journeys(%{departure: departure} = journey) do
-    now = Timex.now()
+  # @spec enhance_journeys(Journey.t()) :: map
+  # defp enhance_journeys(%Journey{departure: departure} = journey) do
+  #   now = Timex.now()
 
-    time_map =
-      departure
-      |> TransitNearMe.build_time_map(now: now)
-      |> recent_departure(departure, now)
+  #   time_map = recent_departure(departure, now)
 
-    Map.put(journey, :realtime, time_map)
-  end
+  #   Map.put(journey, :realtime, time_map)
+  # end
 
   # Trips which have departed the origin/selected station are normally
   # excluded in upcoming departures since their predictions are nil. In
@@ -241,28 +238,29 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   # a prediction's status and limit recent trips to a certain time range.
   # NOTE: Only works for N/S Station and Back Bay, and predictions will
   # drop off (become nil) anytime during the duration of the trip.
-  defp recent_departure(
-         {_, details},
-         %{schedule: schedule, prediction: %{status: "Departed"} = prediction},
-         now
-       )
-       when not is_nil(schedule) do
-    time_elapsed = DateTime.diff(now, schedule.time)
+  # @spec recent_departure(PredictedSchedule.t(), DateTime.t()) :: SiteWeb.ScheduleController.LineApi.headsign_data()
+  # defp recent_departure(
+  #        %{schedule: schedule, prediction: %{status: "Departed"} = prediction} = predicted_schedule,
+  #        now
+  #      )
+  #      when not is_nil(schedule) do
+  #   details = PredictedSchedule.headsign_data(predicted_schedule)
+  #   time_elapsed = DateTime.diff(now, schedule.time)
 
-    if time_elapsed <= @recent_departure_max_age do
-      Map.put(details, :prediction, %{
-        time: details.scheduled_time,
-        track: prediction.track,
-        status: "Departed"
-      })
-    else
-      details
-    end
-  end
+  #   if time_elapsed <= @recent_departure_max_age do
+  #     Map.put(details, :prediction, %{
+  #       time: details.scheduled_time,
+  #       track: prediction.track,
+  #       status: "Departed"
+  #     })
+  #   else
+  #     details
+  #   end
+  # end
 
-  defp recent_departure({_, details}, _, _), do: details
+  # defp recent_departure(predicted_schedule, _, _), do: predicted_schedule
 
-  @spec prepare_journeys_for_json(JourneyList.t() | [Journey.t() | enhanced_journey]) :: [map]
+  @spec prepare_journeys_for_json(JourneyList.t() | Journey.t()) :: [map]
   defp prepare_journeys_for_json(%{journeys: journeys}) do
     prepare_journeys_for_json(journeys)
   end

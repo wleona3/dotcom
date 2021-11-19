@@ -327,4 +327,30 @@ defmodule PredictedSchedule do
   end
 
   defp maybe_struct_from_map(_, _), do: nil
+
+  @spec headsign_data(__MODULE__.t()) :: SiteWeb.ScheduleController.LineApi.headsign_data()
+  def headsign_data(%PredictedSchedule{schedule: schedule, prediction: prediction} = ps) do
+    trip_name =
+      case PredictedSchedule.trip(ps) do
+        %Schedules.Trip{name: name} -> name
+        _ -> nil
+      end
+
+    %{
+      headsign_name: headsign(ps),
+      trip_name: trip_name,
+      status: status(ps),
+      track: if(has_prediction?(prediction), do: prediction.track),
+      vehicle_crowding: vehicle_crowding(ps),
+      predicted_time: if(has_prediction?(prediction), do: prediction.time),
+      scheduled_time: if(has_schedule?(schedule), do: schedule.time),
+      delay: delay(ps),
+      skipped_or_cancelled:
+        if(has_prediction?(prediction),
+          do: Prediction.is_skipped_or_cancelled?(prediction),
+          else: false
+        ),
+      departing?: if(has_prediction?(prediction), do: prediction.departing?)
+    }
+  end
 end

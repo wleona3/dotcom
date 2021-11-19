@@ -8,7 +8,7 @@ import {
 } from "../helpers/prediction-helpers";
 
 interface Props {
-  headsign: Headsign;
+  headsign_name: string;
   routeType: RouteType;
   condensed: boolean;
 }
@@ -21,7 +21,7 @@ const headsignClass = (condensed: boolean): string => {
 };
 
 const renderHeadsignName = ({
-  headsign,
+  headsign_name: headsignName,
   routeType,
   condensed
 }: Props): ReactElement<HTMLElement> => {
@@ -29,7 +29,6 @@ const renderHeadsignName = ({
 
   const headsignNameClass = `m-tnm-sidebar__headsign-name m-tnm-sidebar__headsign-name--${modifier}`;
 
-  const headsignName = headsign.headsign || headsign.name;
   if (headsignName && headsignName.includes(" via ")) {
     const split = headsignName.split(" via ");
     return (
@@ -112,23 +111,24 @@ const renderTime = (
   );
 };
 
+// iterate through a list of predicted schedules? idk?
 const HeadsignComponent = (props: Props): ReactElement<HTMLElement> => {
-  const { headsign, routeType, condensed } = props;
+  const { headsign_name, trip_name: trainNumber, routeType, condensed, headsignsList } = props;
   return (
     <div className={headsignClass(condensed)}>
       <div className="m-tnm-sidebar__headsign">
         {renderHeadsignName(props)}
 
-        {routeType === 2 && headsign.train_number
-          ? renderTrainName(`Train ${headsign.train_number}`)
+        {routeType === 2 && trainNumber
+          ? renderTrainName(`Train ${trainNumber}`)
           : null}
       </div>
       <div className="m-tnm-sidebar__schedules">
-        {headsign.times
+        {headsignsList
           .filter(time => predictedOrScheduledTime(time)) // non-null time
-          .map((time, idx) => {
+          .map((time: Date, idx: number) => {
             if (routeType === 2 && idx > 0) return null; // limit to 1 headsign
-            return renderTime(time, headsign.name, routeType, idx);
+            return renderTime(time, headsign_name, routeType, idx);
           })}
       </div>
     </div>

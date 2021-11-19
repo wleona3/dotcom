@@ -3,17 +3,36 @@ import { HeadsignWithCrowding, PredictedOrScheduledTime } from "../__v3api";
 import { isSkippedOrCancelled } from "../models/prediction";
 import { TripPrediction } from "../schedule/components/__trips";
 
-export const predictedOrScheduledTime = (
-  data: PredictedOrScheduledTime
-): string | null => {
-  const { prediction, scheduled_time: scheduledTime } = data;
-  const time = prediction && prediction.time ? prediction.time : scheduledTime;
-  return time;
-};
-
+// export const predictedOrScheduledTime = (
+//   data: PredictedOrScheduledTime
+// ): string | null => {
+//   const { prediction, scheduled_time: scheduledTime } = data;
+//   const time = prediction && prediction.time ? prediction.time : scheduledTime;
+//   return time;
+// };
 type PredictionForCommuterRailType =
   | Pick<HeadsignWithCrowding, "delay" | "predicted_time" | "scheduled_time">
   | PredictedOrScheduledTime;
+// TODO: When done refactoring elsewhere, simplify this to only need the dates and delay.
+const isOldVersion = (
+  d: PredictionForCommuterRailType
+): d is PredictedOrScheduledTime =>
+  (d as PredictedOrScheduledTime).prediction !== undefined;
+
+export const predictedOrScheduledTime = (
+  data: PredictionForCommuterRailType
+): Date | string | null => {
+  if (isOldVersion(data)) {
+    const { prediction, scheduled_time: scheduledTime } = data;
+    const time = prediction && prediction.time ? prediction.time : scheduledTime;
+    return time;
+  } else {
+    const { predicted_time, scheduled_time } = data;
+    const time = predicted_time ? predicted_time : scheduled_time;
+    return time;
+  }
+};
+
 export const PredictionForCommuterRail = ({
   data,
   modifier
@@ -21,11 +40,7 @@ export const PredictionForCommuterRail = ({
   data: PredictionForCommuterRailType;
   modifier?: string;
 }): ReactElement<HTMLElement> | null => {
-  // TODO: When done refactoring elsewhere, simplify this to only need the dates and delay.
-  const isOldVersion = (
-    d: PredictionForCommuterRailType
-  ): d is PredictedOrScheduledTime =>
-    (d as PredictedOrScheduledTime).prediction !== undefined;
+
   let predicted_time;
   let scheduled_time;
   let delay: number;

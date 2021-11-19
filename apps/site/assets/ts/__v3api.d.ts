@@ -27,7 +27,7 @@ export interface HeadsignWithCrowding {
   track: string | null;
   vehicle_crowding: CrowdingType;
   predicted_time: Date | null;
-  predicted_time_display: string[];
+  // predicted_time_display: string[];
   scheduled_time: Date | null;
   delay: number;
   skipped_or_cancelled: boolean;
