@@ -447,14 +447,13 @@ defmodule Site.TransitNearMe do
   end
 
   def simple_prediction(%Prediction{time: %DateTime{}} = prediction, route_type, now) do
-    seconds = DateTime.diff(prediction.time, now)
-
     prediction
     |> Map.take([:status, :track, :schedule_relationship])
-    |> Map.put(:seconds, seconds)
     |> Map.put(
       :time,
       SiteWeb.TimeHelpers.format_prediction_time(prediction.time, now, route_type)
     )
+
+    # |> Map.put(:seconds, seconds)
   end
 end
