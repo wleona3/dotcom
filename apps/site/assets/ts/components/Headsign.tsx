@@ -70,15 +70,15 @@ const renderTimeCommuterRail = (
 };
 
 const renderTimeDefault = (
-  time: string[],
+  time: string,
   modifier: string
 ): ReactElement<HTMLElement> | null => {
   if (!time) return null;
-
+  const [t1, t2] = time.split(" "); // splits "2 min" or "10:10 AM"
   return (
     <div className={`m-tnm-sidebar__time ${modifier}`}>
-      <div className="m-tnm-sidebar__time-number">{time[0]}</div>
-      <div className="m-tnm-sidebar__time-mins">{time[2]}</div>
+      <div className="m-tnm-sidebar__time-number">{t1}</div>
+      <div className="m-tnm-sidebar__time-mins">{t2}</div>
     </div>
   );
 };

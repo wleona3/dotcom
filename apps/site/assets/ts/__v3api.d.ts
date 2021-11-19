@@ -27,6 +27,7 @@ export interface HeadsignWithCrowding {
   track: string | null;
   vehicle_crowding: CrowdingType;
   predicted_time: Date | null;
+  predicted_time_display: string[];
   scheduled_time: Date | null;
   delay: number;
   skipped_or_cancelled: boolean;
@@ -91,7 +92,7 @@ export interface ParkingLotUtilization {
 
 export interface PredictedOrScheduledTime {
   delay: number;
-  scheduled_time: string[] | null;
+  scheduled_time: string | null;
   prediction: Prediction | null;
 }
 
@@ -104,7 +105,7 @@ export type ScheduleRelationship =
   | null;
 
 export interface Prediction {
-  time: string[];
+  time: string;
   status: string | null;
   track: string | null;
   schedule_relationship?: ScheduleRelationship;
@@ -311,7 +312,7 @@ export interface Schedule {
   route: Route;
   trip: Trip;
   stop: Stop;
-  time: string[];
+  time: string;
   "flag?": boolean;
   "early_departure?": boolean;
   "last_stop?": boolean;

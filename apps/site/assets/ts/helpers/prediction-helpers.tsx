@@ -5,7 +5,7 @@ import { TripPrediction } from "../schedule/components/__trips";
 
 export const predictedOrScheduledTime = (
   data: PredictedOrScheduledTime
-): string[] | null => {
+): string | null => {
   const { prediction, scheduled_time: scheduledTime } = data;
   const time = prediction && prediction.time ? prediction.time : scheduledTime;
   return time;
