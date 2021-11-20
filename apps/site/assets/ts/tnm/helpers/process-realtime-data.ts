@@ -45,7 +45,7 @@ const findHeadsign = (
 ): number => {
   const index = data[routeIndex].stops_with_directions[stopIndex].directions[
     directionIndex
-  ].headsigns.findIndex(({ name }) => name === headsign);
+  ].headsigns.findIndex(({ headsign_name }) => headsign_name === headsign);
   return index === -1
     ? data[routeIndex].stops_with_directions[stopIndex].directions[
         directionIndex

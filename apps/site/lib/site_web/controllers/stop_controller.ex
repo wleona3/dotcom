@@ -230,6 +230,13 @@ defmodule SiteWeb.StopController do
 
   @spec schedules_for_route(Route.t(), Stop.id_t(), DateTime.t()) :: route_with_directions | nil
   defp schedules_for_route(%Route{} = route, stop_id, now) do
+    IO.puts("""
+
+
+
+    #{route.id} at #{stop_id}
+    """)
+
     # These are getting nil in the predicted schedule when they can actually have schedules?
     directions =
       route.id
@@ -263,8 +270,8 @@ defmodule SiteWeb.StopController do
 
   defp any_headsign_includes_predictions?(_direction_with_no_headsigns), do: false
 
-  @spec includes_predictions?(TransitNearMe.headsign_data()) :: boolean
-  defp includes_predictions?(%{times: times}), do: Enum.any?(times, &(&1.prediction != nil))
+  @spec includes_predictions?(SiteWeb.ScheduleController.LineApi.headsign_data()) :: boolean
+  defp includes_predictions?(%{predicted_time: predicted_time}), do: !is_nil(predicted_time)
 
   defp alerts(%{assigns: %{alerts: alerts}} = conn, _opts) do
     assign(conn, :all_alerts_count, length(alerts))

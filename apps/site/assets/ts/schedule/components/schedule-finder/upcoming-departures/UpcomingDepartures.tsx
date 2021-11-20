@@ -5,8 +5,6 @@ import Loading from "../../../../components/Loading";
 import { reducer } from "../../../../helpers/fetch";
 import { modeIcon } from "../../../../helpers/icon";
 import {
-  trackForCommuterRail,
-  statusForCommuterRail,
   PredictionForCommuterRail
 } from "../../../../helpers/prediction-helpers";
 import { breakTextAtSlash } from "../../../../helpers/text";
@@ -43,7 +41,7 @@ type FetchAction =
 // Predictions are nil unless they have a time. This helps
 // prevent far-future trips from appearing in Upcoming Departures.
 const hasPredictions = (journeys: EnhancedJourney[]): boolean =>
-  journeys.filter(journey => journey.realtime.prediction !== null).length > 0;
+  journeys.filter(journey => journey.headsign.predicted_time !== null).length > 0;
 
 const RoutePillSmall = ({
   route
@@ -84,7 +82,7 @@ export const BusTableRow = ({
 }: {
   journey: EnhancedJourney;
 }): ReactElement<HTMLElement> | null => {
-  const { trip, route, realtime } = journey;
+  const { trip, route, headsign } = journey;
 
   return (
     <>
@@ -99,7 +97,7 @@ export const BusTableRow = ({
         {trip.headsign}
       </td>
       <td className="schedule-table__cell schedule-table__cell--time u-nowrap u-bold text-right">
-        {realtime.prediction!.time}
+        {headsign.predicted_time}
         {crowdingInformation(journey, trip.id)}
       </td>
     </>
@@ -111,12 +109,11 @@ export const CrTableRow = ({
 }: {
   journey: EnhancedJourney;
 }): ReactElement<HTMLElement> | null => {
-  const { trip, route, realtime } = journey;
+  const { trip, route, headsign } = journey;
 
-  if (realtime.prediction === null) return null;
+  // if (headsign.prediction === null) return null;
 
-  const status = statusForCommuterRail(realtime);
-  const track = trackForCommuterRail(realtime);
+  const {status, track} = headsign;
   const trainNumber = trip.name ? `Train ${trip.name}` : null;
 
   const statusWithTrain = [trainNumber, status].filter(x => x).join(" · ");
@@ -127,7 +124,7 @@ export const CrTableRow = ({
       </td>
       <td className="schedule-table__cell text-right">
         <PredictionForCommuterRail
-          data={realtime}
+          data={headsign}
           modifier="u-tabular-nums u-nowrap schedule-table__times"
         />
         <div className="u-nowrap">
@@ -175,8 +172,8 @@ const TableRow = ({
   input: UserInput;
   journey: EnhancedJourney;
 }): ReactElement<HTMLElement> | null => {
-  const { realtime } = journey;
-  if (realtime.prediction === null) return null;
+  // const { headsign } = journey;
+  // if (headsign.prediction === null) return null;
 
   const contentComponent =
     journey.route.type !== 2
@@ -229,7 +226,7 @@ export const fetchData = async (
 
   return Promise.all(
     journeys
-      .filter(journey => journey.realtime.prediction !== null)
+      // .filter(journey => journey.headsign.prediction !== null)
       .map(async journey => {
         // Sometimes using the route.id from the journey is desired over the route.id
         // from input (e.g. so we can get trips for "Green-D" instead of "Green")

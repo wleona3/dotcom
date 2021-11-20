@@ -364,7 +364,7 @@ defmodule Site.RealtimeSchedule do
 
     %{
       prediction
-      | time: SiteWeb.TimeHelpers.format_prediction_time(prediction.time, now, route_type)
+      | time: SiteWeb.TimeHelpers.format_prediction_time(prediction.time, route_type, now)
     }
   end
 

@@ -163,6 +163,7 @@ defmodule SiteWeb.ScheduleController.LineApi do
           vehicle_crowding: Vehicles.Vehicle.crowding() | nil,
           predicted_time: DateTime.t() | nil,
           scheduled_time: DateTime.t() | nil,
+          displayed_time: String.t() | nil,
           delay: integer(),
           skipped_or_cancelled: boolean()
         }

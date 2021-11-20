@@ -15,31 +15,22 @@ defmodule SiteWeb.TimeHelpers do
   """
   @spec format_prediction_time(
           Timex.Types.valid_datetime(),
-          Timex.Types.valid_datetime(),
-          Routes.Route.type_atom()
-        ) ::
-          String.t()
-  def format_prediction_time(time, _now, :commuter_rail) when not is_nil(time) do
+          Routes.Route.type_atom(),
+          Timex.Types.valid_datetime()
+        ) :: String.t()
+  def format_prediction_time(time, mode, now_time \\ Util.now())
+
+  def format_prediction_time(time, :commuter_rail, _now_time) do
     format_time(time)
   end
 
-  def format_prediction_time(time, now, :subway) when not is_nil(time) do
-    seconds = Timex.diff(time, now, :seconds)
+  def format_prediction_time(time, mode, now_time) do
+    time_diff = Timex.diff(time, now_time, :seconds)
 
-    if seconds > 30 do
-      do_time_difference(time, now, &format_time/1, 120)
-    else
+    if time_diff <= 30 or (mode == :subway and time_diff <= 60) do
       "arriving"
-    end
-  end
-
-  def format_prediction_time(time, now, :bus) when not is_nil(time) do
-    seconds = Timex.diff(time, now, :seconds)
-
-    if seconds > 60 do
-      do_time_difference(time, now, &format_time/1, 120)
     else
-      "arriving"
+      do_time_difference(time, now_time, &format_time/1, 120)
     end
   end
 

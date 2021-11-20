@@ -37,9 +37,6 @@ const StopPredictions = ({
     predictions = liveHeadsigns.slice(0, 1).map(headsign => {
       const {
         headsign_name,
-        delay,
-        predicted_time,
-        scheduled_time,
         skipped_or_cancelled
       } = headsign;
       const predictionTimeClass = skipped_or_cancelled
@@ -50,7 +47,7 @@ const StopPredictions = ({
         <div key={`${headsign_name}-cr`}>
           <div className="m-schedule-diagram__cr-prediction">
             <PredictionForCommuterRail
-              data={{ delay, predicted_time, scheduled_time }}
+              data={headsign}
               modifier={predictionTimeClass}
             />
           </div>
@@ -65,7 +62,7 @@ const StopPredictions = ({
   } else {
     predictions = liveHeadsigns
       .slice(0, 2)
-      .map(({ vehicle_crowding, headsign_name, predicted_time }, index) => (
+      .map(({ vehicle_crowding, headsign_name, displayed_time }, index) => (
         <div
           // eslint-disable-next-line react/no-array-index-key
           key={`headsign.name-${index}`}
@@ -73,7 +70,7 @@ const StopPredictions = ({
         >
           <div>{headsign_name}</div>
           <div className="m-schedule-diagram__prediction-time">
-            {predicted_time}
+            {displayed_time}
           </div>
           <LiveCrowdingIcon crowding={vehicle_crowding} />
         </div>

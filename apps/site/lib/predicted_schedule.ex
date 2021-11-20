@@ -7,6 +7,7 @@ defmodule PredictedSchedule do
   """
   alias Predictions.Prediction
   alias Schedules.{Schedule, ScheduleCondensed, Trip}
+  alias SiteWeb.TimeHelpers
 
   @derive Jason.Encoder
 
@@ -331,26 +332,46 @@ defmodule PredictedSchedule do
   @spec headsign_data(__MODULE__.t()) :: SiteWeb.ScheduleController.LineApi.headsign_data()
   def headsign_data(%PredictedSchedule{schedule: schedule, prediction: prediction} = ps) do
     trip_name =
-      case PredictedSchedule.trip(ps) do
+      case trip(ps) do
         %Schedules.Trip{name: name} -> name
         _ -> nil
       end
+
+    predicted_time = if(has_prediction?(ps), do: prediction.time)
+    scheduled_time = if(has_schedule?(ps), do: schedule.time)
+
+    route_atom = route(ps) |> Routes.Route.type_atom()
+    displayed_time = displayed_time(predicted_time, scheduled_time, route_atom)
 
     %{
       headsign_name: headsign(ps),
       trip_name: trip_name,
       status: status(ps),
-      track: if(has_prediction?(prediction), do: prediction.track),
+      track: if(has_prediction?(ps), do: prediction.track),
       vehicle_crowding: vehicle_crowding(ps),
-      predicted_time: if(has_prediction?(prediction), do: prediction.time),
-      scheduled_time: if(has_schedule?(schedule), do: schedule.time),
+      predicted_time: predicted_time,
+      scheduled_time: scheduled_time,
+      displayed_time: displayed_time,
       delay: delay(ps),
       skipped_or_cancelled:
-        if(has_prediction?(prediction),
+        if(has_prediction?(ps),
           do: Prediction.is_skipped_or_cancelled?(prediction),
           else: false
         ),
-      departing?: if(has_prediction?(prediction), do: prediction.departing?)
+      departing?: if(has_prediction?(ps), do: prediction.departing?)
     }
   end
+
+  @spec displayed_time(
+          Timex.Types.valid_datetime(),
+          Timex.Types.valid_datetime(),
+          Routes.Route.gtfs_route_type()
+        ) :: String.t() | nil
+  def displayed_time(predicted_time, _scheduled_time, mode) when not is_nil(predicted_time),
+    do: TimeHelpers.format_prediction_time(predicted_time, mode)
+
+  def displayed_time(_predicted_time, scheduled_time, _mode) when not is_nil(scheduled_time),
+    do: TimeHelpers.format_schedule_time(scheduled_time)
+
+  def displayed_time(_predicted_time, _scheduled_time, _mode), do: "nothing"
 end

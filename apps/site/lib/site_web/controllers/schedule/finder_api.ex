@@ -23,12 +23,12 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   @type react_strings :: [{react_keys, String.t()}]
   @type converted_values :: {Date.t(), integer, boolean}
 
-  # @type enhanced_journey :: %{
-  #         departure: PredictedSchedule.t() | nil,
-  #         arrival: PredictedSchedule.t() | nil,
-  #         trip: Trip.t() | nil,
-  #         realtime: TransitNearMe.time_data() | nil
-  #       }
+  @type enhanced_journey :: %{
+          departure: PredictedSchedule.t() | nil,
+          arrival: PredictedSchedule.t() | nil,
+          trip: Trip.t() | nil,
+          headsign: SiteWeb.ScheduleController.LineApi.headsign_data() | nil
+        }
 
   # How many seconds a departure is considered recent
   # @recent_departure_max_age 600
@@ -75,7 +75,7 @@ defmodule SiteWeb.ScheduleController.FinderApi do
       schedules
       |> JourneyList.build_predictions_only(predictions, stop_id, nil)
       |> Map.get(:journeys, [])
-      # |> Enum.map(&enhance_journeys/1)
+      |> Enum.map(&enhance_journeys/1)
       |> prepare_journeys_for_json()
 
     json(conn, journeys)
@@ -223,14 +223,11 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   end
 
   # Add detailed prediction data to journeys known to have predictions.
-  # @spec enhance_journeys(Journey.t()) :: map
-  # defp enhance_journeys(%Journey{departure: departure} = journey) do
-  #   now = Timex.now()
-
-  #   time_map = recent_departure(departure, now)
-
-  #   Map.put(journey, :realtime, time_map)
-  # end
+  @spec enhance_journeys(Journey.t()) :: map
+  defp enhance_journeys(%Journey{departure: departure} = journey) do
+    time_map = PredictedSchedule.headsign_data(departure)
+    Map.put(journey, :headsign, time_map)
+  end
 
   # Trips which have departed the origin/selected station are normally
   # excluded in upcoming departures since their predictions are nil. In

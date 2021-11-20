@@ -224,8 +224,9 @@ defmodule Site.TransitNearMe do
       |> PredictedSchedule.Filter.by_route_with_predictions(route, stop_id, now)
       |> Enum.take(schedule_count(route))
       |> filter_headsign_schedules(route)
-      |> Enum.map(&build_headsign_map/1)
-      |> sort_by_time()
+      |> build_headsign_map()
+
+    # |> sort_by_time()
 
     {
       closest_time,
@@ -238,12 +239,22 @@ defmodule Site.TransitNearMe do
 
   @spec build_headsign_map([PredictedSchedule.t()]) ::
           {DateTime.t(), [SiteWeb.ScheduleController.LineApi.headsign_data()]}
+  defp build_headsign_map([]), do: {nil, []}
   defp build_headsign_map(predicted_schedules) do
-    [soonest | _] = predicted_schedules
+    sorted_predicted_schedules =
+      predicted_schedules
+      |> Enum.sort_by(fn ps ->
+        case PredictedSchedule.time(ps) do
+          nil -> nil
+          time -> DateTime.to_unix(time)
+        end
+      end)
+
+    [soonest | _] = sorted_predicted_schedules
 
     {
       PredictedSchedule.time(soonest),
-      Enum.map(predicted_schedules, &PredictedSchedule.headsign_data(&1))
+      Enum.map(sorted_predicted_schedules, &PredictedSchedule.headsign_data(&1))
     }
   end
 

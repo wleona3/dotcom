@@ -3,7 +3,7 @@ import { TripPrediction } from "./schedule/components/__trips";
 
 export interface Direction {
   direction_id: DirectionId;
-  headsigns: Headsign[];
+  headsigns: HeadsignWithCrowding[];
 }
 
 type DirectionId = 0 | 1;
@@ -27,8 +27,8 @@ export interface HeadsignWithCrowding {
   track: string | null;
   vehicle_crowding: CrowdingType;
   predicted_time: Date | null;
-  // predicted_time_display: string[];
   scheduled_time: Date | null;
+  displayed_time: string | null; // e.g. "2 min" or "12:34 PM"
   delay: number;
   skipped_or_cancelled: boolean;
 }

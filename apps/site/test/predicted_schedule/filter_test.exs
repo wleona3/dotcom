@@ -111,156 +111,156 @@ defmodule PredictedSchedule.FilterTest do
     end
   end
 
-  describe "by_route_with_prediction_or_schedule/2" do
-    @predicted_schedule %PredictedSchedule{
-      schedule: %Schedule{time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")}
-    }
+  # describe "by_route_with_prediction_or_schedule/2" do
+  #   @predicted_schedule %PredictedSchedule{
+  #     schedule: %Schedule{time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")}
+  #   }
 
-    @time_data_with_prediction %{
-      delay: 0,
-      prediction: %{status: nil, time: ["5", " ", "min"], track: nil},
-      scheduled_time: ["3:50", " ", "PM"]
-    }
+  #   @time_data_with_prediction %{
+  #     delay: 0,
+  #     prediction: %{status: nil, time: ["5", " ", "min"], track: nil},
+  #     scheduled_time: ["3:50", " ", "PM"]
+  #   }
 
-    @time_data_without_prediction %{
-      delay: 0,
-      prediction: nil,
-      scheduled_time: ["3:50", " ", "PM"]
-    }
+  #   @time_data_without_prediction %{
+  #     delay: 0,
+  #     prediction: nil,
+  #     scheduled_time: ["3:50", " ", "PM"]
+  #   }
 
-    test "at least 1 result contains a prediction, up to 2 predictions are returned" do
-      enhanced_predicted_schedules = [
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: nil
-        },
-        %{
-          predicted_schedule: %{
-            @predicted_schedule
-            | prediction: %Prediction{
-                time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
-              }
-          },
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: %{
-            @predicted_schedule
-            | prediction: %Prediction{
-                time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
-              }
-          },
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: %{
-            @predicted_schedule
-            | prediction: %Prediction{
-                time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
-              }
-          },
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: nil
-        }
-      ]
+  #   test "at least 1 result contains a prediction, up to 2 predictions are returned" do
+  #     enhanced_predicted_schedules = [
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: nil
+  #       },
+  #       %{
+  #         predicted_schedule: %{
+  #           @predicted_schedule
+  #           | prediction: %Prediction{
+  #               time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
+  #             }
+  #         },
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: %{
+  #           @predicted_schedule
+  #           | prediction: %Prediction{
+  #               time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
+  #             }
+  #         },
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: %{
+  #           @predicted_schedule
+  #           | prediction: %Prediction{
+  #               time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
+  #             }
+  #         },
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: nil
+  #       }
+  #     ]
 
-      assert [
-               enhanced_predicted_schedule1,
-               enhanced_predicted_schedule2
-             ] =
-               by_route_with_prediction_or_schedule(
-                 enhanced_predicted_schedules,
-                 %Route{type: 3}
-               )
+  #     assert [
+  #              enhanced_predicted_schedule1,
+  #              enhanced_predicted_schedule2
+  #            ] =
+  #              by_route_with_prediction_or_schedule(
+  #                enhanced_predicted_schedules,
+  #                %Route{type: 3}
+  #              )
 
-      assert enhanced_predicted_schedule1.time_data.prediction != nil
-      assert enhanced_predicted_schedule2.time_data.prediction != nil
-    end
+  #     assert enhanced_predicted_schedule1.time_data.prediction != nil
+  #     assert enhanced_predicted_schedule2.time_data.prediction != nil
+  #   end
 
-    test "1 result contains a prediction, only 1 prediction is returned if rest are schedules" do
-      enhanced_predicted_schedules = [
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: %{
-            @predicted_schedule
-            | prediction: %Prediction{
-                time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
-              }
-          },
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_with_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        }
-      ]
+  #   test "1 result contains a prediction, only 1 prediction is returned if rest are schedules" do
+  #     enhanced_predicted_schedules = [
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: %{
+  #           @predicted_schedule
+  #           | prediction: %Prediction{
+  #               time: DateTime.from_naive!(~N[2019-02-27T12:00:00], "Etc/UTC")
+  #             }
+  #         },
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_with_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       }
+  #     ]
 
-      assert [
-               enhanced_predicted_schedule
-             ] =
-               by_route_with_prediction_or_schedule(
-                 enhanced_predicted_schedules,
-                 %Route{type: 3}
-               )
+  #     assert [
+  #              enhanced_predicted_schedule
+  #            ] =
+  #              by_route_with_prediction_or_schedule(
+  #                enhanced_predicted_schedules,
+  #                %Route{type: 3}
+  #              )
 
-      assert enhanced_predicted_schedule.time_data.prediction != nil
-    end
+  #     assert enhanced_predicted_schedule.time_data.prediction != nil
+  #   end
 
-    test "no results contains a prediction, only return 1 schedule" do
-      enhanced_predicted_schedules = [
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        },
-        %{
-          predicted_schedule: @predicted_schedule,
-          time_data: @time_data_without_prediction,
-          crowding: :not_crowded
-        }
-      ]
+  #   test "no results contains a prediction, only return 1 schedule" do
+  #     enhanced_predicted_schedules = [
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       },
+  #       %{
+  #         predicted_schedule: @predicted_schedule,
+  #         time_data: @time_data_without_prediction,
+  #         crowding: :not_crowded
+  #       }
+  #     ]
 
-      assert [enhanced_predicted_schedule] =
-               by_route_with_prediction_or_schedule(
-                 enhanced_predicted_schedules,
-                 %Route{type: 3}
-               )
+  #     assert [enhanced_predicted_schedule] =
+  #              by_route_with_prediction_or_schedule(
+  #                enhanced_predicted_schedules,
+  #                %Route{type: 3}
+  #              )
 
-      assert enhanced_predicted_schedule.time_data.prediction == nil
-    end
-  end
+  #     assert enhanced_predicted_schedule.time_data.prediction == nil
+  #   end
+  # end
 end
