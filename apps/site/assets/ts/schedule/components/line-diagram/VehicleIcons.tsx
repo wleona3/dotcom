@@ -5,25 +5,23 @@ import { RouteStop, LineDiagramVehicle } from "../__schedule";
 import CrowdingPill from "./CrowdingPill";
 import { TooltipWrapper, vehicleArrowIcon } from "../../../helpers/icon";
 import { StopCoord, CoordState, CIRC_RADIUS } from "./graphics/graphic-helpers";
-import { RouteType, HeadsignWithCrowding, Prediction } from "../../../__v3api";
+import { RouteType, HeadsignWithTimeData } from "../../../__v3api";
 import {
   vehicleRealtimeStatusText,
   vehicleName
 } from "../../../models/vehicle";
-import { isACommuterRailRoute } from "../../../models/route";
-import { hasPredictionTime } from "../../../models/prediction";
 
 interface VehicleIconsProps {
   stop: RouteStop;
   vehicles: LineDiagramVehicle[] | null;
-  headsigns: HeadsignWithCrowding[];
+  headsigns: HeadsignWithTimeData[];
 }
 
 const tooltipText = (
   routeType: RouteType | null,
   stopName: string | null,
   vehicle: LineDiagramVehicle,
-  prediction: Prediction | null
+  track: string | null
 ): string => {
   const status =
     stopName && stopName.length
@@ -35,10 +33,9 @@ const tooltipText = (
     if (routeType === 2) baseText += ` ${vehicle.trip_name}`;
 
     if (vehicle.headsign) {
-      const track =
-        prediction && prediction.track ? ` on Track ${prediction.track}` : "";
-
-      return `${vehicle.headsign} ${baseText.toLowerCase()} ${status}${track}`;
+      return `${vehicle.headsign} ${baseText.toLowerCase()} ${status}${
+        track ? ` on Track ${track}` : ""
+      }`;
     }
 
     return `${baseText} ${status}`;
@@ -70,17 +67,14 @@ const VehicleIcons = ({
       stopped: y - 10
     }[vehicle.status] || y}px`;
 
-    const liveHeadsigns = headsigns.filter(hasPredictionTime);
-
-    let prediction = null;
-    if (!!stop.route && isACommuterRailRoute(stop.route)) {
-      const headsign = liveHeadsigns[0];
-      if (headsign) {
-        const predictedOrScheduledTime =
-          headsign.time_data_with_crowding_list[0].time_data;
-        ({ prediction } = predictedOrScheduledTime);
-      }
-    }
+    // const liveHeadsigns = headsigns.filter(hasPredictionTime);
+    const headsignForVehicle = headsigns.find(
+      (hs: HeadsignWithTimeData): boolean => hs.trip_name === vehicle.trip_name
+    );
+    const track =
+      headsignForVehicle && headsignForVehicle.track!
+        ? headsignForVehicle!.track
+        : null;
 
     return (
       <div
@@ -91,7 +85,7 @@ const VehicleIcons = ({
         <TooltipWrapper
           tooltipText={`<div class="m-schedule-diagram__vehicle-tooltip">${
             vehicle.crowding ? `${CrowdingIconString(vehicle)}<br/>` : ""
-          }${tooltipText(routeType, stop.name, vehicle, prediction)}</div>`}
+          }${tooltipText(routeType, stop.name, vehicle, track)}</div>`}
           tooltipOptions={{ placement: "right", animation: false, html: true }}
         >
           {vehicleArrowIcon("m-schedule-diagram__vehicle--icon")}

@@ -1,9 +1,8 @@
 import { CrowdingType } from "./schedule/components/__schedule";
-import { TripPrediction } from "./schedule/components/__trips";
 
 export interface Direction {
   direction_id: DirectionId;
-  headsigns: Headsign[];
+  headsigns: HeadsignWithTimeData[];
 }
 
 type DirectionId = 0 | 1;
@@ -13,28 +12,17 @@ interface DirectionInfo {
   1: string | null;
 }
 
-export interface Headsign {
-  name: string;
-  headsign?: string;
-  times: PredictedOrScheduledTime[];
-  train_number: string | null;
-}
-
-export interface HeadsignWithCrowding {
-  name: string;
-  time_data_with_crowding_list: PredictedOrScheduledTimeWithCrowding[];
-  train_number: string | null;
-}
-
-export interface PredictedOrScheduledTimeWithCrowding {
-  time_data: PredictedOrScheduledTime;
-  crowding: CrowdingType;
-  predicted_schedule: PredictedSchedule;
-}
-
-export interface PredictedSchedule {
-  schedule: Schedule;
-  prediction: TripPrediction;
+export interface HeadsignWithTimeData {
+  headsign_name: string | null;
+  trip_name: string | null;
+  status: string | null;
+  track: string | null;
+  vehicle_crowding: CrowdingType;
+  predicted_time: Date | null;
+  scheduled_time: Date | null;
+  displayed_time: string | null; // e.g. "2 min" or "12:34 PM"
+  delay: number;
+  skipped_or_cancelled: boolean;
 }
 
 export type Mode = "commuter_rail" | "subway" | "bus" | "ferry";
@@ -83,12 +71,6 @@ export interface ParkingLotUtilization {
   typical?: number;
 }
 
-export interface PredictedOrScheduledTime {
-  delay: number;
-  scheduled_time: string[] | null;
-  prediction: Prediction | null;
-}
-
 export type ScheduleRelationship =
   | "added"
   | "unscheduled"
@@ -98,7 +80,7 @@ export type ScheduleRelationship =
   | null;
 
 export interface Prediction {
-  time: string[];
+  time: string;
   status: string | null;
   track: string | null;
   schedule_relationship?: ScheduleRelationship;
@@ -305,7 +287,7 @@ export interface Schedule {
   route: Route;
   trip: Trip;
   stop: Stop;
-  time: string[];
+  time: string;
   "flag?": boolean;
   "early_departure?": boolean;
   "last_stop?": boolean;

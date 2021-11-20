@@ -2,9 +2,9 @@ import {
   Route,
   Trip,
   Stop,
-  PredictedOrScheduledTime,
   ScheduleRelationship,
-  RouteType
+  RouteType,
+  HeadsignWithTimeData
 } from "../../__v3api";
 import { CrowdingType } from "./__schedule";
 
@@ -15,7 +15,7 @@ export interface Journey {
 }
 
 export interface EnhancedJourney extends Journey {
-  realtime: PredictedOrScheduledTime;
+  headsign: HeadsignWithTimeData;
   tripInfo: TripInfo | null;
 }
 
@@ -32,7 +32,7 @@ export interface TripDeparture {
 }
 
 export interface TripDepartureWithPrediction extends TripDeparture {
-  prediction: Prediction;
+  prediction: TripPrediction;
 }
 
 export interface TripInfo {

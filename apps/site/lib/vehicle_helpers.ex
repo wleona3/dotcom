@@ -12,7 +12,7 @@ defmodule VehicleHelpers do
   import Routes.Route, only: [vehicle_name: 1]
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   import Phoenix.HTML, only: [safe_to_string: 1]
-  import SiteWeb.ViewHelpers, only: [format_schedule_time: 1]
+  import SiteWeb.TimeHelpers, only: [format_schedule_time: 1]
 
   @type tooltip_index_key :: {Trip.id_t() | nil, Stop.id_t()} | Stop.id_t()
   @type tooltip_index :: %{

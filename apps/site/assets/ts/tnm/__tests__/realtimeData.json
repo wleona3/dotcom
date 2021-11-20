@@ -23,69 +23,61 @@
       "custom_route?": false,
       "alerts": [{}]
     },
-    "predicted_schedules_by_route_pattern": {
-      "Oak Grove": {
-        "predicted_schedules": [
+    "headsigns_by_route_pattern": {
+      "Forest Hills - Oak Grove": {
+        "headsigns": [
           {
-            "schedule": null,
-            "prediction": {
-              "track": null,
-              "time": ["5", " ", "min"],
-              "stop_sequence": 180,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-41132036-20:15-OakGroveWellington-70035-180",
-              "headsign": "Oak Grove",
-              "direction_id": 1,
-              "departing?": true
-            }
+            "headsign_name": "Oak Grove",
+            "trip_name": null,
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": null,
+            "displayed_time": "5 min",
+            "delay": 0,
+            "skipped_or_cancelled": false
           },
           {
-            "schedule": null,
-            "prediction": {
-              "track": null,
-              "time": ["26", " ", "min"],
-              "stop_sequence": 180,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-41132045-20:15-OakGroveWellington-70035-180",
-              "headsign": "Oak Grove",
-              "direction_id": 1,
-              "departing?": true
-            }
+            "headsign_name": "Oak Grove",
+            "trip_name": null,
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": null,
+            "displayed_time": "26 min",
+            "delay": 0,
+            "skipped_or_cancelled": false
           }
         ],
         "direction_id": 1
       },
-      "Forest Hills": {
-        "predicted_schedules": [
+      "Oak Grove - Forest Hills": {
+        "headsigns": [
           {
-            "schedule": null,
-            "prediction": {
-              "track": null,
-              "time": ["1", " ", "min"],
-              "stop_sequence": 10,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-41132072-20:15-OakGroveWellington-70034-10",
-              "headsign": "Forest Hills",
-              "direction_id": 0,
-              "departing?": true
-            }
+            "headsign_name": "Forest Hills",
+            "trip_name": null,
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": null,
+            "displayed_time": "1 min",
+            "delay": 0,
+            "skipped_or_cancelled": false
           },
           {
-            "schedule": null,
-            "prediction": {
-              "track": null,
-              "time": ["14", " ", "min"],
-              "stop_sequence": 10,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-41132076-20:15-OakGroveWellington-70034-10",
-              "headsign": "Forest Hills",
-              "direction_id": 0,
-              "departing?": true
-            }
+            "headsign_name": "Forest Hills",
+            "trip_name": null,
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": null,
+            "displayed_time": "19 min",
+            "delay": 0,
+            "skipped_or_cancelled": false
           }
         ],
         "direction_id": 0
@@ -116,83 +108,61 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "North Station - Haverhill via Reading": {
-        "predicted_schedules": [
+        "headsigns": [
           {
-            "schedule": {
-              "train_number": "215",
-              "time": ["5:26", " ", "PM"],
-              "stop_sequence": 2,
-              "route_pattern_id": "CR-Haverhill-0-0",
-              "headsign": "Haverhill"
-            },
-            "prediction": {
-              "track": null,
-              "time": ["5:26", " ", "PM"],
-              "stop_sequence": 2,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-CR-Weekday-Spring-19-215-BallardvaleMaldenCenter-Malden Center-2",
-              "headsign": "Haverhill",
-              "direction_id": 0,
-              "departing?": true
-            }
+            "headsign_name": "Haverhill",
+            "trip_name": "215",
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": "",
+            "displayed_time": "5:26 PM",
+            "delay": 0,
+            "skipped_or_cancelled": false
           },
           {
-            "schedule": {
-              "train_number": "217",
-              "time": ["5:46", " ", "PM"],
-              "stop_sequence": 2,
-              "route_pattern_id": "CR-Haverhill-0-0",
-              "headsign": "Haverhill"
-            },
-            "prediction": {
-              "track": null,
-              "time": ["5:46", " ", "PM"],
-              "stop_sequence": 2,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-CR-Weekday-Spring-19-217-BallardvaleMaldenCenter-Malden Center-2",
-              "headsign": "Haverhill",
-              "direction_id": 0,
-              "departing?": true
-            }
+            "headsign_name": "Haverhill",
+            "trip_name": "217",
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": "",
+            "displayed_time": "5:46 PM",
+            "delay": 0,
+            "skipped_or_cancelled": false
           }
         ],
         "direction_id": 0
       },
       "Haverhill - North Station via Reading": {
-        "predicted_schedules": [
+        "headsigns": [
           {
-            "schedule": {
-              "train_number": "294",
-              "time": ["5:54", " ", "PM"],
-              "stop_sequence": 7,
-              "route_pattern_id": "CR-Haverhill-0-1",
-              "headsign": "North Station"
-            },
-            "prediction": {
-              "track": null,
-              "time": ["5:53", " ", "PM"],
-              "stop_sequence": 7,
-              "status": null,
-              "schedule_relationship": null,
-              "id": "prediction-CR-Weekday-Spring-19-294-BallardvaleMaldenCenter-Malden Center-7",
-              "headsign": "North Station",
-              "direction_id": 1,
-              "departing?": true
-            }
+            "headsign_name": "North Station",
+            "trip_name": "294",
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": "",
+            "displayed_time": "5:54 PM",
+            "delay": 0,
+            "skipped_or_cancelled": false
           },
           {
-            "schedule": {
-              "train_number": "296",
-              "time": ["7:11", " ", "PM"],
-              "stop_sequence": 7,
-              "route_pattern_id": "CR-Haverhill-0-1",
-              "headsign": "North Station"
-            },
-            "prediction": null
+            "headsign_name": "North Station",
+            "trip_name": "296",
+            "status": null,
+            "track": null,
+            "vehicle_crowding": null,
+            "predicted_time": null,
+            "scheduled_time": "",
+            "displayed_time": "7:11 PM",
+            "delay": 0,
+            "skipped_or_cancelled": false
           }
         ],
         "direction_id": 1
@@ -223,9 +193,21 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Wellington Station - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
+          {
+            "headsign_name": "Malden",
+            "trip_name": null,
+            "status": null,
+            "track": "2",
+            "vehicle_crowding": null,
+            "predicted_time": "",
+            "scheduled_time": "",
+            "displayed_time": "10 min",
+            "delay": 0,
+            "skipped_or_cancelled": false
+          },
           {
             "schedule": {
               "train_number": "",
@@ -270,7 +252,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Wellington Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -343,9 +325,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Woodland Rd - Wellington Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -390,7 +372,7 @@
         "direction_id": 1
       },
       "Wellington Station - Woodland Rd": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -454,9 +436,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Sullivan Square Station - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -501,7 +483,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Sullivan Square Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -565,9 +547,9 @@
       "custom_route?": false,
       "alerts": [{}]
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Sullivan Square Station - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -612,7 +594,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Sullivan Square Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -682,9 +664,9 @@
       "custom_route?": false,
       "alerts": [{}]
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Sullivan Square Station - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -723,7 +705,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Sullivan Square Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -790,9 +772,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Wellington Station - Lebanon Loop": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -837,7 +819,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Lebanon Loop": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -852,7 +834,7 @@
         "direction_id": 0
       },
       "Lebanon Loop - Wellington Station via Sylvan St": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -897,7 +879,7 @@
         "direction_id": 1
       },
       "Lebanon Loop - Wellington Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -967,9 +949,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Wellington Station - Linden Square": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -1008,7 +990,7 @@
         "direction_id": 0
       },
       "Linden Square - Wellington Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1081,9 +1063,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Melrose Highlands Station - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1136,9 +1118,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Redstone Shopping Center - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1183,7 +1165,7 @@
         "direction_id": 1
       },
       "Malden Center Station - Redstone Shopping Center": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1256,9 +1238,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Reading Depot - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1303,7 +1285,7 @@
         "direction_id": 1
       },
       "Malden Center Station - Reading Depot": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1356,9 +1338,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Reading Depot - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1403,7 +1385,7 @@
         "direction_id": 1
       },
       "Malden Center Station - Reading Depot": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1476,9 +1458,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Malden Center Station - Kennedy Dr": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1523,7 +1505,7 @@
         "direction_id": 0
       },
       "Kennedy Dr - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1568,7 +1550,7 @@
         "direction_id": 1
       },
       "Jack Satter House - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1641,9 +1623,9 @@
       "custom_route?": false,
       "alerts": []
     },
-    "predicted_schedules_by_route_pattern": {
+    "headsigns_by_route_pattern": {
       "Saugus Center - Malden Center Station via Kennedy Dr": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1668,7 +1650,7 @@
         "direction_id": 1
       },
       "Saugus Center - Malden Center Station": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": null,
             "prediction": {
@@ -1707,7 +1689,7 @@
         "direction_id": 1
       },
       "Malden Center Station - Saugus Center via Kennedy Dr": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",
@@ -1732,7 +1714,7 @@
         "direction_id": 0
       },
       "Malden Center Station - Saugus Center": {
-        "predicted_schedules": [
+        "headsigns": [
           {
             "schedule": {
               "train_number": "",

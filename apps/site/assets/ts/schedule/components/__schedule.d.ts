@@ -2,7 +2,6 @@ import { TypedRoutes } from "../../stop/components/__stop";
 import {
   Alert,
   Route,
-  PredictedOrScheduledTime,
   EnhancedRoute,
   DirectionId,
   Service,
@@ -149,13 +148,6 @@ export interface Fare {
 export interface Holiday {
   name: string;
   date: string;
-}
-
-export interface StopPrediction {
-  headsign: string;
-  route: Route;
-  prediction: PredictedOrScheduledTime;
-  train_number: string;
 }
 
 export type SelectedOrigin = string | null;

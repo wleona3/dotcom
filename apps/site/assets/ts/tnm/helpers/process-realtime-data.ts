@@ -2,17 +2,13 @@ import dotProp from "dot-prop-immutable";
 import {
   RouteWithStopsWithDirections,
   Stop,
-  EnhancedRoute,
-  PredictedOrScheduledTime,
-  Prediction,
-  Headsign
+  EnhancedRoute
 } from "../../__v3api";
 import {
   RealtimeScheduleData,
-  PredictedSchedule,
-  PredictedScheduleByHeadsign,
   StopWithRoutes,
-  DistanceByStopId
+  DistanceByStopId,
+  HeadsignDataByHeadsign
 } from "../components/__tnm";
 
 const findRoute = (
@@ -34,23 +30,6 @@ const findStop = (
   return index === -1
     ? ["add", data[routeIndex].stops_with_directions.length]
     : ["update", index];
-};
-
-const findHeadsign = (
-  data: RouteWithStopsWithDirections[],
-  routeIndex: number,
-  stopIndex: number,
-  directionIndex: number,
-  headsign: string
-): number => {
-  const index = data[routeIndex].stops_with_directions[stopIndex].directions[
-    directionIndex
-  ].headsigns.findIndex(({ name }) => name === headsign);
-  return index === -1
-    ? data[routeIndex].stops_with_directions[stopIndex].directions[
-        directionIndex
-      ].headsigns.length
-    : index;
 };
 
 const setRoute = (
@@ -91,86 +70,24 @@ const setStop = (
   return nextData;
 };
 
-const getFirstTrainNumber = (
-  predictedSchedules: PredictedSchedule[]
-): string | undefined => {
-  const predictedSchedule = predictedSchedules.find(
-    ({ schedule }) => schedule !== null && schedule.train_number !== undefined
-  );
-  return predictedSchedule
-    ? predictedSchedule.schedule.train_number
-    : undefined;
-};
-
-const buildHeadsign = (
-  headsign: string,
-  predictedSchedulesByHeadsign: PredictedScheduleByHeadsign
-): Headsign => {
-  const headsignNameFromSchedule = predictedSchedulesByHeadsign[
-    headsign
-  ].predicted_schedules.map(
-    ({ prediction, schedule }) => prediction || schedule
-  );
-  const headsignDisplayName = headsignNameFromSchedule[0].headsign;
-  return {
-    name: headsign,
-    headsign: headsignDisplayName,
-    times: predictedSchedulesByHeadsign[headsign].predicted_schedules.map(
-      ({ prediction, schedule }): PredictedOrScheduledTime => {
-        const shortPrediction: Prediction | null = prediction
-          ? {
-              track: prediction.track,
-              time: prediction.time,
-              status: null,
-              // eslint-disable-next-line camelcase
-              schedule_relationship: prediction.schedule_relationship
-            }
-          : null;
-        const scheduledTime = schedule ? schedule.time : null;
-        const delay = 0;
-
-        return {
-          prediction: shortPrediction,
-          // eslint-disable-next-line camelcase
-          scheduled_time: scheduledTime,
-          delay
-        };
-      }
-    ),
-
-    // eslint-disable-next-line camelcase
-    train_number:
-      getFirstTrainNumber(
-        predictedSchedulesByHeadsign[headsign].predicted_schedules
-      ) || null
-  };
-};
-
 const setHeadsigns = (
   data: RouteWithStopsWithDirections[],
   routeIndex: number,
   stopIndex: number,
-  predictedScheduleByHeadsign: PredictedScheduleByHeadsign
+  predictedScheduleByHeadsign: HeadsignDataByHeadsign
 ): RouteWithStopsWithDirections[] =>
   Object.keys(predictedScheduleByHeadsign).reduce(
     (accumulator: RouteWithStopsWithDirections[], headsign: string) => {
-      const { direction_id: directionId } = predictedScheduleByHeadsign[
-        headsign
-      ];
+      const {
+        direction_id: directionId,
+        predicted_schedules: headsignsList
+      } = predictedScheduleByHeadsign[headsign];
       const nextData = accumulator;
-
-      const headsignIndex = findHeadsign(
-        nextData,
-        routeIndex,
-        stopIndex,
-        directionId,
-        headsign
-      );
 
       return dotProp.set(
         nextData,
-        `${routeIndex}.stops_with_directions.${stopIndex}.directions.${directionId}.headsigns.${headsignIndex}`,
-        buildHeadsign(headsign, predictedScheduleByHeadsign)
+        `${routeIndex}.stops_with_directions.${stopIndex}.directions.${directionId}.headsigns`,
+        headsignsList
       );
     },
     data
@@ -179,17 +96,11 @@ const setHeadsigns = (
 export const transformRoutes = (
   distances: DistanceByStopId,
   data: RouteWithStopsWithDirections[],
-  realtimeScheduleData: RealtimeScheduleData[]
+  rtData: RealtimeScheduleData[]
 ): RouteWithStopsWithDirections[] =>
-  realtimeScheduleData.reduce(
-    (
-      accumulator: RouteWithStopsWithDirections[],
-      {
-        route,
-        stop,
-        predicted_schedules_by_route_pattern: predictedScheduleByHeadsign
-      }: RealtimeScheduleData
-    ) => {
+  rtData.reduce(
+    (accumulator: RouteWithStopsWithDirections[], rt: RealtimeScheduleData) => {
+      const { route, stop, headsigns_by_route_pattern } = rt;
       let nextData = accumulator;
       const [routeState, routeIndex] = findRoute(accumulator, route.id);
       if (routeState === "add") {
@@ -205,11 +116,12 @@ export const transformRoutes = (
           distances[stop.id]
         );
       }
+
       nextData = setHeadsigns(
         nextData,
         routeIndex,
         stopIndex,
-        predictedScheduleByHeadsign
+        headsigns_by_route_pattern
       );
 
       return nextData;

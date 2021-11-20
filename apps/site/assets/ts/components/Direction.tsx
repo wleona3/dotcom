@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import Headsign from "./Headsign";
+import Headsigns from "./Headsign";
 import { Direction as DirectionType, EnhancedRoute } from "../__v3api";
 
 interface Props {
@@ -34,14 +34,14 @@ export const Direction = ({
         </div>
       )}
       <div className="m-tnm-sidebar__direction-headsigns">
-        {direction.headsigns.map(headsign => (
-          <Headsign
-            key={headsign.name}
-            headsign={headsign}
-            routeType={route.type}
-            condensed={condensed}
-          />
-        ))}
+        <Headsigns
+          key={`headsigns-${
+            route.direction_destinations[direction.direction_id]
+          }`}
+          routeType={route.type}
+          condensed={condensed}
+          headsigns={direction.headsigns}
+        />
       </div>
     </div>
   );

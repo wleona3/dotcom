@@ -171,7 +171,7 @@ defmodule Site.RealtimeScheduleTest do
     expected = [
       %{
         stop: %{accessibility: [], address: nil, id: "place-ogmnl", name: nil, parking_lots: []},
-        predicted_schedules_by_route_pattern: %{
+        headsigns_by_route_pattern: %{
           "Forest Hills" => %{
             direction_id: 0,
             predicted_schedules: [

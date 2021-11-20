@@ -71,7 +71,7 @@ export const fetchRealtimeSchedules = async (
   json.forEach(jsonData => {
     const data = jsonData.filter(
       ({
-        predicted_schedules_by_route_pattern: predictedSchedulesByRoutePattern
+        headsigns_by_route_pattern: predictedSchedulesByRoutePattern
       }: RealtimeScheduleData) =>
         Object.keys(predictedSchedulesByRoutePattern).length > 0
     );

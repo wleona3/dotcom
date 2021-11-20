@@ -12,7 +12,7 @@ defmodule SiteWeb.ScheduleController.LineApi do
   alias SiteWeb.ScheduleController.Line.DiagramHelpers
   alias SiteWeb.ScheduleController.Line.Helpers, as: LineHelpers
   alias Stops.Repo, as: StopsRepo
-  alias Stops.RouteStop
+  alias Stops.{RouteStop, Stop}
   alias Vehicles.Repo, as: VehiclesRepo
   alias Vehicles.Vehicle
 
@@ -59,11 +59,11 @@ defmodule SiteWeb.ScheduleController.LineApi do
   """
   @spec realtime(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def realtime(conn, %{"id" => route_id, "direction_id" => direction_id}) do
-    cache_key = {route_id, direction_id, conn.assigns.date}
+    cache_key = {route_id, direction_id, conn.assigns.date_time}
 
     payload =
       ConCache.get_or_store(:line_diagram_realtime_cache, cache_key, fn ->
-        do_realtime(route_id, direction_id, conn.assigns.date, conn.assigns.date_time)
+        do_realtime(route_id, direction_id, conn.assigns.date_time)
       end)
 
     conn
@@ -71,12 +71,11 @@ defmodule SiteWeb.ScheduleController.LineApi do
     |> send_resp(200, payload)
   end
 
-  defp do_realtime(route_id, direction_id, date, now) do
+  defp do_realtime(route_id, direction_id, now) do
     headsigns_by_stop =
-      TransitNearMe.time_data_for_route_by_stop(
+      headsigns_by_stop(
         route_id,
         String.to_integer(direction_id),
-        date: date,
         now: now
       )
 
@@ -101,6 +100,41 @@ defmodule SiteWeb.ScheduleController.LineApi do
       |> Enum.into(%{})
 
     Jason.encode!(combined_data_by_stop)
+  end
+
+  @doc """
+  Gets all schedules for a route and compiles appropriate headsign_data for each stop.
+  Returns a map indexed by stop_id
+  """
+  @spec headsigns_by_stop(Route.id_t(), 1 | 0, Keyword.t()) ::
+          headsigns_by_stop()
+  def headsigns_by_stop(route_id, direction_id, opts) do
+    opts = Keyword.put(opts, :direction_id, direction_id)
+    now = Keyword.fetch!(opts, :now)
+
+    PredictedSchedule.Repo.get(route_id, nil, opts)
+    |> Enum.filter(
+      &(!PredictedSchedule.last_stop?(&1) and TransitNearMe.after_min_time?(&1, now))
+    )
+    |> Enum.group_by(&PredictedSchedule.stop(&1).id)
+    |> do_headsigns_by_stop()
+  end
+
+  @type headsigns_by_stop :: %{
+          Stop.id_t() => [PredictedSchedule.to_headsign_data()]
+        }
+
+  @spec do_headsigns_by_stop(%{
+          Stop.id_t() => [PredictedSchedule.t()]
+        }) :: headsigns_by_stop()
+  defp do_headsigns_by_stop(predicted_schedules_by_stop) do
+    for {stop_id, predicted_schedules} <- predicted_schedules_by_stop, into: %{} do
+      headsigns =
+        predicted_schedules
+        |> Enum.map(&PredictedSchedule.to_headsign_data(&1))
+
+      {stop_id, headsigns}
+    end
   end
 
   @spec expand_route_id(Route.id_t()) :: [Route.id_t()]

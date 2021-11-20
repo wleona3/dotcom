@@ -1,16 +1,15 @@
 import React, { ReactElement } from "react";
-import { RouteType, PredictedOrScheduledTime, Headsign } from "../__v3api";
+import { RouteType, HeadsignWithTimeData } from "../__v3api";
 import {
-  timeForCommuterRail,
-  statusForCommuterRail,
-  trackForCommuterRail
+  PredictionForCommuterRail,
+  statusForCommuterRail
 } from "../helpers/prediction-helpers";
 
-interface Props {
-  headsign: Headsign;
+type Props = {
   routeType: RouteType;
   condensed: boolean;
-}
+  headsigns: HeadsignWithTimeData[];
+};
 
 const headsignClass = (condensed: boolean): string => {
   if (condensed === true) {
@@ -19,18 +18,17 @@ const headsignClass = (condensed: boolean): string => {
   return "m-tnm-sidebar__headsign-schedule";
 };
 
-const renderHeadsignName = ({
-  headsign,
-  routeType,
-  condensed
-}: Props): ReactElement<HTMLElement> => {
+const renderHeadsignName = (
+  headsign_name: string | null,
+  routeType: RouteType,
+  condensed: boolean
+): ReactElement<HTMLElement> => {
   const modifier = !condensed && routeType === 3 ? "small" : "large";
 
   const headsignNameClass = `m-tnm-sidebar__headsign-name m-tnm-sidebar__headsign-name--${modifier}`;
 
-  const headsignName = headsign.headsign || headsign.name;
-  if (headsignName && headsignName.includes(" via ")) {
-    const split = headsignName.split(" via ");
+  if (headsign_name && headsign_name.includes(" via ")) {
+    const split = headsign_name.split(" via ");
     return (
       <>
         <div className={headsignNameClass}>{split[0]}</div>
@@ -38,7 +36,7 @@ const renderHeadsignName = ({
       </>
     );
   }
-  return <div className={headsignNameClass}>{headsignName}</div>;
+  return <div className={headsignNameClass}>{headsign_name}</div>;
 };
 
 const renderTrainName = (trainName: string): ReactElement<HTMLElement> => (
@@ -46,82 +44,90 @@ const renderTrainName = (trainName: string): ReactElement<HTMLElement> => (
 );
 
 const renderTimeCommuterRail = (
-  data: PredictedOrScheduledTime,
+  headsign: HeadsignWithTimeData,
   modifier: string
 ): ReactElement<HTMLElement> => {
-  const status = statusForCommuterRail(data) || "";
+  const { status, track } = headsign;
+
+  const className = `${
+    headsign.status === "Canceled" ? "strikethrough" : ""
+  } m-tnm-sidebar__time-number`;
+
   return (
     <div
       className={`m-tnm-sidebar__time m-tnm-sidebar__time--commuter-rail ${modifier} ${
         status === "Scheduled" ? "text-muted" : ""
       }`}
     >
-      {timeForCommuterRail(
-        data,
-        `${
-          status === "Canceled" ? "strikethrough" : ""
-        } m-tnm-sidebar__time-number`
-      )}
-      <div className="m-tnm-sidebar__status">
-        {`${status}${trackForCommuterRail(data)}`}
-      </div>
+      <PredictionForCommuterRail data={headsign} modifier={className} />
+      {status || track ? (
+        <div className="m-tnm-sidebar__status">
+          {`${statusForCommuterRail(headsign)}${
+            track ? ` track ${track}` : ""
+          }`}
+        </div>
+      ) : null}
     </div>
   );
 };
 
 const renderTimeDefault = (
-  time: string[],
+  headsign: HeadsignWithTimeData,
   modifier: string
-): ReactElement<HTMLElement> => (
-  <div className={`m-tnm-sidebar__time ${modifier}`}>
-    <div className="m-tnm-sidebar__time-number">{time[0]}</div>
-    <div className="m-tnm-sidebar__time-mins">{time[2]}</div>
-  </div>
-);
+): ReactElement<HTMLElement> | null => {
+  if (!headsign.displayed_time) return null;
+  const [t1, t2] = headsign.displayed_time.split(" "); // splits "2 min" or "10:10 AM"
+  return (
+    <div className={`m-tnm-sidebar__time ${modifier}`}>
+      <div className="m-tnm-sidebar__time-number">{t1}</div>
+      <div className="m-tnm-sidebar__time-mins">{t2}</div>
+    </div>
+  );
+};
 
 const renderTime = (
-  tnmTime: PredictedOrScheduledTime,
-  headsignName: string,
+  headsign: HeadsignWithTimeData,
   routeType: RouteType,
   idx: number
 ): ReactElement<HTMLElement> => {
-  // eslint-disable-next-line camelcase
-  const { prediction, scheduled_time } = tnmTime;
-  // eslint-disable-next-line camelcase
-  const time = prediction ? prediction.time : scheduled_time!;
-
   const classModifier =
-    !prediction && [0, 1, 3].includes(routeType)
+    !headsign.predicted_time && [0, 1, 3].includes(routeType)
       ? "m-tnm-sidebar__time--schedule"
       : "";
 
   return (
     <div
       // eslint-disable-next-line camelcase
-      key={`${headsignName}-${idx}`}
+      key={`${headsign.headsign_name}-${idx}`}
       className="m-tnm-sidebar__schedule"
     >
       {routeType === 2
-        ? renderTimeCommuterRail(tnmTime, classModifier)
-        : renderTimeDefault(time, classModifier)}
+        ? renderTimeCommuterRail(headsign, classModifier)
+        : renderTimeDefault(headsign, classModifier)}
     </div>
   );
 };
 
 const HeadsignComponent = (props: Props): ReactElement<HTMLElement> => {
-  const { headsign, routeType, condensed } = props;
+  const { headsigns, routeType, condensed } = props;
+  const trainNumber = headsigns[0].trip_name;
+  const headsign_name = headsigns[0].headsign_name;
   return (
     <div className={headsignClass(condensed)}>
       <div className="m-tnm-sidebar__headsign">
-        {renderHeadsignName(props)}
+        {renderHeadsignName(headsign_name, routeType, condensed)}
 
-        {routeType === 2 && renderTrainName(`Train ${headsign.train_number}`)}
+        {routeType === 2 && trainNumber
+          ? renderTrainName(`Train ${trainNumber}`)
+          : null}
       </div>
       <div className="m-tnm-sidebar__schedules">
-        {headsign.times.map((time, idx) => {
-          if (routeType === 2 && idx > 0) return null; // limit to 1 headsign
-          return renderTime(time, headsign.name, routeType, idx);
-        })}
+        {headsigns
+          // .filter(time => predictedOrScheduledTime(time)) // non-null time
+          .map((headsign, idx: number) => {
+            if (routeType === 2 && idx > 0) return null; // limit to 1 headsign
+            return renderTime(headsign, routeType, idx);
+          })}
       </div>
     </div>
   );

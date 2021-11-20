@@ -10,7 +10,6 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   alias Predictions.Prediction
   alias Routes.Route
   alias Schedules.{Schedule, Trip}
-  alias Site.TransitNearMe
   alias SiteWeb.ControllerHelpers
   alias SiteWeb.ScheduleController.TripInfo, as: Trips
   alias SiteWeb.ScheduleController.VehicleLocations, as: Vehicles
@@ -27,11 +26,11 @@ defmodule SiteWeb.ScheduleController.FinderApi do
           departure: PredictedSchedule.t() | nil,
           arrival: PredictedSchedule.t() | nil,
           trip: Trip.t() | nil,
-          realtime: TransitNearMe.time_data() | nil
+          headsign: PredictedSchedule.to_headsign_data() | nil
         }
 
   # How many seconds a departure is considered recent
-  @recent_departure_max_age 600
+  # @recent_departure_max_age 600
 
   # Leverage the JourneyList module to return a simplified set of trips
   @spec journeys(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -224,15 +223,9 @@ defmodule SiteWeb.ScheduleController.FinderApi do
 
   # Add detailed prediction data to journeys known to have predictions.
   @spec enhance_journeys(Journey.t()) :: map
-  defp enhance_journeys(%{departure: departure} = journey) do
-    now = Timex.now()
-
-    time_map =
-      departure
-      |> TransitNearMe.build_time_map(now: now)
-      |> recent_departure(departure, now)
-
-    Map.put(journey, :realtime, time_map)
+  defp enhance_journeys(%Journey{departure: departure} = journey) do
+    time_map = PredictedSchedule.to_headsign_data(departure)
+    Map.put(journey, :headsign, time_map)
   end
 
   # Trips which have departed the origin/selected station are normally
@@ -241,28 +234,8 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   # a prediction's status and limit recent trips to a certain time range.
   # NOTE: Only works for N/S Station and Back Bay, and predictions will
   # drop off (become nil) anytime during the duration of the trip.
-  defp recent_departure(
-         {_, details},
-         %{schedule: schedule, prediction: %{status: "Departed"} = prediction},
-         now
-       )
-       when not is_nil(schedule) do
-    time_elapsed = DateTime.diff(now, schedule.time)
 
-    if time_elapsed <= @recent_departure_max_age do
-      Map.put(details, :prediction, %{
-        time: details.scheduled_time,
-        track: prediction.track,
-        status: "Departed"
-      })
-    else
-      details
-    end
-  end
-
-  defp recent_departure({_, details}, _, _), do: details
-
-  @spec prepare_journeys_for_json(JourneyList.t() | [Journey.t() | enhanced_journey]) :: [map]
+  @spec prepare_journeys_for_json(JourneyList.t() | Journey.t()) :: [map]
   defp prepare_journeys_for_json(%{journeys: journeys}) do
     prepare_journeys_for_json(journeys)
   end
@@ -277,8 +250,11 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   end
 
   @spec journey_has_valid_departure?(Journey.t()) :: boolean
-  defp journey_has_valid_departure?(%{departure: departure}),
-    do: !PredictedSchedule.empty?(struct(PredictedSchedule, departure))
+  defp journey_has_valid_departure?(%{departure: %PredictedSchedule{} = departure}),
+    do: !PredictedSchedule.empty?(departure)
+
+  defp journey_has_valid_departure?(%{departure: %{} = departure}),
+    do: !PredictedSchedule.empty?(PredictedSchedule.from_maps(departure))
 
   defp journey_has_valid_departure?(_), do: true
 
@@ -330,11 +306,7 @@ defmodule SiteWeb.ScheduleController.FinderApi do
   # If there's a prediction and a schedule, use the schedule time
   @spec set_departure_time(Journey.t()) :: Journey.t()
   defp set_departure_time(%{departure: departure} = journey) do
-    departure_time =
-      case departure do
-        %{schedule: nil, prediction: p} -> p.time
-        %{schedule: s, prediction: _} -> s.time
-      end
+    departure_time = PredictedSchedule.from_maps(departure) |> PredictedSchedule.time()
 
     update_in(
       journey,
@@ -442,28 +414,17 @@ defmodule SiteWeb.ScheduleController.FinderApi do
     )
   end
 
-  def maybe_add_delay(%{prediction: nil} = schedule_and_prediction),
-    do: schedule_and_prediction
-
-  def maybe_add_delay(%{prediction: %{time: nil}} = schedule_and_prediction),
-    do: schedule_and_prediction
-
-  def maybe_add_delay(%{schedule: nil} = schedule_and_prediction),
-    do: schedule_and_prediction
-
-  def maybe_add_delay(%{schedule: %{time: nil}} = schedule_and_prediction),
-    do: schedule_and_prediction
-
-  def maybe_add_delay(
-        %{schedule: %{time: schedule_time}, prediction: %{time: prediction_time}} =
-          schedule_and_prediction
-      ) do
-    delay = DateTime.diff(prediction_time, schedule_time)
-    Map.put_new(schedule_and_prediction, :delay, delay)
-  end
-
   defp add_delays(schedules_and_predictions) do
-    Enum.map(schedules_and_predictions, &maybe_add_delay/1)
+    Enum.map(schedules_and_predictions, fn predicted_schedule_map ->
+      ps = PredictedSchedule.from_maps(predicted_schedule_map)
+      delay = PredictedSchedule.delay(ps)
+
+      if delay > 0 do
+        Map.put_new(predicted_schedule_map, :delay, delay)
+      else
+        predicted_schedule_map
+      end
+    end)
   end
 
   # Converts a DateTime to a simple string
