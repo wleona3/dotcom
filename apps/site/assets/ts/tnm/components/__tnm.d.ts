@@ -4,7 +4,8 @@ import {
   Stop,
   Prediction,
   Schedule,
-  DirectionId
+  DirectionId,
+  HeadsignWithCrowding
 } from "../../__v3api";
 
 export interface DistanceByStopId {
@@ -37,6 +38,15 @@ export interface PredictionScheduleWithDirection {
   direction_id: DirectionId;
 }
 
+export interface HeadsignWithDirection {
+  predicted_schedules: HeadsignWithCrowding[];
+  direction_id: DirectionId;
+}
+
+export interface HeadsignDataByHeadsign {
+  [key: string]: HeadsignWithDirection;
+}
+
 export interface PredictedScheduleByHeadsign {
   [key: string]: PredictionScheduleWithDirection;
 }
@@ -44,5 +54,5 @@ export interface PredictedScheduleByHeadsign {
 export interface RealtimeScheduleData {
   stop: Stop;
   route: EnhancedRoute;
-  predicted_schedules_by_route_pattern: PredictedScheduleByHeadsign;
+  predicted_schedules_by_route_pattern: HeadsignDataByHeadsign;
 }

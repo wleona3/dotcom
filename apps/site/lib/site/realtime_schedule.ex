@@ -13,8 +13,9 @@ defmodule Site.RealtimeSchedule do
   alias RoutePatterns.RoutePattern
   alias Routes.Repo, as: RoutesRepo
   alias Routes.Route
-  alias Schedules.RepoCondensed, as: SchedulesRepo
-  alias Schedules.ScheduleCondensed
+  # alias Schedules.RepoCondensed, as: SchedulesRepo
+  alias Schedules.Repo, as: SchedulesRepo
+  # alias Schedules.ScheduleCondensed
   alias Site.JsonHelpers
   alias Stops.Repo, as: StopsRepo
   alias Stops.Stop
@@ -219,9 +220,9 @@ defmodule Site.RealtimeSchedule do
     route_pattern_dictionary = make_route_pattern_dictionary(route_patterns, stop_id)
 
     [route_id]
-    |> schedules_fn.(min_time: now)
-    |> Enum.filter(&(&1.stop_id == stop_id))
-    |> Enum.group_by(& &1.route_pattern_id)
+    |> schedules_fn.(min_time: now, stop_ids: [stop_id])
+    # |> Enum.filter(&(&1.stop.id == stop_id))
+    |> Enum.group_by(& &1.trip.route_pattern_id)
     |> Enum.into(
       %{},
       fn {route_pattern_id, schedules} ->
@@ -263,11 +264,35 @@ defmodule Site.RealtimeSchedule do
     end)
   end
 
+  # @spec build_headsign_data_by_route_pattern(
+  #         String.t(),
+  #         [RoutePattern.t()],
+  #         map,
+  #         map,
+  #         DateTime.t()
+  #       ) ::
+  #         map
+  # defp build_headsign_data_by_route_pattern(
+  #        stop_id,
+  #        route_patterns,
+  #        schedules_by_route_pattern,
+  #        predictions_by_route_pattern,
+  #        now
+  #      ) do
+
+
+
+
+
+
+  #     end
+
   @spec make_route_patterns_unique([RoutePattern.t()], String.t()) :: [RoutePattern.t()]
   defp make_route_patterns_unique(route_patterns, stop_id) do
     Enum.uniq_by(route_patterns, &route_pattern_key(&1, stop_id))
   end
 
+  # Might need something different for Commuter rails??? It's not working for CR.
   @spec build_predicted_schedules_by_route_pattern(
           String.t(),
           [RoutePattern.t()],
@@ -281,7 +306,7 @@ defmodule Site.RealtimeSchedule do
          route_patterns,
          schedules_by_route_pattern,
          predictions_by_route_pattern,
-         now
+         _now
        ) do
     route_patterns
     |> Enum.map(fn %{name: name, direction_id: direction_id} = route_pattern ->
@@ -291,88 +316,97 @@ defmodule Site.RealtimeSchedule do
 
       {name, direction_id,
        predictions
-       |> PredictedSchedule.build(schedules)
-       |> first_two_with_time()
-       |> Enum.map(&shrink_predicted_schedule(&1, now))}
+       |> PredictedSchedule.build(schedules)}
+
+      #  |> first_two_with_time()
+      #  |> Enum.map(&shrink_predicted_schedule(&1, now))}
     end)
     |> Enum.filter(fn {_name, _direction_id, predicted_schedules} ->
       !Enum.empty?(predicted_schedules)
     end)
     |> Enum.into(%{}, fn {name, direction_id, predicted_schedules} ->
-      {name, %{direction_id: direction_id, predicted_schedules: predicted_schedules}}
+      {name,
+       %{
+         direction_id: direction_id,
+         predicted_schedules:
+           predicted_schedules
+           |> Enum.filter(&PredictedSchedule.time/1)
+           |> Enum.map(&PredictedSchedule.headsign_data/1)
+          #  |> Enum.map(&shrink_predicted_schedule(&1, now))
+       }}
     end)
   end
 
   #### Used to just need first two, but now we need best first two since we're letting in nil prediction times.
-  @spec first_two_with_time([PredictedSchedule.t()]) :: [PredictedSchedule.t()]
-  defp first_two_with_time(predicted_schedules) do
-    Enum.filter(predicted_schedules, fn
-      %PredictedSchedule{prediction: %{time: time}, schedule: nil} ->
-        not is_nil(time)
+  # @spec first_two_with_time([PredictedSchedule.t()]) :: [PredictedSchedule.t()]
+  # defp first_two_with_time(predicted_schedules) do
+  #   Enum.filter(predicted_schedules, fn
+  #     %PredictedSchedule{prediction: %{time: time}, schedule: nil} ->
+  #       not is_nil(time)
 
-      %PredictedSchedule{prediction: nil, schedule: %{time: time}} ->
-        not is_nil(time)
+  #     %PredictedSchedule{prediction: nil, schedule: %{time: time}} ->
+  #       not is_nil(time)
 
-      %PredictedSchedule{prediction: %{time: p_time}, schedule: %{time: s_time}} ->
-        not is_nil(p_time) or not is_nil(s_time)
+  #     %PredictedSchedule{prediction: %{time: p_time}, schedule: %{time: s_time}} ->
+  #       not is_nil(p_time) or not is_nil(s_time)
 
-      _ ->
-        false
-    end)
-    |> Enum.slice(0, 2)
-  end
+  #     _ ->
+  #       false
+  #   end)
+  #   |> Enum.slice(0, 2)
+  # end
 
-  @spec shrink_predicted_schedule(PredictedSchedule.t(), DateTime.t()) :: map
-  defp shrink_predicted_schedule(%{schedule: schedule, prediction: prediction}, now) do
-    _ = log_warning_if_missing_trip(prediction)
+  # @spec shrink_predicted_schedule(PredictedSchedule.t(), DateTime.t()) :: map
+  # defp shrink_predicted_schedule(%{schedule: schedule, prediction: prediction}, now) do
+  #   _ = log_warning_if_missing_trip(prediction)
 
-    %{
-      prediction:
-        prediction
-        |> format_prediction_time(now)
-        |> add_trip_headsign()
-        |> do_shrink_predicted_schedule(),
-      schedule: schedule |> format_schedule_time() |> do_shrink_predicted_schedule()
-    }
-  end
+  #   %{
+  #     prediction:
+  #       prediction
+  #       |> format_prediction_time(now)
+  #       |> add_trip_headsign()
+  #       |> do_shrink_predicted_schedule(),
+  #     schedule: schedule |> format_schedule_time() |> do_shrink_predicted_schedule()
+  #   }
+  # end
 
-  def log_warning_if_missing_trip(prediction) do
-    _ =
-      if prediction && prediction.trip == nil do
-        Logger.warn("prediction_without_trip prediction=#{inspect(prediction)}")
-      end
-  end
+  # def log_warning_if_missing_trip(prediction) do
+  #   _ =
+  #     if prediction && prediction.trip == nil do
+  #       Logger.warn("prediction_without_trip prediction=#{inspect(prediction)}")
+  #     end
+  # end
 
-  @spec add_trip_headsign(map) :: map | nil
-  defp add_trip_headsign(nil), do: nil
+  # @spec add_trip_headsign(map) :: map | nil
+  # defp add_trip_headsign(nil), do: nil
 
-  defp add_trip_headsign(%{trip: trip} = prediction) do
-    Map.put(prediction, :headsign, trip.headsign)
-  end
+  # defp add_trip_headsign(%{trip: trip} = prediction) do
+  #   Map.put(prediction, :headsign, trip.headsign)
+  # end
 
-  @spec do_shrink_predicted_schedule(Prediction.t() | ScheduleCondensed.t() | nil) :: map | nil
-  defp do_shrink_predicted_schedule(nil), do: nil
+  # @spec do_shrink_predicted_schedule(Prediction.t() | ScheduleCondensed.t() | nil) :: map | nil
+  # defp do_shrink_predicted_schedule(nil), do: nil
 
-  defp do_shrink_predicted_schedule(prediction_or_schedule),
-    do: Map.drop(prediction_or_schedule, [:stop, :trip, :route, :stop_id, :trip_id])
+  # defp do_shrink_predicted_schedule(prediction_or_schedule),
+  #   do: Map.drop(prediction_or_schedule, [:stop, :trip, :route, :stop_id, :trip_id])
 
-  @spec format_prediction_time(map | nil, DateTime.t()) :: map | nil
-  defp format_prediction_time(nil, _), do: nil
+  # @spec format_prediction_time(map | nil, DateTime.t()) :: map | nil
+  # defp format_prediction_time(nil, _), do: nil
 
-  defp format_prediction_time(%{time: time} = prediction, now) when not is_nil(time) do
-    route_type = Route.type_atom(prediction.route)
+  # defp format_prediction_time(%{time: time} = prediction, now) when not is_nil(time) do
+  #   route_type = Route.type_atom(prediction.route)
 
-    %{
-      prediction
-      | time: SiteWeb.TimeHelpers.format_prediction_time(prediction.time, route_type, now)
-    }
-  end
+  #   %{
+  #     prediction
+  #     | time: SiteWeb.TimeHelpers.format_prediction_time(prediction.time, route_type, now)
+  #   }
+  # end
 
-  defp format_prediction_time(prediction, _), do: prediction
+  # defp format_prediction_time(prediction, _), do: prediction
 
-  @spec format_schedule_time(map | nil) :: map | nil
-  defp format_schedule_time(nil), do: nil
+  # @spec format_schedule_time(map | nil) :: map | nil
+  # defp format_schedule_time(nil), do: nil
 
-  defp format_schedule_time(%{time: time} = schedule),
-    do: %{schedule | time: SiteWeb.TimeHelpers.format_time(time)}
+  # defp format_schedule_time(%{time: time} = schedule),
+  #   do: %{schedule | time: SiteWeb.TimeHelpers.format_time(time)}
 end

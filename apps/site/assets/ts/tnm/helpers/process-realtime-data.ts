@@ -5,14 +5,16 @@ import {
   EnhancedRoute,
   PredictedOrScheduledTime,
   Prediction,
-  Headsign
+  Headsign,
+  HeadsignWithCrowding
 } from "../../__v3api";
 import {
   RealtimeScheduleData,
   PredictedSchedule,
   PredictedScheduleByHeadsign,
   StopWithRoutes,
-  DistanceByStopId
+  DistanceByStopId,
+  HeadsignDataByHeadsign
 } from "../components/__tnm";
 
 const findRoute = (
@@ -91,105 +93,110 @@ const setStop = (
   return nextData;
 };
 
-const getFirstTrainNumber = (
-  predictedSchedules: PredictedSchedule[]
-): string | undefined => {
-  const predictedSchedule = predictedSchedules.find(
-    ({ schedule }) => schedule !== null && schedule.train_number !== undefined
-  );
-  return predictedSchedule
-    ? predictedSchedule.schedule.train_number
-    : undefined;
-};
+// const getFirstTrainNumber = (
+//   predictedSchedules: PredictedSchedule[]
+// ): string | undefined => {
+//   const predictedSchedule = predictedSchedules.find(
+//     ({ schedule }) => schedule !== null && schedule.train_number !== undefined
+//   );
+//   return predictedSchedule
+//     ? predictedSchedule.schedule.train_number
+//     : undefined;
+// };
 
-const buildHeadsign = (
-  headsign: string,
-  predictedSchedulesByHeadsign: PredictedScheduleByHeadsign
-): Headsign => {
-  const headsignNameFromSchedule = predictedSchedulesByHeadsign[
-    headsign
-  ].predicted_schedules.map(
-    ({ prediction, schedule }) => prediction || schedule
-  );
-  const headsignDisplayName = headsignNameFromSchedule[0].headsign;
-  return {
-    name: headsign,
-    headsign: headsignDisplayName,
-    times: predictedSchedulesByHeadsign[headsign].predicted_schedules.map(
-      ({ prediction, schedule }): PredictedOrScheduledTime => {
-        const shortPrediction: Prediction | null = prediction
-          ? {
-              track: prediction.track,
-              time: prediction.time,
-              status: prediction.status,
-              // eslint-disable-next-line camelcase
-              schedule_relationship: prediction.schedule_relationship
-            }
-          : null;
-        const scheduledTime = schedule ? schedule.time : null;
-        const delay = 0;
+// const buildHeadsign = (
+//   headsign: string,
+//   predictedSchedulesByHeadsign: PredictedScheduleByHeadsign
+// ): HeadsignWithCrowding => {
+//   const headsignNameFromSchedule = predictedSchedulesByHeadsign[
+//     headsign
+//   ].predicted_schedules.map(
+//     ({ prediction, schedule }) => prediction || schedule
+//   );
+//   const headsignDisplayName = headsignNameFromSchedule[0].headsign;
+//   return {
+//     // name: headsign,
+//     // headsign: headsignDisplayName,
+//     // times: predictedSchedulesByHeadsign[headsign].predicted_schedules.map(
+//     //   ({ prediction, schedule }): PredictedOrScheduledTime => {
+//     //     const shortPrediction: Prediction | null = prediction
+//     //       ? {
+//     //           track: prediction.track,
+//     //           time: prediction.time,
+//     //           status: prediction.status,
+//     //           // eslint-disable-next-line camelcase
+//     //           schedule_relationship: prediction.schedule_relationship
+//     //         }
+//     //       : null;
+//     //     const scheduledTime = schedule ? schedule.time : null;
+//     //     const delay = 0;
 
-        return {
-          prediction: shortPrediction,
-          // eslint-disable-next-line camelcase
-          scheduled_time: scheduledTime,
-          delay
-        };
-      }
-    ),
+//     //     return {
+//     //       prediction: shortPrediction,
+//     //       // eslint-disable-next-line camelcase
+//     //       scheduled_time: scheduledTime,
+//     //       delay
+//     //     };
+//     //   }
+//     // ),
 
-    // eslint-disable-next-line camelcase
-    train_number:
-      getFirstTrainNumber(
-        predictedSchedulesByHeadsign[headsign].predicted_schedules
-      ) || null
-  };
-};
+//     // // eslint-disable-next-line camelcase
+//     // train_number:
+//     //   getFirstTrainNumber(
+//     //     predictedSchedulesByHeadsign[headsign].predicted_schedules
+//     //   ) || null
+//   };
+// };
 
 const setHeadsigns = (
   data: RouteWithStopsWithDirections[],
   routeIndex: number,
   stopIndex: number,
-  predictedScheduleByHeadsign: PredictedScheduleByHeadsign
+  predictedScheduleByHeadsign: HeadsignDataByHeadsign
 ): RouteWithStopsWithDirections[] =>
   Object.keys(predictedScheduleByHeadsign).reduce(
     (accumulator: RouteWithStopsWithDirections[], headsign: string) => {
-      const { direction_id: directionId } = predictedScheduleByHeadsign[
+      const { direction_id: directionId, predicted_schedules: headsignsList } = predictedScheduleByHeadsign[
         headsign
       ];
       const nextData = accumulator;
 
-      const headsignIndex = findHeadsign(
-        nextData,
-        routeIndex,
-        stopIndex,
-        directionId,
-        headsign
-      );
+      // maybe get current headsigns? again, why so many???
+      // const headsignIndex = findHeadsign(
+      //   nextData,
+      //   routeIndex,
+      //   stopIndex,
+      //   directionId,
+      //   headsign
+      // );
 
       return dotProp.set(
         nextData,
-        `${routeIndex}.stops_with_directions.${stopIndex}.directions.${directionId}.headsigns.${headsignIndex}`,
-        buildHeadsign(headsign, predictedScheduleByHeadsign)
+        `${routeIndex}.stops_with_directions.${stopIndex}.directions.${directionId}.headsigns`,
+        headsignsList
       );
     },
     data
   );
 
+/* EDIT THIS TO BE COMPATIBLE WITH NEW HEADSIGN STUFF 
+It almost works. It's kinda adding too many headsigns.
+*/
 export const transformRoutes = (
   distances: DistanceByStopId,
   data: RouteWithStopsWithDirections[],
-  realtimeScheduleData: RealtimeScheduleData[]
+  rtData: RealtimeScheduleData[]
 ): RouteWithStopsWithDirections[] =>
-  realtimeScheduleData.reduce(
+  rtData.reduce(
     (
       accumulator: RouteWithStopsWithDirections[],
-      {
+      rt: RealtimeScheduleData
+    ) => {
+      const {
         route,
         stop,
-        predicted_schedules_by_route_pattern: predictedScheduleByHeadsign
-      }: RealtimeScheduleData
-    ) => {
+        predicted_schedules_by_route_pattern
+      } = rt;
       let nextData = accumulator;
       const [routeState, routeIndex] = findRoute(accumulator, route.id);
       if (routeState === "add") {
@@ -205,11 +212,13 @@ export const transformRoutes = (
           distances[stop.id]
         );
       }
+
+      // console.log(`nextData at ${route.id} / ${stop.id}`, nextData)
       nextData = setHeadsigns(
         nextData,
         routeIndex,
         stopIndex,
-        predictedScheduleByHeadsign
+        predicted_schedules_by_route_pattern
       );
 
       return nextData;

@@ -240,6 +240,7 @@ defmodule Site.TransitNearMe do
   @spec build_headsign_map([PredictedSchedule.t()]) ::
           {DateTime.t(), [SiteWeb.ScheduleController.LineApi.headsign_data()]}
   defp build_headsign_map([]), do: {nil, []}
+
   defp build_headsign_map(predicted_schedules) do
     sorted_predicted_schedules =
       predicted_schedules

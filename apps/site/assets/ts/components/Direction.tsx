@@ -40,14 +40,6 @@ export const Direction = ({
             condensed={condensed}
             headsigns={direction.headsigns}
           />
-        {/* {direction.headsigns.map(headsign => (
-          <Headsign
-            key={headsign.headsign_name!}
-            routeType={route.type}
-            condensed={condensed}
-            {...headsign}
-          />
-        ))} */}
       </div>
     </div>
   );

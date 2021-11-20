@@ -196,6 +196,7 @@ const modeReducer = (state: State, action: Action): State => {
 const realtimeDataReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "UPDATE_REALTIME_SCHEDULE_DATA":
+      console.warn(action.payload.data)
       return {
         ...state,
         routesWithRealtimeSchedules: transformRoutes(
