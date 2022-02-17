@@ -560,16 +560,6 @@ nav.m-menu--mobile {
   }
 }
 
-@mixin focus-visible {
-  &.focus-visible {
-    @content;
-  }
-
-  &:focus-visible {
-    @content;
-  }
-}
-
 .m-menu__toggle, .m-menu--desktop__toggle, .header-search__toggle {
   background-color: unset;
   border: 2px solid $brand-primary-light-contrast;
@@ -580,7 +570,12 @@ nav.m-menu--mobile {
     background-color: $brand-primary-darkest;
   }
 
-  @include focus-visible {
+  &.focus-visible {
+    background-color: $brand-primary-darkest;
+    outline: 2px solid $brand-secondary;
+  }
+
+  &:focus-visible {
     background-color: $brand-primary-darkest;
     outline: 2px solid $brand-secondary;
   }
@@ -590,7 +585,11 @@ nav.m-menu--mobile {
       background-color: $brand-primary;
     }
 
-    @include focus-visible {
+    &.focus-visible {
+      background-color: $brand-primary;
+    }
+
+    &:focus-visible {
       background-color: $brand-primary;
     }
   }
