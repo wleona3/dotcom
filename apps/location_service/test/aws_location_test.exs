@@ -66,4 +66,32 @@ defmodule LocationService.AWSTest do
       end
     end
   end
+
+  describe "autocomplete/2" do
+    test "can parse a response with results" do
+      {:ok, body_string} =
+        %{
+          "Results" => [
+            %{
+              "Text" => "Test Location"
+            }
+          ]
+        }
+        |> Jason.encode()
+
+      with_mock ExAws,
+        request: fn _ -> {:ok, %{status_code: 200, body: body_string}} end do
+        assert {:ok, result} = autocomplete("Tes", 2)
+
+        assert [%LocationService.Suggestion{address: "Test Location"}] = result
+      end
+    end
+
+    test "can parse a response with error" do
+      with_mock ExAws,
+        request: fn _ -> {:error, {:http_error, 500, "bad news"}} end do
+        assert {:error, :internal_error} = autocomplete("test", 2)
+      end
+    end
+  end
 end

@@ -85,6 +85,43 @@ defmodule LocationService.AWS do
     end
   end
 
+  @spec autocomplete(String.t(), number) :: {:ok, [LocationService.Suggestion.t()]} | {:error}
+  def autocomplete(search, limit) do
+    case ExAws.request(%ExAws.Operation.RestQuery{
+           http_method: :post,
+           body: %{
+             Text: search,
+             FilterBBox: [-71.9380, 41.3193, -69.6189, 42.8266],
+             MaxResults: limit
+           },
+           service: :places,
+           path: "/places/v0/indexes/dotcom-dev-esri/search/suggestions"
+         }) do
+      {:ok, %{status_code: 200, body: body}} ->
+        case Jason.decode(body) do
+          {:ok, %{"Results" => results}} ->
+            {
+              :ok,
+              results
+              |> Enum.map(fn %{"Text" => text} ->
+                %LocationService.Suggestion{address: text}
+              end)
+            }
+
+          {:error, _} ->
+            _ =
+              Logger.warn(fn ->
+                "#{__MODULE__} error=\"Could not parse response body\""
+              end)
+
+            {:error, :internal_error}
+        end
+
+      {:error, error} ->
+        handle_error(error)
+    end
+  end
+
   ## Can add other functions, e.g. reverse geocode and lookup suggested places,
   ## here or in separate files
 
