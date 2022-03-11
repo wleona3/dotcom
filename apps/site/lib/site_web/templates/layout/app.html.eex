@@ -1,5 +1,6 @@
 <%
   location_service_js_url = raw GoogleMaps.unsigned_url("https://maps.googleapis.com/maps/api/js?libraries=places,geometry&callback=mapsCallback")
+  location_autocomplete_backing = Application.get_env(:location_service, :autocomplete)
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +41,9 @@
       <script defer src="<%= static_url(@conn, "/js/app.js") %>" data-turbolinks-track="reload"></script>
     <% end %>
 
+    <script type="application/javascript">
+      locationAutocompleteBacking = "<%= Application.get_env(:location_service, :autocomplete) %>";
+    </script>
     <%= if assigns[:requires_location_service?] do %>
       <script type="application/javascript">if (!window.mapsCallback) { window.mapsCallback = function () { window.isMapReady = true; } }</script>
       <script async src="<%= location_service_js_url %>"></script>
