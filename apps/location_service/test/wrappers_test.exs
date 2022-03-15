@@ -11,15 +11,22 @@ defmodule LocationService.WrappersTest do
           {:ok,
            [
              %{
-               description: "Test"
+               description: "Test",
+               matched_substrings: [%{"offset" => 0, "length" => 2}]
              }
            ]}
         end do
-        {:ok, results} = google_autocomplete("test", 2)
+        {:ok, results} = google_autocomplete("test", 2, "")
 
         assert [
                  %LocationService.Suggestion{
-                   address: "Test"
+                   address: "Test",
+                   highlighted_spans: [
+                     %LocationService.Utils.HighlightedSpan{
+                       length: 2,
+                       offset: 0
+                     }
+                   ]
                  }
                ] = results
       end
@@ -28,7 +35,7 @@ defmodule LocationService.WrappersTest do
     test "bubbles errors" do
       with_mock GoogleMaps.Place,
         autocomplete: fn _ -> {:error, :oops} end do
-        assert {:error, :oops} = google_autocomplete("oops", 6)
+        assert {:error, :oops} = google_autocomplete("oops", 6, "")
       end
     end
   end
