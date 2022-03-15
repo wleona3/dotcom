@@ -4,7 +4,7 @@ defmodule LocationService.WrappersTest do
   import LocationService.Wrappers
   import Mock
 
-  describe "google_autocomplete/2" do
+  describe "google_autocomplete/3" do
     test "formats google results" do
       with_mock GoogleMaps.Place,
         autocomplete: fn _ ->
