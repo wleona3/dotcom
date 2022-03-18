@@ -10,7 +10,7 @@ defmodule SiteWeb.Plugs.GlxNowOpen do
       Science Park/West End (place-spmnl)
   """
 
-  @opening_date ~N[2022-03-21T04:55:00]
+  @opening_date ~N[2022-03-14T04:55:00]
   @glx_stations ~w(place-lech place-unsqu place-spmnl)
 
   @behaviour Plug
