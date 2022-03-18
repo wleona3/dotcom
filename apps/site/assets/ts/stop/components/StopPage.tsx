@@ -5,13 +5,14 @@ import { StopPageData, StopMapData, TypedRoutes } from "./__stop";
 import { EnhancedRoute } from "../../__v3api";
 import StopPageHeader from "./StopPageHeader";
 import { reducer, initialState, Dispatch, updateRoutesAction } from "../state";
-import Alerts from "../../components/Alerts";
+import { Alert } from "../../components/Alerts";
 import AlertsTab from "./AlertsTab";
 import Sidebar from "./Sidebar";
 import LocationBlock from "./LocationBlock";
 import Departures from "./Departures";
 import SuggestedTransfers from "./SuggestedTransfers";
 import { isHighSeverityOrHighPriority } from "../../models/alert";
+import { getIsGlxOpen } from "../../components/GlxOpen";
 
 interface Props {
   stopPageData: StopPageData;
@@ -59,7 +60,8 @@ export default ({
   }, 15000);
 
   const highPriorityAlerts = alerts.filter(isHighSeverityOrHighPriority);
-
+  const isGlxOpen = getIsGlxOpen(stop.id);
+  console.log(isGlxOpen);
   return (
     <>
       <StopPageHeader
@@ -71,13 +73,25 @@ export default ({
         <AlertsTab alertsTab={alertsTab} />
       ) : (
         <>
-          <Alerts alerts={highPriorityAlerts} />
-          <div className="container">
-            <h2>Station Information</h2>
-            <p>
-              See upcoming departures, maps, and other features at this
-              location.
-            </p>
+          <div className={`m-stop-page__info ${isGlxOpen ? "glx-open" : ""}`}>
+
+            <div className="wrapper">
+              {highPriorityAlerts.length ?
+              <div className="page-section">
+                          <ul className="c-alert-group">
+                            {highPriorityAlerts.map((alert) => (
+                              <Alert key={alert.id} alert={alert} />
+                            ))}
+                          </ul>
+                        </div>
+                        : null}
+
+              <h2>Station Information</h2>
+              {isGlxOpen 
+                ? <p>Open to riders in 2022, this station is one of several to join the Green Line as part of the <a href="https://www.mbta.com/projects/green-line-extension-glx">Green Line Extension (GLX)</a>.</p>
+                : <p>See upcoming departures, maps, and other features at this location.</p>
+              }
+            </div>
           </div>
           <div className="m-stop-page__hero">
             <StopMapContainer

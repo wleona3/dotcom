@@ -10,7 +10,7 @@ defmodule SiteWeb.Plugs.GlxNowOpen do
       Science Park/West End (place-spmnl)
   """
 
-  @opening_date ~N[2022-03-21T04:55:00]
+  @opening_date ~N[2022-03-14T04:55:00] |> Util.convert_using_timezone("America/New_York")
   @glx_stations ~w(place-lech place-unsqu place-spmnl)
 
   @behaviour Plug
@@ -21,10 +21,17 @@ defmodule SiteWeb.Plugs.GlxNowOpen do
 
   @impl true
   def call(conn, now_fn: now_fn) do
+    # IO.inspect(Util.convert_using_timezone(@opening_date, "America/New_York"), label: "@opening_date convert_using_timezone")
+    # IO.inspect(now_fn.(), label: "now_fn")
+    # IO.inspect(Util.to_local_time(@opening_date), label: "@opening_date to_local_time")
     conn
     |> assign(
       :glx_stations_open,
       set_assigns(check_current_service_date(now_fn.(), Util.to_local_time(@opening_date)))
+    )
+    |> assign(
+      :glx_opening_date,
+      Util.convert_using_timezone(@opening_date, "America/New_York")
     )
   end
 

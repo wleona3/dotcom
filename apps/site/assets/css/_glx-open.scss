@@ -62,6 +62,19 @@
   }
 }
 
-.glx-open-container + .m-stop-page__name {
-  color: $brand-green-line;
+.glx-open {
+  .m-stop-page__name {
+    color: $brand-green-line;
+  }
+
+  .header-tab--selected:first-of-type,
+  &.m-stop-page__info {
+    background-color: $brand-green-line;
+    color: $white;
+  }
+
+  &.m-stop-page__info a {
+    color: inherit;
+    text-decoration: underline;
+  }
 }

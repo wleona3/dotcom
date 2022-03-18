@@ -11,7 +11,7 @@ import {
   clickFeaturePillAction
 } from "../state";
 import { modeByV3ModeType } from "../../components/ModeFilter";
-import GlxOpen from "../../components/GlxOpen";
+import GlxOpen, { getIsGlxOpen } from "../../components/GlxOpen";
 
 interface Props {
   stop: Stop;
@@ -172,7 +172,7 @@ const Header = ({
   const emptyFunc = (): void => {};
   const dispatchOrEmptyFunc = dispatch || emptyFunc;
   return (
-    <div className="m-stop-page__header">
+    <div className={`m-stop-page__header ${getIsGlxOpen(stop.id) ? "glx-open" : ""}`}>
       <div className="m-stop-page__header-container">
         <GlxOpen pageType="station-page" stopId={stop.id} />
         <h1 className={`m-stop-page__name ${nameUpcaseClass(routes)}`}>

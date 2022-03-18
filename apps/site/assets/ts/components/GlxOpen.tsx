@@ -2,16 +2,19 @@ import React, { ReactElement, useState, useEffect } from "react";
 import renderSvg from "../helpers/render-svg";
 import glxLogo from "../../static/images/glx-logo.svg";
 
-export const getIsGlxOpen = (stationId: string): boolean => {
+type GlxOpenStatus = [boolean, string] | false;
+
+export const getIsGlxOpen = (stationId: string): GlxOpenStatus => {
   if (!document) return false;
 
   const glxStationsOpen = document.querySelector(".glx-stations-open");
 
   if (
     glxStationsOpen instanceof HTMLElement &&
-    glxStationsOpen.dataset.stations
+    glxStationsOpen.dataset.stations && glxStationsOpen.dataset.opening
   ) {
-    return glxStationsOpen.dataset.stations.includes(stationId);
+    const {stations, opening} = glxStationsOpen.dataset;
+    return [stations.includes(stationId), opening];
   }
   return false;
 };
@@ -29,7 +32,7 @@ const GlxOpen = ({
   pageType: "station-page" | "schedule-finder" | "line-diagram";
   stopId: string;
 }): ReactElement<HTMLElement> | null => {
-  const [isGlxOpen, setIsGlxOpen] = useState(false);
+  const [isGlxOpen, setIsGlxOpen] = useState<GlxOpenStatus>(false);
   useEffect(() => {
     setIsGlxOpen(getIsGlxOpen(stopId));
   }, [stopId]);
