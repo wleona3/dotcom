@@ -61,3 +61,7 @@
     width: 45px;
   }
 }
+
+.glx-open-container + .m-stop-page__name {
+  color: $brand-green-line;
+}
