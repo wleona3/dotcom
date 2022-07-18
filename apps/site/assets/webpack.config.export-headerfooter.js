@@ -58,16 +58,26 @@ module.exports = (env, argv) => {
     })
   ] : [];
 
+  // this configuration is run in both "production" and "development" mode
+  // production minifies the files in addition to transpiling etc. in this case
+  // we only want to minify the CSS, so only CSS should be processed for
+  // "production" mode, while both JS & CSS are processed for "development" mode
+  const outputOptions = {
+    path: path.resolve(__dirname, argv.outputPath ? argv.outputPath: "../../../../dotcomchrome"),
+    crossOriginLoading: 'anonymous'
+  };
+
+  const entryFiles = ["./css/export-headerfooter.scss"];
+
   return ({
-    entry: ["./export-headerfooter.js", "./css/export-headerfooter.scss"],
+    entry: argv.mode === 'development' ? [...entryFiles, "./export-headerfooter.js"] : entryFiles,
 
     mode: "production",
 
-    output: {
-      path: path.resolve(__dirname, argv.outputPath ? argv.outputPath: "../../../../dotcomchrome"),
-      filename: argv.mode === 'development' ? 'header.[contenthash].js' : 'header.[contenthash].min.js',
-      crossOriginLoading: 'anonymous'
-    },
+    output: argv.mode === 'development' ? {
+      ...outputOptions,
+      filename: 'header.[contenthash].js'
+    } : outputOptions,
 
     devtool: 'source-map',
 
