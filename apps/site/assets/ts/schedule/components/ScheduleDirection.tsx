@@ -111,11 +111,11 @@ const ScheduleDirection = ({
     itemFocus: null
   });
 
-  const [mapState, dispatchMapData] = useReducer(fetchReducer, {
-    data: mapData,
-    isLoading: false,
-    error: false
-  });
+  // const [mapState, dispatchMapData] = useReducer(fetchReducer, {
+  //   data: mapData,
+  //   isLoading: false,
+  //   error: false
+  // });
 
   // To distinguish CR shuttles and branches and multi-route trips, we have to filter in a particular order:
   //    1. Filter by route_id - we only want to show the primary path, not the multi-route trips
@@ -162,20 +162,20 @@ const ScheduleDirection = ({
       ? state.routePattern.id
       : undefined;
 
-  useEffect(
-    () => {
-      if (!staticMapData) {
-        fetchMapData(
-          route.id,
-          state.directionId,
-          currentRoutePatternIdForData,
-          dispatchMapData
-        );
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [route, state.directionId, busVariantId, staticMapData]
-  );
+  // useEffect(
+  //   () => {
+  //     if (!staticMapData && route.id !== "Orange") {
+  //       fetchMapData(
+  //         route.id,
+  //         state.directionId,
+  //         currentRoutePatternIdForData,
+  //         dispatchMapData
+  //       );
+  //     }
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [route, state.directionId, busVariantId, staticMapData]
+  // );
 
   const [lineState, dispatchLineData] = useReducer(fetchReducer, {
     data: lineDiagram,
@@ -212,14 +212,14 @@ const ScheduleDirection = ({
           <ScheduleDirectionButton dispatch={dispatch} />
         ) : null}
       </div>
-      {!staticMapData && mapState.data && (
+      {/* {!staticMapData && mapData && (
         <Map
           channel={`vehicles:${route.id}:${state.directionId}`}
-          data={mapState.data}
+          data={mapData}
           currentShapes={currentShapes}
           currentStops={currentStops}
         />
-      )}
+      )} */}
       {staticMapData && (
         <>
           <img

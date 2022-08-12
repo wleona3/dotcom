@@ -18,6 +18,16 @@ interface PathGraphicsProps {
   from: LineDiagramStop;
   to: LineDiagramStop;
 }
+
+const showCRLine = (from: LineDiagramStop, to: LineDiagramStop): boolean => {
+  const OLNoCR = ["place-haecl", "place-state","place-dwnxg","place-chncl","place-tumnl"]
+  return !(OLNoCR.includes(from.route_stop.id) || OLNoCR.includes(to.route_stop.id));
+}
+
+const showShuttleLine = (from: LineDiagramStop, to: LineDiagramStop): boolean => {
+  const OLNoShuttle = ["place-state","place-dwnxg","place-chncl","place-tumnl"]
+  return !(OLNoShuttle.includes(from.route_stop.id) || OLNoShuttle.includes(to.route_stop.id));
+}
 const Line = ({ from, to }: PathGraphicsProps): ReactElement | null => {
   const fromCoords: StopCoord | null = useSelector(
     (state: CoordState) => state[from.route_stop.id]
@@ -43,12 +53,14 @@ const Line = ({ from, to }: PathGraphicsProps): ReactElement | null => {
     lineProps.x2 = lineProps.x1;
     lineProps.y1 = `${y1}px`;
     lineProps.y2 = `${y2}px`;
-    if (
-      from.stop_data.some(sd => sd["has_disruption?"]) &&
-      to.stop_data.some(sd => sd["has_disruption?"])
-    ) {
-      lineProps.stroke = "url(#diagonalHatch)";
-    }
+    // if (
+    //   // from.stop_data.some(sd => sd["has_disruption?"]) &&
+    //   // to.stop_data.some(sd => sd["has_disruption?"])
+    //   true
+    // ) {
+    //   lineProps.stroke = "url(#diagonalHatch)";
+    // }
+    lineProps.stroke = "url(#diagonalHatch)";
     return <line className="line-diagram-svg__line" {...lineProps} />;
   }
 
@@ -59,6 +71,7 @@ const Line = ({ from, to }: PathGraphicsProps): ReactElement | null => {
         const lineProps: React.SVGProps<SVGLineElement> = {
           key: `${from.route_stop.id}-${to.route_stop.id}-${branchLine.type}-${branchIndex}`
         };
+        lineProps.stroke = "url(#diagonalHatch)";
         lineProps.strokeWidth = `${
           branchIndex >= 1 &&
           !(isBranchTerminusStop(from) || isBranchTerminusStop(to)) &&
@@ -73,10 +86,20 @@ const Line = ({ from, to }: PathGraphicsProps): ReactElement | null => {
         lineProps.x2 = lineProps.x1;
         lineProps.y1 = `${y1}px`;
         lineProps.y2 = `${y2}px`;
-        if (branchLine["has_disruption?"]) {
-          lineProps.stroke = "url(#diagonalHatch)";
-        }
-        return <line className="line-diagram-svg__line" {...lineProps} />;
+        // if (branchLine["has_disruption?"]) {
+        //   lineProps.stroke = "url(#diagonalHatch)";
+        // }
+
+        const linePropsCR = { ...lineProps };
+        linePropsCR.x1 = `${BRANCH_SPACING * (branchIndex + 1) +
+          BASE_LINE_WIDTH +
+          1}px`;
+        linePropsCR.x2 = linePropsCR.x1;
+        linePropsCR.stroke = "purple";
+        return <>
+          {showShuttleLine(from, to) ? <line key={lineProps.key} className="line-diagram-svg__line" {...lineProps} /> : null}
+          {showCRLine(from, to) ? <line key={`${from.route_stop.id}-${to.route_stop.id}-${branchLine.type}-${branchIndex + 1}--cr`} className="line-diagram-svg__line u-text--commuter-rail" {...linePropsCR} />: null}
+        </>;
       })}
     </>
   );

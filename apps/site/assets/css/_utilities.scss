@@ -54,6 +54,10 @@
   background-color: $brand-commuter-rail;
 }
 
+.u-text--commuter-rail {
+  color: $brand-commuter-rail;
+}
+
 .u-bg--bus {
   @include bg-text($black);
   background-color: $brand-bus;

@@ -195,11 +195,9 @@ export const ScheduleLoader = ({
 
     if (component === "SCHEDULE_NOTE" && scheduleNote) {
       return (
-        <>
-          <ScheduleNote
-            className="m-schedule-page__schedule-notes--desktop"
-            scheduleNote={scheduleNote}
-          />
+        <div className="c-cms__sidebar">
+          <div className="c-paragraph c-paragraph--custom-html">
+<h2>Building a Better T</h2><p>As part of our $8 billion, <a href="/cip">5-year capital investment plan</a>, we're renovating stations, modernizing fare collection systems, upgrading services for our buses, subways, and ferries, and improving the accessibility of the entire system.</p><p><a className="c-call-to-action" href="/projects">Learn more</a></p></div>
           {modalOpen && (
             <ScheduleFinderModal
               closeModal={closeModal}
@@ -218,7 +216,7 @@ export const ScheduleLoader = ({
               updateURL={updateURL}
             />
           )}
-        </>
+        </div>
       );
     }
 

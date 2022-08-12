@@ -74,16 +74,17 @@ const LineDiagramAndStopListPage = ({
    * Live data, including realtime vehicle locations and predictions
    * Available on all modes except ferry (route.type 4)
    */
-  const liveUrl =
-    route.type !== 4
-      ? `/schedules/line_api/realtime?id=${route.id}&direction_id=${directionId}`
-      : "";
-  const { data: maybeLiveData } = useSWR(
-    liveUrl,
-    url => fetch(url).then(response => response.json()),
-    { refreshInterval: 15000 }
-  );
-  const liveData = (maybeLiveData || {}) as LiveDataByStop;
+  // const liveUrl =
+  //   route.type !== 4
+  //     ? `/schedules/line_api/realtime?id=${route.id}&direction_id=${directionId}`
+  //     : "";
+  // const { data: maybeLiveData } = useSWR(
+  //   liveUrl,
+  //   url => fetch(url).then(response => response.json()),
+  //   { refreshInterval: 15000 }
+  // );
+  const liveData = {} as LiveDataByStop;
+  // const liveData = (maybeLiveData || {}) as LiveDataByStop;
 
   /**
    * Putting it all together
@@ -93,14 +94,14 @@ const LineDiagramAndStopListPage = ({
       <h3 className="m-schedule-diagram__heading">
         {stationsOrStops(route.type)}
       </h3>
-      <SearchBox
+      {/* <SearchBox
         id="stop-search"
         labelText={`Search for a ${stationsOrStops(route.type)
           .toLowerCase()
           .slice(0, -1)}`}
         onChange={setStopQuery}
         className="m-schedule-diagram__filter"
-      />
+      /> */}
       {stopQuery !== "" ? (
         <ol className="m-schedule-diagram m-schedule-diagram--searched">
           {filteredStops.length ? (

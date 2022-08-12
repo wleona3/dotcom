@@ -40,17 +40,17 @@ const lineName = ({ name, route: routeStopRoute }: RouteStop): string => {
   return `${title} ${lineOrBranch}`;
 };
 
-const MaybeAlert = (alerts: Alert[]): JSX.Element | null => {
-  const highPriorityAlerts = alerts.filter(isHighSeverityOrHighPriority);
-  if (highPriorityAlerts.length === 0) return null;
-  return (
-    <>
-      {alertIcon("c-svg__icon-alerts-triangle")}
-      <span className="sr-only">Service alert or delay</span>
-      &nbsp;
-    </>
-  );
-};
+// const MaybeAlert = (alerts: Alert[]): JSX.Element | null => {
+//   const highPriorityAlerts = alerts.filter(isHighSeverityOrHighPriority);
+//   if (highPriorityAlerts.length === 0) return null;
+//   return (
+//     <>
+//       {alertIcon("c-svg__icon-alerts-triangle")}
+//       <span className="sr-only">Service alert or delay</span>
+//       &nbsp;
+//     </>
+//   );
+// };
 
 const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
   const { stop, onClick, liveData, searchQuery } = props;
@@ -67,9 +67,19 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
     : diagramWidth(stopData.length);
   const refs = useContext(StopRefContext)[0];
 
-  const diversionAlert = stopAlerts.find(
-    alert => isDiversion(alert) && isCurrentAlert(alert)
-  );
+  // const diversionAlert = stopAlerts.find(
+  //   alert => isDiversion(alert) && isCurrentAlert(alert)
+  // );
+  const diversionAlert = {
+    "id": "2",
+    "severity": 7,
+    "effect": "shuttle",
+    "lifecycle": "ongoing",
+    "active_period": [
+      ["2020-09-01 12:00", "2023-01-01 01:00"]
+    ]
+  } as Alert;
+
   const hasLivePredictions =
     liveData &&
     liveData.headsigns.length &&
@@ -81,7 +91,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
   return (
     <li
       className="m-schedule-diagram__stop"
-      style={{ paddingLeft: searchQuery ? "0.5rem" : `${width}px` }}
+      style={{ paddingLeft: searchQuery ? "0.5rem" : `${diagramWidth(2)}px` }}
     >
       <section className="m-schedule-diagram__content">
         <GlxOpen pageType="line-diagram" stopId={routeStop.id} />
@@ -94,7 +104,15 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
         >
           <h4 className="m-schedule-diagram__stop-link notranslate">
             <a href={`/stops/${routeStop.id}`}>
-              {MaybeAlert(stopAlerts)}
+              {/* {MaybeAlert([{
+                "id": "2",
+                "severity": 7,
+                "effect": "detour",
+                "lifecycle": "ongoing",
+                // "active_period": [
+                //   ["2020-09-01 12:00", "2023-01-01 01:00"]
+                // ]
+              } as Alert])} */}
               <MatchHighlight text={routeStop.name} matchQuery={searchQuery} />
             </a>
           </h4>
@@ -103,7 +121,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
 
         <div className="m-schedule-diagram__stop-details">
           {StopConnections(routeStop.connections)}
-          {showPrediction ? (
+          {/* {showPrediction ? (
             <StopPredictions
               headsigns={liveData!.headsigns}
               isCommuterRail={
@@ -119,10 +137,16 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
                 {effectNameForAlert(diversionAlert!)}
               </div>
             )
-          )}
+          )} */}
+          <div
+            key={diversionAlert!.id}
+            className="m-schedule-diagram__alert"
+          >
+            {effectNameForAlert(diversionAlert!)}
+          </div>
         </div>
 
-        <footer className="m-schedule-diagram__footer">
+        {/* <footer className="m-schedule-diagram__footer">
           <button
             className="btn btn-link"
             type="button"
@@ -130,7 +154,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
           >
             View schedule
           </button>
-        </footer>
+        </footer> */}
       </section>
     </li>
   );

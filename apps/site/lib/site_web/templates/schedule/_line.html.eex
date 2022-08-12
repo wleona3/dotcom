@@ -21,6 +21,7 @@
               _ -> "Schedules & Maps"
             end %>
           <%= if title do %>
+            (Alert up here will provide a decent TLDR, hopefully)
             <h2><%= title %></h2>
           <% end %>
 
