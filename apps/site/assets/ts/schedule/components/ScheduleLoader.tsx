@@ -50,12 +50,16 @@ export const ScheduleLoader = ({
   schedulePageData,
   updateURL
 }: Props): ReactElement<HTMLElement> => {
-  const query = {
-    // eslint-disable-next-line camelcase
-    "schedule_finder[direction_id]": getParam("schedule_finder[direction_id]"),
-    "schedule_finder[origin]": getParam("schedule_finder[origin]")
-  };
-
+  // set direction. This can either come from a URL parameter or schedulePageData
+  const initialDirectionFromURL = getParam("schedule_direction[direction_id]");
+  if (initialDirectionFromURL) {
+    storeHandler({
+      type: "CHANGE_DIRECTION",
+      newStoreValues: {
+        selectedDirection: parseInt(initialDirectionFromURL, 10) as DirectionId
+      }
+    });
+  }
   const changeDirection = (direction: DirectionId): void => {
     storeHandler({
       type: "CHANGE_DIRECTION",
@@ -84,19 +88,21 @@ export const ScheduleLoader = ({
     const currentState = getCurrentState();
     const { selectedDirection, selectedOrigin } = currentState;
     let { modalOpen, modalMode } = currentState;
+    const scheduleFinderDirection = getParam("schedule_finder[direction_id]");
+    const scheduleFinderOrigin = getParam("schedule_finder[origin]");
 
     let newDirection: DirectionId | undefined;
     let newOrigin: SelectedOrigin | undefined;
 
     // modify the store values in case URL has parameters:
-    if (query["schedule_finder[direction_id]"] !== undefined) {
-      newDirection = query["schedule_finder[direction_id]"] === "0" ? 0 : 1;
+    if (scheduleFinderDirection) {
+      newDirection = parseInt(scheduleFinderDirection, 10) as DirectionId;
     }
-    if (query["schedule_finder[origin]"] !== undefined) {
-      newOrigin = query["schedule_finder[origin]"];
+    if (scheduleFinderOrigin && scheduleFinderOrigin !== "") {
+      newOrigin = scheduleFinderOrigin;
     }
 
-    if (newDirection !== undefined && newOrigin && newOrigin !== "") {
+    if (newDirection !== undefined && newOrigin) {
       modalMode = "schedule";
       modalOpen = true;
     }
@@ -104,8 +110,8 @@ export const ScheduleLoader = ({
     storeHandler({
       type: "INITIALIZE",
       newStoreValues: {
-        selectedDirection: newDirection || selectedDirection,
-        selectedOrigin: newOrigin || selectedOrigin,
+        selectedDirection: newDirection ?? selectedDirection,
+        selectedOrigin: newOrigin ?? selectedOrigin,
         modalMode,
         modalOpen
       }
