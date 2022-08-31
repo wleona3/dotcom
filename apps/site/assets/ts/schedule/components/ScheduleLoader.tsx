@@ -172,15 +172,25 @@ export const ScheduleLoader = ({
 
     const isFerryRoute = routeToModeName(route) === "ferry";
 
-    if (component === "SCHEDULE_NOTE" && scheduleNote) {
+    if (component === "SCHEDULE_FINDER" && !isFerryRoute) {
       return (
         <>
-          {!routeIsSuspended ? (
-            <ScheduleNote
-              className="m-schedule-page__schedule-notes--desktop"
-              scheduleNote={scheduleNote}
-            />
-          ) : null}
+          <ScheduleFinder
+            updateURL={updateURL}
+            route={route}
+            stops={stops}
+            services={services}
+            routePatternsByDirection={routePatternsByDirection}
+            today={today}
+            scheduleNote={null}
+            modalMode={modalMode}
+            modalOpen={modalOpen}
+            directionId={readjustedDirectionId}
+            changeDirection={changeDirection}
+            selectedOrigin={selectedOrigin}
+            changeOrigin={changeOrigin}
+            closeModal={closeModal}
+          />
           {modalOpen && (
             <ScheduleFinderModal
               closeModal={closeModal}
@@ -200,27 +210,6 @@ export const ScheduleLoader = ({
             />
           )}
         </>
-      );
-    }
-
-    if (component === "SCHEDULE_FINDER" && !isFerryRoute) {
-      return (
-        <ScheduleFinder
-          updateURL={updateURL}
-          route={route}
-          stops={stops}
-          services={services}
-          routePatternsByDirection={routePatternsByDirection}
-          today={today}
-          scheduleNote={null}
-          modalMode={modalMode}
-          modalOpen={modalOpen}
-          directionId={readjustedDirectionId}
-          changeDirection={changeDirection}
-          selectedOrigin={selectedOrigin}
-          changeOrigin={changeOrigin}
-          closeModal={closeModal}
-        />
       );
     }
 

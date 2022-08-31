@@ -18,6 +18,7 @@ import currentLineSuspensions from "../helpers/line-suspensions";
 import AdditionalLineInfo from "./components/AdditionalLineInfo";
 import UpcomingHolidays from "./components/UpcomingHolidays";
 import ContentTeasers from "./components/ContentTeasers";
+import ScheduleNote from "./components/ScheduleNote";
 
 const renderMap = ({
   route_patterns: routePatternsByDirection,
@@ -105,18 +106,18 @@ export const renderAdditionalLineInformation = (
   );
 
   // don't show Schedule Finder for subway
-  if (scheduleNote) {
+  if (scheduleNote && !routeIsSuspended) {
+    // this should probably just be server rendered
     ReactDOM.render(
-      <Provider store={store}>
-        <ScheduleLoader
-          component="SCHEDULE_NOTE"
-          schedulePageData={schedulePageData}
-          updateURL={updateURL}
-        />
-      </Provider>,
+      <ScheduleNote
+        className="m-schedule-page__schedule-notes--desktop"
+        scheduleNote={scheduleNote}
+      />,
       document.getElementById("react-schedule-note-root")
     );
-  } else {
+  }
+
+  if (!scheduleNote) {
     const scheduleFinderRoot = document.getElementById(
       "react-schedule-finder-root"
     );
