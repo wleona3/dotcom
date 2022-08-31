@@ -14,6 +14,10 @@ import {
   getCurrentState
 } from "./store/ScheduleStore";
 import { isABusRoute } from "../models/route";
+import currentLineSuspensions from "../helpers/line-suspensions";
+import AdditionalLineInfo from "./components/AdditionalLineInfo";
+import UpcomingHolidays from "./components/UpcomingHolidays";
+import ContentTeasers from "./components/ContentTeasers";
 
 const renderMap = ({
   route_patterns: routePatternsByDirection,
@@ -60,18 +64,46 @@ export const updateURL = (
 export const renderAdditionalLineInformation = (
   schedulePageData: SchedulePageData
 ): void => {
-  const { schedule_note: scheduleNote } = schedulePageData;
+  const {
+    route,
+    route_patterns: routePatternsByDirection,
+    schedule_note: scheduleNote,
+    teasers,
+    pdfs,
+    connections,
+    fares,
+    fare_link: fareLink,
+    hours,
+    holidays
+  } = schedulePageData;
+
+  const routeIsSuspended =
+    Object.keys(routePatternsByDirection).length === 0 ||
+    currentLineSuspensions(route.id);
+
+  const additionalLineInfoComponents = routeIsSuspended ? (
+    <>
+      <ContentTeasers teasers={teasers} />
+      <UpcomingHolidays holidays={holidays} />
+    </>
+  ) : (
+    <AdditionalLineInfo
+      teasers={teasers}
+      pdfs={pdfs}
+      connections={connections}
+      fares={fares}
+      fareLink={fareLink}
+      route={route}
+      hours={hours}
+      holidays={holidays}
+    />
+  );
 
   ReactDOM.render(
-    <Provider store={store}>
-      <ScheduleLoader
-        component="ADDITIONAL_LINE_INFORMATION"
-        schedulePageData={schedulePageData}
-        updateURL={updateURL}
-      />
-    </Provider>,
+    additionalLineInfoComponents,
     document.getElementById("react-root")
   );
+
   // don't show Schedule Finder for subway
   if (scheduleNote) {
     ReactDOM.render(

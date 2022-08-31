@@ -172,40 +172,6 @@ export const ScheduleLoader = ({
 
     const isFerryRoute = routeToModeName(route) === "ferry";
 
-    if (component === "ADDITIONAL_LINE_INFORMATION") {
-      const {
-        teasers,
-        pdfs,
-        connections,
-        fares,
-        fare_link: fareLink,
-        hours,
-        holidays
-      } = schedulePageData;
-
-      if (routeIsSuspended) {
-        return (
-          <>
-            <ContentTeasers teasers={teasers} />
-            <UpcomingHolidays holidays={holidays} />
-          </>
-        );
-      }
-
-      return (
-        <AdditionalLineInfo
-          teasers={teasers}
-          pdfs={pdfs}
-          connections={connections}
-          fares={fares}
-          fareLink={fareLink}
-          route={route}
-          hours={hours}
-          holidays={holidays}
-        />
-      );
-    }
-
     if (component === "SCHEDULE_NOTE" && scheduleNote) {
       return (
         <>
