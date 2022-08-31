@@ -62,7 +62,6 @@ export const fetchData = async (
 interface Props {
   handleChangeDirection: (direction: DirectionId) => void;
   handleChangeOrigin: (origin: SelectedOrigin) => void;
-  handleOriginSelectClick: () => void;
   route: Route;
   selectedDirection: DirectionId;
   selectedOrigin: string;
@@ -76,7 +75,6 @@ interface Props {
 const ScheduleModalContent = ({
   handleChangeDirection,
   handleChangeOrigin,
-  handleOriginSelectClick,
   route,
   selectedDirection,
   selectedOrigin,
@@ -122,7 +120,6 @@ const ScheduleModalContent = ({
         <ScheduleFinderForm
           onDirectionChange={handleChangeDirection}
           onOriginChange={handleChangeOrigin}
-          onOriginSelectClick={handleOriginSelectClick}
           route={route}
           selectedDirection={selectedDirection}
           selectedOrigin={selectedOrigin}

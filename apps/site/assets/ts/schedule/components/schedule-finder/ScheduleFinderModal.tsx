@@ -10,16 +10,15 @@ import {
 import Modal from "../../../components/Modal";
 import OriginModalContent from "./OriginModalContent";
 import ScheduleModalContent from "./ScheduleModalContent";
+import { changeDirection, changeOrigin } from "./actions";
 
 export type Mode = "origin" | "schedule";
 
 interface Props {
   closeModal: () => void;
-  directionChanged?: (direction: DirectionId) => void;
   initialMode: Mode;
   initialDirection: DirectionId;
   initialOrigin: SelectedOrigin;
-  originChanged?: (origin: SelectedOrigin) => void;
   route: Route;
   routePatternsByDirection: RoutePatternsByDirection;
   scheduleNote: ScheduleNoteType | null;
@@ -27,33 +26,29 @@ interface Props {
   stops: SimpleStopMap;
   today: string;
   updateURL: (origin: SelectedOrigin, direction?: DirectionId) => void;
-  handleOriginSelectClick: () => void;
 }
 
 const ScheduleFinderModal = ({
   closeModal,
-  directionChanged,
   initialMode,
   initialDirection,
   initialOrigin,
-  originChanged,
   route,
   routePatternsByDirection,
   scheduleNote,
   services,
   stops,
   today,
-  updateURL,
-  handleOriginSelectClick
+  updateURL
 }: Props): ReactElement => {
   const handleChangeDirection = (newDirection: DirectionId): void => {
-    if (directionChanged) directionChanged(newDirection);
-    if (originChanged) originChanged(null);
+    changeDirection(newDirection);
+    changeOrigin(null);
     updateURL(initialOrigin, newDirection);
   };
 
   const handleChangeOrigin = (newOrigin: SelectedOrigin): void => {
-    if (originChanged) originChanged(newOrigin);
+    changeOrigin(newOrigin);
     updateURL(newOrigin, initialDirection);
   };
 
@@ -73,7 +68,6 @@ const ScheduleFinderModal = ({
     <ScheduleModalContent
       handleChangeDirection={handleChangeDirection}
       handleChangeOrigin={handleChangeOrigin}
-      handleOriginSelectClick={handleOriginSelectClick}
       route={route}
       routePatternsByDirection={routePatternsByDirection}
       scheduleNote={scheduleNote}

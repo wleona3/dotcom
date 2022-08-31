@@ -13,6 +13,11 @@ import ScheduleFinderModal, {
 } from "./schedule-finder/ScheduleFinderModal";
 import { getCurrentState, storeHandler } from "../store/ScheduleStore";
 import { routeToModeName } from "../../helpers/css";
+import {
+  changeDirection,
+  changeOrigin,
+  closeModal
+} from "./schedule-finder/actions";
 
 interface Props {
   updateURL: (origin: SelectedOrigin, direction?: DirectionId) => void;
@@ -23,10 +28,7 @@ interface Props {
   routePatternsByDirection: RoutePatternsByDirection;
   today: string;
   scheduleNote: ScheduleNoteType | null;
-  changeDirection: (direction: DirectionId) => void;
   selectedOrigin: SelectedOrigin;
-  changeOrigin: (origin: SelectedOrigin) => void;
-  closeModal: () => void;
   modalMode: ModalMode;
   modalOpen: boolean;
 }
@@ -42,24 +44,8 @@ const ScheduleFinder = ({
   scheduleNote,
   modalMode,
   selectedOrigin,
-  changeDirection,
-  changeOrigin,
-  modalOpen,
-  closeModal
+  modalOpen
 }: Props): ReactElement<HTMLElement> => {
-  const openOriginModal = (): void => {
-    const currentState = getCurrentState();
-    const { modalOpen: modalIsOpen } = currentState;
-    if (!modalIsOpen) {
-      storeHandler({
-        type: "OPEN_MODAL",
-        newStoreValues: {
-          modalMode: "origin"
-        }
-      });
-    }
-  };
-
   const openScheduleModal = (): void => {
     const currentState = getCurrentState();
     const { modalOpen: modalIsOpen } = currentState;
@@ -73,15 +59,6 @@ const ScheduleFinder = ({
     }
   };
 
-  const handleOriginSelectClick = (): void => {
-    storeHandler({
-      type: "OPEN_MODAL",
-      newStoreValues: {
-        modalMode: "origin"
-      }
-    });
-  };
-
   const isFerryRoute = routeToModeName(route) === "ferry";
 
   return (
@@ -93,7 +70,6 @@ const ScheduleFinder = ({
       <ScheduleFinderForm
         onDirectionChange={changeDirection}
         onOriginChange={changeOrigin}
-        onOriginSelectClick={openOriginModal}
         onSubmit={openScheduleModal}
         route={route}
         selectedDirection={directionId}
@@ -103,12 +79,9 @@ const ScheduleFinder = ({
       {modalOpen && (
         <ScheduleFinderModal
           closeModal={closeModal}
-          directionChanged={changeDirection}
           initialMode={modalMode}
           initialDirection={directionId}
           initialOrigin={selectedOrigin}
-          handleOriginSelectClick={handleOriginSelectClick}
-          originChanged={changeOrigin}
           route={route}
           routePatternsByDirection={routePatternsByDirection}
           scheduleNote={scheduleNote}

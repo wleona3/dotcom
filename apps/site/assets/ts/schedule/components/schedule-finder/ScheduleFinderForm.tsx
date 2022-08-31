@@ -5,6 +5,7 @@ import icon from "../../../../static/images/icon-schedule-finder.svg";
 import renderSvg from "../../../helpers/render-svg";
 import SelectContainer from "./SelectContainer";
 import { routeToModeName } from "../../../helpers/css";
+import { handleOriginSelectClick } from "./actions";
 
 const validDirections = (directionInfo: DirectionInfo): DirectionId[] =>
   ([0, 1] as DirectionId[]).filter(dir => directionInfo[dir] !== null);
@@ -12,7 +13,6 @@ const validDirections = (directionInfo: DirectionInfo): DirectionId[] =>
 interface Props {
   onDirectionChange: (direction: DirectionId) => void;
   onOriginChange: (origin: SelectedOrigin) => void;
-  onOriginSelectClick: () => void;
   onSubmit?: () => void;
   route: Route;
   selectedDirection: DirectionId;
@@ -24,7 +24,6 @@ export default ({
   onDirectionChange,
   onOriginChange,
   onSubmit = () => {},
-  onOriginSelectClick,
   route,
   selectedDirection,
   selectedOrigin,
@@ -39,7 +38,7 @@ export default ({
 
   const handleOriginClick = (): void => {
     setOriginError(false);
-    onOriginSelectClick();
+    handleOriginSelectClick();
   };
 
   const handleSubmit = (event: FormEvent): void => {

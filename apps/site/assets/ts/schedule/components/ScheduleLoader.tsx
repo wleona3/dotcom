@@ -1,10 +1,6 @@
 import React, { ReactElement } from "react";
 import { connect } from "react-redux";
-import { getParam, updateParams } from "../../helpers/use-params";
-import ContentTeasers from "./ContentTeasers";
-import UpcomingHolidays from "./UpcomingHolidays";
-import AdditionalLineInfo from "./AdditionalLineInfo";
-import ScheduleNote from "./ScheduleNote";
+import { getParam } from "../../helpers/use-params";
 import ScheduleDirection from "./ScheduleDirection";
 import {
   SchedulePageData,
@@ -13,7 +9,6 @@ import {
 } from "../components/__schedule";
 import { MapData, StaticMapData } from "../../leaflet/components/__mapdata";
 import ScheduleFinder from "./ScheduleFinder";
-import ScheduleFinderModal from "./schedule-finder/ScheduleFinderModal";
 import { DirectionId } from "../../__v3api";
 import {
   mapStateToProps,
@@ -22,28 +17,13 @@ import {
 } from "../store/ScheduleStore";
 import { routeToModeName } from "../../helpers/css";
 import currentLineSuspensions from "../../helpers/line-suspensions";
+import { changeDirection } from "./schedule-finder/actions";
 
 interface Props {
   schedulePageData: SchedulePageData;
   component: ComponentToRender;
   updateURL: (origin: SelectedOrigin, direction?: DirectionId) => void;
 }
-
-export const changeOrigin = (origin: SelectedOrigin): void => {
-  storeHandler({
-    type: "CHANGE_ORIGIN",
-    newStoreValues: {
-      selectedOrigin: origin
-    }
-  });
-  // reopen modal depending on choice:
-  storeHandler({
-    type: "OPEN_MODAL",
-    newStoreValues: {
-      modalMode: origin ? "schedule" : "origin"
-    }
-  });
-};
 
 export const ScheduleLoader = ({
   component,
@@ -60,28 +40,6 @@ export const ScheduleLoader = ({
       }
     });
   }
-  const changeDirection = (direction: DirectionId): void => {
-    storeHandler({
-      type: "CHANGE_DIRECTION",
-      newStoreValues: {
-        selectedDirection: direction,
-        selectedOrigin: null
-      }
-    });
-  };
-
-  const closeModal = (): void => {
-    storeHandler({
-      type: "CLOSE_MODAL",
-      newStoreValues: {}
-    });
-    // clear parameters from URL when closing the modal:
-    updateParams({
-      // eslint-disable-next-line camelcase
-      "schedule_finder[direction_id]": null,
-      "schedule_finder[origin]": null
-    });
-  };
 
   React.useEffect(() => {
     // get initial values from the store:
@@ -119,15 +77,6 @@ export const ScheduleLoader = ({
     // we disable linting in this next line because we DO want to specify an empty array since we want this piece to run only once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleOriginSelectClick = (): void => {
-    storeHandler({
-      type: "OPEN_MODAL",
-      newStoreValues: {
-        modalMode: "origin"
-      }
-    });
-  };
 
   const {
     route,
@@ -174,42 +123,19 @@ export const ScheduleLoader = ({
 
     if (component === "SCHEDULE_FINDER" && !isFerryRoute) {
       return (
-        <>
-          <ScheduleFinder
-            updateURL={updateURL}
-            route={route}
-            stops={stops}
-            services={services}
-            routePatternsByDirection={routePatternsByDirection}
-            today={today}
-            scheduleNote={null}
-            modalMode={modalMode}
-            modalOpen={modalOpen}
-            directionId={readjustedDirectionId}
-            changeDirection={changeDirection}
-            selectedOrigin={selectedOrigin}
-            changeOrigin={changeOrigin}
-            closeModal={closeModal}
-          />
-          {modalOpen && (
-            <ScheduleFinderModal
-              closeModal={closeModal}
-              directionChanged={changeDirection}
-              initialMode={modalMode}
-              initialDirection={readjustedDirectionId}
-              initialOrigin={selectedOrigin}
-              handleOriginSelectClick={handleOriginSelectClick}
-              originChanged={changeOrigin}
-              route={route}
-              routePatternsByDirection={routePatternsByDirection}
-              scheduleNote={scheduleNote}
-              services={services}
-              stops={stops}
-              today={today}
-              updateURL={updateURL}
-            />
-          )}
-        </>
+        <ScheduleFinder
+          updateURL={updateURL}
+          route={route}
+          stops={stops}
+          services={services}
+          routePatternsByDirection={routePatternsByDirection}
+          today={today}
+          scheduleNote={null}
+          modalMode={modalMode}
+          modalOpen={modalOpen}
+          directionId={readjustedDirectionId}
+          selectedOrigin={selectedOrigin}
+        />
       );
     }
 
@@ -239,10 +165,7 @@ export const ScheduleLoader = ({
             modalMode={modalMode}
             modalOpen={modalOpen}
             directionId={readjustedDirectionId}
-            changeDirection={changeDirection}
             selectedOrigin={selectedOrigin}
-            changeOrigin={changeOrigin}
-            closeModal={closeModal}
           />
           <div className="schedule-map-container">
             <h2>Route Map</h2>
