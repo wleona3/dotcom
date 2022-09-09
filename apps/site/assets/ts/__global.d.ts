@@ -4,7 +4,9 @@ interface Window {
   decodeURIComponent(component: string): string;
   encodeURIComponent(component: string): string;
   google: any;
+  Cypress: any;
   __REDUX_DEVTOOLS_EXTENSION__: any;
+  store: any;
 }
 
 declare module "*.svg" {
