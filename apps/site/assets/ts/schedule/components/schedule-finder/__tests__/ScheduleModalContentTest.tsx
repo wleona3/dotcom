@@ -1,11 +1,14 @@
-import React from "react";
-import renderer, { act } from "react-test-renderer";
+import React, { PropsWithChildren } from "react";
+// import renderer, { act } from "react-test-renderer";
 import { EnhancedRoute, Route } from "../../../../__v3api";
 import ScheduleModalContent, { fetchData } from "../ScheduleModalContent";
 import { ServiceInSelector, SimpleStop, SimpleStopMap } from "../../__schedule";
 import ScheduleNote from "../../ScheduleNote";
-import { UpcomingDepartures } from "../upcoming-departures/UpcomingDepartures";
+// import { UpcomingDepartures } from "../upcoming-departures/UpcomingDepartures";
 import { mount } from "enzyme";
+import { createScheduleStore } from "../../../store/schedule-store";
+import { Provider } from "react-redux";
+import { render, screen, act } from "@testing-library/react";
 
 const today = "2019-12-05";
 const route: EnhancedRoute = {
@@ -67,179 +70,122 @@ const baseTypicalService: ServiceInSelector = {
   "default_service?": false
 };
 
-describe("ScheduleModalContent", () => {
-  beforeAll(() => {
-    // these tests aren't testing the fetched schedules so let's mock this so we don't get errors
-    window.fetch = jest.fn().mockImplementation(
-      () =>
-        new Promise((resolve: Function) =>
-          resolve({
-            json: () => "Internal Server Error",
-            ok: false,
-            status: 200
-          })
-        )
+const ferryRoute = {
+  color: "008EAA",
+  "custom_route?": false,
+  description: "ferry",
+  direction_destinations: { 0: "Charlestown", 1: "Long Wharf" },
+  direction_names: { 0: "Outbound", 1: "Inbound" },
+  id: "Boat-F4",
+  long_name: "Charlestown Ferry",
+  name: "Charlestown Ferry",
+  sort_order: 30001,
+  type: 4
+} as Route;
+
+// redux store/provider
+function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  const store = createScheduleStore(0);
+  return <Provider store={store}>{children}</Provider>;
+}
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(ui, { wrapper: Wrapper });
+}
+
+jest.mock("../upcoming-departures/UpcomingDepartures", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>UpcomingDepartures</div>;
+  }
+}));
+jest.mock("../daily-schedule/DailySchedule", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>DailySchedule</div>;
+  }
+}));
+jest.mock("../ScheduleFinderForm", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>ScheduleFinderForm</div>;
+  }
+}));
+
+const payload = [{ trip: { id: "yeah" } }];
+
+beforeAll(() => {
+  // these tests aren't testing the fetched schedules so let's mock this so we don't get errors
+  window.fetch = jest.fn().mockImplementation(
+    () =>
+      new Promise((resolve: Function) =>
+        resolve({
+          json: () => payload,
+          ok: true,
+          status: 200,
+          statusText: "OK"
+        })
+      )
+  );
+});
+
+test("<ScheduleModalContent /> renders with schedule note if present", async () => {
+  await act(async () => {
+    await renderWithProvider(
+      <ScheduleModalContent
+        route={route}
+        stops={stops}
+        services={[]}
+        routePatternsByDirection={{}}
+        today={today}
+        scheduleNote={scheduleNoteData}
+      />
     );
   });
 
-  it("renders", () => {
-    let tree;
-    act(() => {
-      tree = renderer.create(
-        <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
-          route={route}
-          stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={null}
-        />
-      );
-    });
-
-    expect(tree).toMatchSnapshot();
-  });
-
-  it("renders with schedule note if present", () => {
-    act(() => {
-      const tree = mount(
-        <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
-          route={route}
-          stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
-          services={[]}
-          routePatternsByDirection={{}}
-          today={today}
-          scheduleNote={scheduleNoteData}
-        />
-      );
-      expect(tree.find(ScheduleNote).props().scheduleNote.offpeak_service).toBe(
-        "8-12 minutes"
-      );
-    });
-  });
-
-  describe("fetchData", () => {
-    it("fetches data", async () => {
-      const payload = [{ trip: { id: "yeah" } }];
-      window.fetch = jest.fn().mockImplementation(
-        () =>
-          new Promise((resolve: Function) =>
-            resolve({
-              json: () => payload,
-              ok: true,
-              status: 200,
-              statusText: "OK"
-            })
-          )
-      );
-
-      const result = await fetchData("1", "99", 0, "");
-      expect(window.fetch).toHaveBeenCalledWith(
-        "/schedules/finder_api/departures?id=1&stop=99&direction=0"
-      );
-
-      expect(result).toStrictEqual([
-        { trip: { id: "yeah" }, tripInfo: payload }
-      ]);
-    });
-  });
-
-  it("renders with UpcomingDepartures for today's service", () => {
-    act(() => {
-      const wrapper = mount(
-        <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
-          route={busRoute}
-          stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
-          services={[baseTypicalService]}
-          routePatternsByDirection={{}}
-          today={"2019-07-09"}
-          scheduleNote={null}
-        />
-      );
-
-      expect(wrapper.find(UpcomingDepartures).exists()).toEqual(true);
-
-      expect(wrapper.find(".callout").exists()).toEqual(false);
-    });
-  });
-
-  it("does not render UpcomingDepartures if no service today", () => {
-    act(() => {
-      const wrapper = mount(
-        <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
-          route={busRoute}
-          stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
-          services={[baseTypicalService]}
-          routePatternsByDirection={{}}
-          today={"2018-09-16"}
-          scheduleNote={null}
-        />
-      );
-
-      expect(wrapper.find(UpcomingDepartures).exists()).toEqual(false);
-      expect(wrapper.find(".callout").exists()).toEqual(true);
-      expect(wrapper.find(".callout").text()).toContain(
-        "There are no scheduled trips"
-      );
-    });
-  });
-
-  it("does not render UpcomingDepartures if mode is ferry", () => {
-    act(() => {
-      const ferryRoute = {
-        color: "008EAA",
-        "custom_route?": false,
-        description: "ferry",
-        direction_destinations: { 0: "Charlestown", 1: "Long Wharf" },
-        direction_names: { 0: "Outbound", 1: "Inbound" },
-        id: "Boat-F4",
-        long_name: "Charlestown Ferry",
-        name: "Charlestown Ferry",
-        sort_order: 30001,
-        type: 4
-      } as Route;
-      const wrapper = mount(
-        <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
-          route={ferryRoute}
-          stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
-          services={[baseTypicalService]}
-          routePatternsByDirection={{}}
-          today={"2018-09-16"}
-          scheduleNote={null}
-        />
-      );
-
-      expect(wrapper.find(UpcomingDepartures).exists()).toEqual(false);
-    });
-  });
+  expect(screen.getByText("8-12 minutes", { exact: false })).toBeTruthy();
 });
 
-it.each`
+test("<ScheduleModalContent /> fetches data", async () => {
+  await act(async () => {
+    await renderWithProvider(
+      <ScheduleModalContent
+        route={route}
+        stops={stops}
+        services={[]}
+        routePatternsByDirection={{}}
+        today={today}
+        scheduleNote={null}
+      />
+    );
+  });
+
+  const result = await fetchData("1", "99", 0, "");
+  expect(window.fetch).toHaveBeenCalledWith(
+    "/schedules/finder_api/departures?id=1&stop=99&direction=0"
+  );
+
+  expect(result).toStrictEqual([{ trip: { id: "yeah" }, tripInfo: payload }]);
+});
+
+test("<ScheduleModalContent /> doesn't show UpcomingDepartures for ferry", async () => {
+  await act(async () => {
+    await renderWithProvider(
+      <ScheduleModalContent
+        route={ferryRoute}
+        stops={stops}
+        services={[baseTypicalService]}
+        routePatternsByDirection={{}}
+        today={"2018-09-16"}
+        scheduleNote={null}
+      />
+    );
+  });
+
+  expect(screen.queryByText("UpcomingDepartures")).toBeNull();
+});
+
+test.each`
   testToday       | service               | isMatch
   ${"2019-07-01"} | ${baseTypicalService} | ${false}
   ${"2019-07-03"} | ${baseTypicalService} | ${false}
@@ -253,27 +199,31 @@ it.each`
   ${"2019-10-16"} | ${baseTypicalService} | ${false}
   ${"2019-12-16"} | ${baseTypicalService} | ${false}
 `(
-  "renders with UpcomingDepartures for today's service",
-  ({ testToday, service, isMatch }) => {
-    act(() => {
-      const wrapper = mount(
+  "<ScheduleModalContent /> renders with UpcomingDepartures for today's service",
+  async ({ testToday, service, isMatch }) => {
+    await act(async () => {
+      await renderWithProvider(
         <ScheduleModalContent
-          handleChangeDirection={() => {}}
-          handleChangeOrigin={() => {}}
-          handleOriginSelectClick={() => {}}
           route={busRoute}
           stops={stops}
-          selectedOrigin={stopList[0].id}
-          selectedDirection={0}
           services={[service]}
           routePatternsByDirection={{}}
           today={testToday}
           scheduleNote={null}
         />
       );
-
-      expect(wrapper.find(UpcomingDepartures).exists()).toEqual(isMatch);
-      expect(wrapper.find(".callout").exists()).toEqual(!isMatch);
     });
+
+    if (isMatch) {
+      expect(screen.getByText("UpcomingDepartures")).toBeTruthy();
+      expect(
+        screen.queryByText("There are no scheduled trips", { exact: false })
+      ).toBeNull();
+    } else {
+      expect(screen.queryByText("UpcomingDepartures")).toBeNull();
+      expect(
+        screen.getByText("There are no scheduled trips", { exact: false })
+      ).toBeTruthy();
+    }
   }
 );

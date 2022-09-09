@@ -1,245 +1,217 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`can render green line 1`] = `
-<ScheduleDirection>
+exports[`<ScheduleDirection /> can render green line 1`] = `
+<DocumentFragment>
   <div
-    className="m-schedule-direction"
+    class="m-schedule-direction"
   >
     <div
-      className="m-schedule-direction__direction"
+      class="m-schedule-direction__direction"
       id="direction-name"
     >
       Eastbound
     </div>
-    <ScheduleDirectionMenu>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
       <div
-        className="js-m-schedule-click-boundary"
+        class="m-schedule-direction__route-pattern m-schedule-direction__route-pattern--clickable notranslate"
+        role="button"
+        tabindex="0"
       >
-        <GreenLineSelect>
-          <div
-            className="m-schedule-direction__route-pattern m-schedule-direction__route-pattern--clickable notranslate"
-            onClick={[Function]}
-            onKeyUp={[Function]}
-            role="button"
-            tabIndex={0}
-          >
-             
-            <span
-              aria-hidden="true"
-              className="notranslate c-svg__icon m-schedule-direction__route-pattern-arrow"
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "SVG",
-                }
-              }
-            />
-          </div>
-        </GreenLineSelect>
-      </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
-      >
+         
         <span
           aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
-  </div>
-</ScheduleDirection>
-`;
-
-exports[`renders a CR component 1`] = `
-<ScheduleDirection>
-  <div
-    className="m-schedule-direction"
-  >
-    <div
-      className="m-schedule-direction__direction"
-      id="direction-name"
-    >
-      Inbound
-    </div>
-    <ScheduleDirectionMenu>
-      <div
-        className="js-m-schedule-click-boundary"
-      >
-        <div
-          className="m-schedule-direction__route-pattern notranslate"
+          class="notranslate c-svg__icon m-schedule-direction__route-pattern-arrow"
         >
-          End
-        </div>
+          SVG
+        </span>
       </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
       >
-        <span
-          aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
+        SVG
+      </span>
+      Change Direction
+    </button>
   </div>
-</ScheduleDirection>
+</DocumentFragment>
 `;
 
-exports[`renders a bus component 1`] = `
-<ScheduleDirection>
+exports[`<ScheduleDirection /> not allow changing direction when no route patterns 1`] = `
+<DocumentFragment>
   <div
-    className="m-schedule-direction"
+    class="m-schedule-direction"
   >
     <div
-      className="m-schedule-direction__direction"
+      class="m-schedule-direction__direction"
       id="direction-name"
     >
       Inbound
     </div>
-    <ScheduleDirectionMenu>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
       <div
-        className="js-m-schedule-click-boundary"
+        class="m-schedule-direction__route-pattern notranslate"
       >
-        <BusMenuSelect>
-          <div
-            className="m-schedule-direction__route-pattern notranslate"
-            onClick={[Function]}
-            onKeyUp={[Function]}
-          >
-            Pattern 2
-             
-          </div>
-        </BusMenuSelect>
+        Pattern 2 
       </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
-      >
-        <span
-          aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
+    </div>
   </div>
-</ScheduleDirection>
+</DocumentFragment>
 `;
 
-exports[`renders a subway component 1`] = `
-<ScheduleDirection>
+exports[`<ScheduleDirection /> renders a CR component 1`] = `
+<DocumentFragment>
   <div
-    className="m-schedule-direction"
+    class="m-schedule-direction"
   >
     <div
-      className="m-schedule-direction__direction"
+      class="m-schedule-direction__direction"
       id="direction-name"
     >
       Inbound
     </div>
-    <ScheduleDirectionMenu>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
       <div
-        className="js-m-schedule-click-boundary"
+        class="m-schedule-direction__route-pattern notranslate"
       >
-        <div
-          className="m-schedule-direction__route-pattern notranslate"
-        >
-          End
-        </div>
+        End
       </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
       >
-        <span
-          aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
+        SVG
+      </span>
+      Change Direction
+    </button>
   </div>
-</ScheduleDirection>
+</DocumentFragment>
 `;
 
-exports[`renders with a static map 1`] = `
-<ScheduleDirection>
+exports[`<ScheduleDirection /> renders a bus component 1`] = `
+<DocumentFragment>
   <div
-    className="m-schedule-direction"
+    class="m-schedule-direction"
   >
     <div
-      className="m-schedule-direction__direction"
+      class="m-schedule-direction__direction"
       id="direction-name"
     >
       Inbound
     </div>
-    <ScheduleDirectionMenu>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
       <div
-        className="js-m-schedule-click-boundary"
+        class="m-schedule-direction__route-pattern notranslate"
       >
-        <div
-          className="m-schedule-direction__route-pattern notranslate"
-        >
-          End
-        </div>
+        Pattern 2 
       </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
       >
-        <span
-          aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
+        SVG
+      </span>
+      Change Direction
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<ScheduleDirection /> renders a subway component 1`] = `
+<DocumentFragment>
+  <div
+    class="m-schedule-direction"
+  >
+    <div
+      class="m-schedule-direction__direction"
+      id="direction-name"
+    >
+      Inbound
+    </div>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
+      <div
+        class="m-schedule-direction__route-pattern notranslate"
+      >
+        End
+      </div>
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
+      >
+        SVG
+      </span>
+      Change Direction
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<ScheduleDirection /> renders with a static map 1`] = `
+<DocumentFragment>
+  <div
+    class="m-schedule-direction"
+  >
+    <div
+      class="m-schedule-direction__direction"
+      id="direction-name"
+    >
+      Inbound
+    </div>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
+      <div
+        class="m-schedule-direction__route-pattern notranslate"
+      >
+        End
+      </div>
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
+      >
+        SVG
+      </span>
+      Change Direction
+    </button>
   </div>
   <img
     alt="route 1 route map"
-    className="img-fluid"
+    class="img-fluid"
     src="http://example.com/map.png"
   />
   <a
@@ -249,69 +221,53 @@ exports[`renders with a static map 1`] = `
   >
     <i
       aria-hidden="true"
-      className="fa fa-search-plus"
+      class="fa fa-search-plus"
     />
     View map as a PDF
   </a>
-</ScheduleDirection>
+</DocumentFragment>
 `;
 
-exports[`respects the initially selected pattern ID, if specified 1`] = `
-<ScheduleDirection>
+exports[`<ScheduleDirection /> respects the initially selected pattern ID, if specified 1`] = `
+<DocumentFragment>
   <div
-    className="m-schedule-direction"
+    class="m-schedule-direction"
   >
     <div
-      className="m-schedule-direction__direction"
+      class="m-schedule-direction__direction"
       id="direction-name"
     >
       Outbound
     </div>
-    <ScheduleDirectionMenu>
+    <div
+      class="js-m-schedule-click-boundary"
+    >
       <div
-        className="js-m-schedule-click-boundary"
+        class="m-schedule-direction__route-pattern m-schedule-direction__route-pattern--clickable notranslate"
+        role="button"
+        tabindex="0"
       >
-        <BusMenuSelect>
-          <div
-            className="m-schedule-direction__route-pattern m-schedule-direction__route-pattern--clickable notranslate"
-            onClick={[Function]}
-            onKeyUp={[Function]}
-            role="button"
-            tabIndex={0}
-          >
-            Pattern 3
-             
-            <span
-              aria-hidden="true"
-              className="notranslate c-svg__icon m-schedule-direction__route-pattern-arrow"
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "SVG",
-                }
-              }
-            />
-          </div>
-        </BusMenuSelect>
-      </div>
-    </ScheduleDirectionMenu>
-    <ScheduleDirectionButton>
-      <button
-        className="m-schedule-direction__button btn btn-primary"
-        onClick={[Function]}
-        type="button"
-      >
+        Pattern 3 
         <span
           aria-hidden="true"
-          className="notranslate m-schedule-direction__icon"
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "SVG",
-            }
-          }
-        />
-        Change Direction
-      </button>
-    </ScheduleDirectionButton>
+          class="notranslate c-svg__icon m-schedule-direction__route-pattern-arrow"
+        >
+          SVG
+        </span>
+      </div>
+    </div>
+    <button
+      class="m-schedule-direction__button btn btn-primary"
+      type="button"
+    >
+      <span
+        aria-hidden="true"
+        class="notranslate m-schedule-direction__icon"
+      >
+        SVG
+      </span>
+      Change Direction
+    </button>
   </div>
-</ScheduleDirection>
+</DocumentFragment>
 `;

@@ -1,26 +1,29 @@
 import React, { ReactElement } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { handleReactEnterKeyPress } from "../../../helpers/keyboard-events-react";
 import renderSvg from "../../../helpers/render-svg";
 import checkIcon from "../../../../static/images/icon-checkmark.svg";
-import { SimpleStop, SelectedOrigin } from "../__schedule";
+import { SimpleStop } from "../__schedule";
+import {
+  changeScheduleFinderOrigin,
+  getOrigin
+} from "../../store/schedule-store";
 
 interface OriginListItemProps {
-  changeOrigin: Function;
   stop: SimpleStop;
-  selectedOrigin: SelectedOrigin;
   lastStop: SimpleStop;
 }
 
 const OriginListItem = ({
-  changeOrigin,
   stop,
-  selectedOrigin,
   lastStop
 }: OriginListItemProps): ReactElement<HTMLElement> => {
+  const selectedOrigin = useSelector(getOrigin);
   const isDisabled = stop.is_closed || stop.id === lastStop.id;
+  const scheduleDispatch = useDispatch();
   const handleClick = (): void => {
     if (isDisabled) return;
-    changeOrigin(stop.id);
+    scheduleDispatch(changeScheduleFinderOrigin(stop.id));
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from "react";
-import { SimpleStop, SelectedOrigin } from "../__schedule";
+import { SimpleStop } from "../__schedule";
 import OriginListItem from "./OriginListItem";
 import SearchBox from "../../../components/SearchBox";
 
@@ -19,16 +19,10 @@ const stopListSearchFilter = (
 };
 
 interface Props {
-  selectedOrigin: SelectedOrigin;
   stops: SimpleStop[];
-  handleChangeOrigin: Function;
 }
 
-const OriginModalContent = ({
-  selectedOrigin,
-  stops,
-  handleChangeOrigin
-}: Props): ReactElement<HTMLElement> => {
+const OriginModalContent = ({ stops }: Props): ReactElement<HTMLElement> => {
   const [originSearch, setOriginSearch] = useState("");
 
   return (
@@ -50,8 +44,6 @@ const OriginModalContent = ({
           <OriginListItem
             key={stop.id}
             stop={stop}
-            changeOrigin={handleChangeOrigin}
-            selectedOrigin={selectedOrigin}
             lastStop={stops[stops.length - 1]}
           />
         ))}

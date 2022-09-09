@@ -1,17 +1,19 @@
-import React from "react";
-import { mount } from "enzyme";
+import React, { PropsWithChildren } from "react";
 import ScheduleFinder from "../ScheduleFinder";
 import { EnhancedRoute } from "../../../__v3api";
 import { RoutePatternsByDirection, ServiceInSelector } from "../__schedule";
-import * as scheduleStoreModule from "../../store/ScheduleStore";
+import * as scheduleStoreModule from "../../store/schedule-store";
+import { Provider } from "react-redux";
+import { render, screen } from "@testing-library/react";
 
-jest.mock("../../../helpers/use-fetch", () => ({
-  __esModule: true,
-  hasData: () => false,
-  isLoading: () => true,
-  isNotStarted: () => false,
-  default: jest.fn().mockImplementation(() => [{ status: 2 }, jest.fn()])
-}));
+const scheduleNoteData = {
+  offpeak_service: "8-12 minutes",
+  peak_service: "5 minutes",
+  exceptions: [
+    { service: "26 minutes", type: "weekend mornings and late night" }
+  ],
+  alternate_text: null
+};
 
 const services: ServiceInSelector[] = [
   {
@@ -168,155 +170,105 @@ const routePatternsByDirection = {
   ]
 } as RoutePatternsByDirection;
 
-describe("ScheduleFinder", () => {
-  const mountComponent = () =>
-    mount(
+const ferryRoute: EnhancedRoute = {
+  alerts: [],
+  color: "008EAA",
+  description: "ferry",
+  direction_destinations: { 0: "Charlestown", 1: "Long Wharf" },
+  direction_names: { 0: "Outbound", 1: "Inbound" },
+  header: "",
+  id: "Boat-F4",
+  long_name: "Charlestown Ferry",
+  name: "Charlestown Ferry",
+  sort_order: 30001,
+  type: 4
+};
+
+const store = scheduleStoreModule.createScheduleStore(0);
+// redux store/provider
+function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  return <Provider store={store}>{children}</Provider>;
+}
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(ui, { wrapper: Wrapper });
+}
+
+jest.mock("../schedule-finder/ScheduleFinderForm", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>ScheduleFinderForm</div>;
+  }
+}));
+jest.mock("../schedule-finder/ScheduleFinderModal", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>ScheduleFinderModal</div>;
+  }
+}));
+
+describe("<ScheduleFinder />", () => {
+  test("shows <ScheduleFinderForm /> when no schedule note", () => {
+    renderWithProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
-        directionId={0}
         services={services}
         routePatternsByDirection={routePatternsByDirection}
         today={today}
         scheduleNote={null}
-        updateURL={() => {}}
-        changeDirection={() => {}}
-        selectedOrigin={null}
-        changeOrigin={() => {}}
-        closeModal={() => {}}
-        modalMode="schedule"
-        modalOpen={false}
       />
     );
-
-  it("matches snapshot", () => {
-    const wrapper = mountComponent();
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(screen.getByText("ScheduleFinderForm")).toBeTruthy();
   });
 
-  it("opens the schedule modal via the origin modal", () => {
-    const wrapper = mount(
+  test("hides <ScheduleFinderForm /> when there is a schedule note", () => {
+    renderWithProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
-        directionId={0}
+        services={services}
+        routePatternsByDirection={routePatternsByDirection}
+        today={today}
+        scheduleNote={scheduleNoteData}
+      />
+    );
+    expect(screen.queryByText("ScheduleFinderForm")).toBeNull();
+  });
+
+  test("uses different layout for ferry", () => {
+    const { container } = renderWithProvider(
+      <ScheduleFinder
+        route={ferryRoute}
+        stops={stops}
         services={services}
         routePatternsByDirection={routePatternsByDirection}
         today={today}
         scheduleNote={null}
-        updateURL={() => {}}
-        changeDirection={() => {}}
-        selectedOrigin="123"
-        changeOrigin={() => {}}
-        closeModal={() => {}}
-        modalMode="schedule"
-        modalOpen={true}
       />
     );
 
-    // Schedule modal should be open with the chosen origin selected
     expect(
-      wrapper
-        .find(".schedule-finder--modal select")
-        .last()
-        .prop("value")
-    ).toEqual("123");
+      container.getElementsByClassName("schedule-finder-vertical")
+    ).toBeTruthy();
   });
 
-  it("clears the selected origin when the direction is changed", () => {
-    const wrapper = mountComponent();
-
-    wrapper
-      .find("select")
-      .last()
-      .simulate("change", { target: { value: "123" } });
-    wrapper
-      .find("select")
-      .first()
-      .simulate("change", { target: { value: "1" } });
-
-    expect(
-      wrapper
-        .find("select")
-        .last()
-        .prop("value")
-    ).toEqual("");
-  });
-
-  it("changes the available origins when the direction is changed", () => {
-    let wrapper = mountComponent();
-    expect(
-      wrapper
-        .find("select")
-        .last()
-        .text()
-    ).not.toContain("Def");
-
-    // re-mount with directionId = 1 (simulate change in direction)
-    wrapper = mount(
+  test("shows <ScheduleFinderModal /> depending on modalOpen state", () => {
+    renderWithProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
-        directionId={1}
         services={services}
         routePatternsByDirection={routePatternsByDirection}
         today={today}
         scheduleNote={null}
-        updateURL={() => {}}
-        changeDirection={() => {}}
-        selectedOrigin={null}
-        changeOrigin={() => {}}
-        closeModal={() => {}}
-        modalMode="origin"
-        modalOpen={true}
       />
     );
 
-    expect(
-      wrapper
-        .find("select")
-        .last()
-        .text()
-    ).toContain("Def");
-  });
-
-  it("Opens the origin modal when clicking on the origin drop-down in the schedule modal", () => {
-    const wrapper = mount(
-      <ScheduleFinder
-        route={route}
-        stops={stops}
-        directionId={0}
-        services={services}
-        routePatternsByDirection={routePatternsByDirection}
-        today={today}
-        scheduleNote={null}
-        updateURL={() => {}}
-        changeDirection={() => {}}
-        selectedOrigin="123"
-        changeOrigin={() => {}}
-        closeModal={() => {}}
-        modalMode="schedule"
-        modalOpen={true}
-      />
-    );
-
-    const numNodes = wrapper.find("SelectContainer").length;
-
-    const storeHandlerStub = jest.spyOn(scheduleStoreModule, "storeHandler");
-
-    // select the second-to-last node (i.e. origin drop-down) and choose an option
-    wrapper
-      .find("SelectContainer")
-      .at(numNodes - 2)
-      // @ts-ignore -- types for `invoke` seem to be too restrictive
-      .invoke("handleClick")();
-
-    expect(storeHandlerStub).toHaveBeenCalledWith({
-      type: "OPEN_MODAL",
-      newStoreValues: {
-        modalMode: "origin"
-      }
-    });
-    wrapper.unmount();
+    expect(screen.queryByText("ScheduleFinderModal")).toBeNull();
+    expect(store.getState().modalOpen).toBe(false);
+    store.dispatch(scheduleStoreModule.openScheduleModal());
+    expect(screen.getByText("ScheduleFinderModal")).toBeTruthy();
+    expect(store.getState().modalOpen).toBe(true);
   });
 });

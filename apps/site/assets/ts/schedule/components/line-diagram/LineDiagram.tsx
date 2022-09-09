@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
-import { Provider } from "react-redux";
-import { updateURL } from "../../schedule-loader";
+import { Provider, useDispatch } from "react-redux";
 import useFilteredList from "../../../hooks/useFilteredList";
 import SearchBox from "../../../components/SearchBox";
 import { LineDiagramStop, RouteStop } from "../__schedule";
@@ -8,10 +7,9 @@ import { DirectionId, Route } from "../../../__v3api";
 import { createLineDiagramCoordStore } from "./graphics/graphic-helpers";
 import StopCard from "./StopCard";
 import LineDiagramWithStops from "./LineDiagramWithStops";
-import { getCurrentState, storeHandler } from "../../store/ScheduleStore";
-import { changeOrigin } from "../ScheduleLoader";
 import useRealtime from "../../../hooks/useRealtime";
 import currentLineSuspensions from "../../../helpers/line-suspensions";
+import { openScheduleModalWithOrigin } from "../../store/schedule-store";
 
 interface LineDiagramProps {
   lineDiagram: LineDiagramStop[];
@@ -28,25 +26,12 @@ const LineDiagramAndStopListPage = ({
   directionId
 }: LineDiagramProps): ReactElement<HTMLElement> | null => {
   const currentLineSuspension = currentLineSuspensions(route.id);
+  const scheduleDispatch = useDispatch();
   // also track the location of text to align the diagram points to
   const lineDiagramCoordStore = createLineDiagramCoordStore(lineDiagram);
 
   const handleStopClick = (stop: RouteStop): void => {
-    changeOrigin(stop.id);
-
-    const currentState = getCurrentState();
-    const { modalOpen: modalIsOpen } = currentState;
-
-    updateURL(stop.id, directionId);
-
-    if (currentState.selectedOrigin !== undefined && !modalIsOpen) {
-      storeHandler({
-        type: "OPEN_MODAL",
-        newStoreValues: {
-          modalMode: "schedule"
-        }
-      });
-    }
+    scheduleDispatch(openScheduleModalWithOrigin(stop.id));
   };
 
   /**

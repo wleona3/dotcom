@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react";
+import { useSelector } from "react-redux";
 import { DirectionId, Route } from "../../../__v3api";
 import { formattedDate, stringToDateObject } from "../../../helpers/date";
 import { isInCurrentService } from "../../../helpers/service";
@@ -8,7 +9,6 @@ import {
   RoutePatternsByDirection,
   ServiceInSelector,
   ScheduleNote as ScheduleNoteType,
-  SelectedOrigin,
   UserInput
 } from "../__schedule";
 import { EnhancedJourney, Journey, TripInfo } from "../__trips";
@@ -23,6 +23,7 @@ import {
   isFetchFailed
 } from "../../../helpers/fetch-json";
 import { useAwaitInterval } from "../../../helpers/use-await-interval";
+import { getDirection, getOrigin } from "../../store/schedule-store";
 
 // exported for testing
 export const fetchData = async (
@@ -60,11 +61,7 @@ export const fetchData = async (
 };
 
 interface Props {
-  handleChangeDirection: (direction: DirectionId) => void;
-  handleChangeOrigin: (origin: SelectedOrigin) => void;
   route: Route;
-  selectedDirection: DirectionId;
-  selectedOrigin: string;
   services: ServiceInSelector[];
   stops: SimpleStopMap;
   routePatternsByDirection: RoutePatternsByDirection;
@@ -73,11 +70,7 @@ interface Props {
 }
 
 const ScheduleModalContent = ({
-  handleChangeDirection,
-  handleChangeOrigin,
   route,
-  selectedDirection,
-  selectedOrigin,
   services,
   stops,
   routePatternsByDirection,
@@ -85,18 +78,19 @@ const ScheduleModalContent = ({
   scheduleNote
 }: Props): ReactElement<HTMLElement> | null => {
   const { id: routeId } = route;
-
+  const selectedDirection = useSelector(getDirection);
+  const selectedOrigin = useSelector(getOrigin);
   const input: UserInput = {
     route: routeId,
-    origin: selectedOrigin,
+    origin: selectedOrigin as string,
     date: today,
-    direction: selectedDirection
+    direction: selectedDirection!
   };
 
   const [state, updateData] = useProvider(fetchData, [
     routeId,
-    selectedOrigin,
-    selectedDirection,
+    selectedOrigin as string,
+    selectedDirection!,
     input.date
   ]);
   useAwaitInterval(updateData, 10000);
@@ -117,14 +111,7 @@ const ScheduleModalContent = ({
   return (
     <>
       <div className="schedule-finder schedule-finder--modal">
-        <ScheduleFinderForm
-          onDirectionChange={handleChangeDirection}
-          onOriginChange={handleChangeOrigin}
-          route={route}
-          selectedDirection={selectedDirection}
-          selectedOrigin={selectedOrigin}
-          stopsByDirection={stops}
-        />
+        <ScheduleFinderForm route={route} stopsByDirection={stops} />
       </div>
 
       {routeToModeName(route) !== "ferry" && renderUpcomingDepartures()}
@@ -136,11 +123,11 @@ const ScheduleModalContent = ({
         />
       ) : (
         <DailySchedule
-          stopId={selectedOrigin}
+          stopId={selectedOrigin as string}
           services={services}
           routeId={routeId}
-          directionId={selectedDirection}
-          routePatterns={routePatternsByDirection[selectedDirection]}
+          directionId={selectedDirection!}
+          routePatterns={routePatternsByDirection[selectedDirection!]}
           today={today}
         />
       )}

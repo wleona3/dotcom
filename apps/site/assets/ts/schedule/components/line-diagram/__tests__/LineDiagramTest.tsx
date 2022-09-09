@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import * as swr from "swr";
 import { mount, ReactWrapper } from "enzyme";
 import { cloneDeep, merge } from "lodash";
@@ -13,7 +13,9 @@ import * as routePatternsByDirection from "../../__tests__/test-data/routePatter
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
 import simpleLiveData from "./lineDiagramData/live-data.json";
-import SearchBox from "../../../../components/SearchBox";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { createScheduleStore } from "../../../store/schedule-store";
+import { Provider } from "react-redux";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -69,10 +71,30 @@ const stops = lineDiagram.map(({ route_stop }) => ({
 
 const directionId = 1;
 
+// redux store/provider
+const store = createScheduleStore(0);
+function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  return <Provider store={store}>{children}</Provider>;
+}
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(ui, { wrapper: Wrapper });
+}
+
+test("LineDiagram renders and matches snapshot", () => {
+  let { asFragment } = renderWithProvider(
+    <LineDiagramAndStopListPage
+      lineDiagram={lineDiagram}
+      route={route as EnhancedRoute}
+      directionId={directionId}
+    />
+  );
+  expect(asFragment()).toMatchSnapshot();
+});
+
 describe("LineDiagram", () => {
-  let wrapper: ReactWrapper;
   beforeEach(() => {
-    wrapper = mount(
+    renderWithProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={route as EnhancedRoute}
@@ -81,84 +103,36 @@ describe("LineDiagram", () => {
     );
   });
 
-  afterEach(() => {
-    wrapper.unmount();
+  test("includes buttons to open the Schedule Finder modal", () => {
+    const { modalOpen: initialModalOpen } = store.getState();
+    expect(initialModalOpen).toBe(false);
+    const openBtn = screen.getAllByText("View schedule", { exact: false })[0];
+    fireEvent.click(openBtn);
+    const { modalOpen } = store.getState();
+    expect(modalOpen).toBe(true);
   });
 
-  it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
-  });
+  test("can search and filter stops", () => {
+    expect(document.querySelector(".m-schedule-diagram--searched")).toBeFalsy();
+    const searchInput = screen.getByPlaceholderText("Search for a stop");
+    fireEvent.change(searchInput, { target: { value: "S" } });
+    expect(
+      document.querySelector(".m-schedule-diagram--searched")
+    ).toBeTruthy();
+    expect(document.querySelector("b.u-highlight")).toBeTruthy();
+    expect(document.querySelector("b.u-highlight")!.textContent).toEqual("S");
 
-  it("can filter stops by name", () => {
-    const filter = wrapper.find(".m-schedule-diagram__filter").at(0);
-    expect(filter.exists()).toBeTruthy();
-    expect(filter.type()).toEqual(SearchBox);
-  });
-
-  it.skip("includes buttons to open the Schedule Finder modal", () => {
-    expect(wrapper.exists(".schedule-finder--modal")).toBeFalsy();
-
-    wrapper
-      .find(".m-schedule-diagram__footer > button")
-      .first()
-      .simulate("click");
-
-    expect(wrapper.exists(".schedule-finder--modal")).toBeTruthy();
-
-    expect(wrapper.exists("#modal-close")).toBeTruthy();
-
-    wrapper.find("#modal-close").simulate("click");
-    expect(wrapper.exists(".schedule-finder--modal")).toBeFalsy();
-    expect(wrapper.exists("#modal-close")).toBeFalsy();
-  });
-
-  describe("opens the ScheduleFinderModal", () => {
-    it.skip("detects a change in direction (and hence in origin)", () => {
-      // open modal:
-      wrapper
-        .find(".m-schedule-diagram__footer > button")
-        .first()
-        .simulate("click");
-
-      // change direction
-      wrapper
-        .find("select")
-        .at(0)
-        .simulate("change", { target: { value: "0" } });
-    });
-
-    it.skip("detects a change in origin", () => {
-      // open modal:
-      wrapper
-        .find(".m-schedule-diagram__footer > button")
-        .first()
-        .simulate("click");
-
-      // change origin
-      wrapper
-        .find("select")
-        .at(1)
-        .simulate("change", { target: { value: "line-stop2" } });
-    });
-
-    it.skip("detects an origin selection", () => {
-      // open modal:
-      wrapper
-        .find(".m-schedule-diagram__footer > button")
-        .first()
-        .simulate("click");
-
-      // Click on the SelectContainer for the origin select
-      wrapper
-        .find("SelectContainer")
-        .last()
-        // @ts-ignore -- types for `invoke` are too restrictive?
-        .invoke("handleClick")();
-    });
+    fireEvent.change(searchInput, { target: { value: "Impossible" } });
+    expect(
+      screen.queryByText(
+        "Try changing your direction or adjusting your search.",
+        { exact: false }
+      )
+    ).toBeTruthy();
   });
 });
 
-it.each`
+test.each`
   type | name
   ${0} | ${"Stations"}
   ${1} | ${"Stations"}
@@ -168,7 +142,7 @@ it.each`
 `(
   "LineDiagram names stops or stations for route type $type",
   ({ type, name }) => {
-    const wrapper = mount(
+    renderWithProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={
@@ -180,11 +154,12 @@ it.each`
         directionId={directionId}
       />
     );
-    expect(wrapper.find(".m-schedule-diagram__heading").text()).toContain(name);
+    const heading = screen.getByText(name, { exact: false, selector: "h3" });
+    expect(heading).toBeTruthy();
   }
 );
 
-it.each`
+test.each`
   type | willPoll
   ${0} | ${true}
   ${1} | ${true}
@@ -197,7 +172,7 @@ it.each`
     // don't mock the return value here,
     // we just want to check if it's called
     const useSWRSpy = jest.spyOn(swr, "default");
-    const wrapper = mount(
+    renderWithProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={

@@ -1,21 +1,19 @@
-import React from "react";
-import { mount } from "enzyme";
-import { DirectionId, Route } from "../../../../__v3api";
+import { render, screen } from "@testing-library/react";
+import React, { PropsWithChildren } from "react";
+import { Provider } from "react-redux";
+import { Route } from "../../../../__v3api";
+import {
+  changeScheduleFinderOrigin,
+  createScheduleStore,
+  openOriginModal
+} from "../../../store/schedule-store";
 import {
   RoutePatternsByDirection,
   SelectedOrigin,
   ServiceInSelector
 } from "../../__schedule";
 import * as routePatternsByDirectionData from "../../__tests__/test-data/routePatternsByDirectionData.json";
-import ScheduleFinderModal, { Mode as ModalMode } from "../ScheduleFinderModal";
-
-jest.mock("../../../../helpers/use-fetch", () => ({
-  __esModule: true,
-  hasData: () => false,
-  isLoading: () => true,
-  isNotStarted: () => false,
-  default: jest.fn().mockImplementation(() => [{ status: 2 }, jest.fn()])
-}));
+import ScheduleFinderModal from "../ScheduleFinderModal";
 
 const routePatternsByDirection = routePatternsByDirectionData as RoutePatternsByDirection;
 
@@ -137,138 +135,53 @@ const stops = {
   ]
 };
 
-describe("ScheduleFinderModal", () => {
-  const mountComponent = (
-    mode: ModalMode,
-    direction: DirectionId,
-    origin: SelectedOrigin,
-    directionChanged?: (direction: DirectionId) => void,
-    originChanged?: (origin: SelectedOrigin) => void
-  ) =>
-    mount(
+// redux store/provider
+const store = createScheduleStore(0);
+store.dispatch(changeScheduleFinderOrigin("123")); // initializes origin value
+function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  return <Provider store={store}>{children}</Provider>;
+}
+
+function renderWithProvider(ui: React.ReactElement) {
+  return render(ui, { wrapper: Wrapper });
+}
+
+jest.mock("../OriginModalContent", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>OriginModalContent</div>;
+  }
+}));
+
+jest.mock("../ScheduleModalContent", () => ({
+  __esModule: true,
+  default: () => {
+    return <div>ScheduleModalContent</div>;
+  }
+}));
+
+describe("<ScheduleFinderModal />", () => {
+  beforeEach(() => {
+    renderWithProvider(
       <ScheduleFinderModal
-        closeModal={() => {}}
-        initialMode={mode}
         route={route}
         routePatternsByDirection={routePatternsByDirection}
         scheduleNote={null}
         services={services}
         stops={stops}
         today={today}
-        updateURL={() => {}}
-        initialDirection={direction}
-        directionChanged={directionChanged}
-        initialOrigin={origin}
-        originChanged={originChanged}
-        handleOriginSelectClick={() => {}}
       />
     );
-
-  it("matches snapshot in origin mode", () => {
-    const wrapper = mountComponent("origin", 0, null, undefined, undefined);
-    expect(wrapper.debug()).toMatchSnapshot();
   });
 
-  it("matches snapshot in origin mode with origin selected", () => {
-    const wrapper = mountComponent("origin", 0, null, undefined, undefined);
-    expect(wrapper.debug()).toMatchSnapshot();
+  test("can show a <ScheduleModalContent />", () => {
+    expect(screen.getByText("ScheduleModalContent")).toBeTruthy();
+    expect(screen.queryByText("OriginModalContent")).toBeNull();
   });
 
-  it("matches snapshot in schedule mode", () => {
-    const wrapper = mountComponent(
-      "schedule",
-      0,
-      "place-welln",
-      undefined,
-      undefined
-    );
-    expect(wrapper.debug()).toMatchSnapshot();
-  });
-
-  it("detects click and keyUp events in OriginListItem elements", () => {
-    const originChangedSpy = jest.fn();
-
-    const wrapper = mountComponent(
-      "origin",
-      0,
-      null,
-      undefined,
-      originChangedSpy
-    );
-
-    // detect click event:
-    wrapper
-      .find(".schedule-finder__origin-list-item")
-      .at(1)
-      .simulate("click");
-
-    expect(originChangedSpy).toHaveBeenCalledTimes(1);
-
-    // detect keyUp event:
-    originChangedSpy.mockRestore();
-
-    wrapper
-      .find(".schedule-finder__origin-list-item")
-      .at(1)
-      .simulate("keyUp", { key: "Enter" });
-
-    expect(originChangedSpy).toHaveBeenCalledTimes(1);
-
-    originChangedSpy.mockRestore();
-    wrapper.unmount();
-  });
-
-  it("detects change in direction", () => {
-    const spy = jest.fn();
-
-    const wrapper = mountComponent(
-      "schedule",
-      0,
-      "place-welln",
-      jest.fn(),
-      jest.fn()
-    );
-
-    wrapper.setProps({ updateURL: spy });
-
-    // trigger change in direction:
-    wrapper
-      .find("select")
-      .at(0)
-      .simulate("change", { target: { value: "1" } });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-
-    spy.mockRestore();
-    wrapper.unmount();
-  });
-
-  it("searches for existing and non-existing stops", () => {
-    const wrapper = mountComponent(
-      "origin",
-      0,
-      "place-welln",
-      jest.fn(),
-      jest.fn()
-    );
-
-    // type on input field:
-    wrapper
-      .find("#origin-filter")
-      .at(1) // select the input, not the SearchBox
-      .simulate("change", { target: { value: "555 Street" } });
-
-    expect(
-      wrapper.find(".schedule-finder__origin-list").children().length
-    ).toEqual(0);
-
-    wrapper
-      .find("#origin-filter")
-      .at(1) // select the input, not the SearchBox
-      .simulate("change", { target: { value: "Abc" } });
-
-    expect(
-      wrapper.find(".schedule-finder__origin-list").children().length
-    ).toEqual(1);
+  test("can show a <OriginModalContent />", () => {
+    store.dispatch(openOriginModal());
+    expect(screen.queryByText("ScheduleModalContent")).toBeNull();
+    expect(screen.getByText("OriginModalContent")).toBeTruthy();
   });
 });

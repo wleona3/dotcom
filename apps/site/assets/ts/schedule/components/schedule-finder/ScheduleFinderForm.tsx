@@ -1,32 +1,31 @@
 import React, { FormEvent, ReactElement, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { DirectionId, DirectionInfo, Route } from "../../../__v3api";
-import { SimpleStopMap, SelectedOrigin } from "../__schedule";
+import { SimpleStopMap } from "../__schedule";
 import icon from "../../../../static/images/icon-schedule-finder.svg";
 import renderSvg from "../../../helpers/render-svg";
 import SelectContainer from "./SelectContainer";
 import { routeToModeName } from "../../../helpers/css";
-import { handleOriginSelectClick } from "./actions";
+import {
+  changeScheduleFinderDirection,
+  changeScheduleFinderOrigin,
+  getDirection,
+  getOrigin,
+  openOriginModal
+} from "../../store/schedule-store";
 
 const validDirections = (directionInfo: DirectionInfo): DirectionId[] =>
   ([0, 1] as DirectionId[]).filter(dir => directionInfo[dir] !== null);
 
 interface Props {
-  onDirectionChange: (direction: DirectionId) => void;
-  onOriginChange: (origin: SelectedOrigin) => void;
   onSubmit?: () => void;
   route: Route;
-  selectedDirection: DirectionId;
-  selectedOrigin: SelectedOrigin;
   stopsByDirection: SimpleStopMap;
 }
 
 export default ({
-  onDirectionChange,
-  onOriginChange,
   onSubmit = () => {},
   route,
-  selectedDirection,
-  selectedOrigin,
   stopsByDirection
 }: Props): ReactElement => {
   const {
@@ -35,15 +34,17 @@ export default ({
   } = route;
 
   const [originError, setOriginError] = useState(false);
+  const scheduleDispatch = useDispatch();
 
   const handleOriginClick = (): void => {
     setOriginError(false);
-    handleOriginSelectClick();
+    scheduleDispatch(openOriginModal());
   };
 
+  const selectedDirection = useSelector(getDirection);
+  const selectedOrigin = useSelector(getOrigin);
   const handleSubmit = (event: FormEvent): void => {
     event.preventDefault();
-
     if (!selectedOrigin) {
       setOriginError(true);
     } else {
@@ -85,7 +86,11 @@ export default ({
                 className="c-select-custom notranslate"
                 value={selectedDirection}
                 onChange={e =>
-                  onDirectionChange(parseInt(e.target.value, 10) as DirectionId)
+                  scheduleDispatch(
+                    changeScheduleFinderDirection(
+                      parseInt(e.target.value, 10) as DirectionId
+                    )
+                  )
                 }
               >
                 {validDirections(directionNames).map(direction => (
@@ -110,7 +115,9 @@ export default ({
               <select
                 className="c-select-custom c-select-custom--noclick notranslate"
                 value={selectedOrigin || ""}
-                onChange={e => onOriginChange(e.target.value || null)}
+                onChange={e =>
+                  scheduleDispatch(changeScheduleFinderOrigin(e.target.value))
+                }
               >
                 <option value="">Select</option>
                 {stopsByDirection[selectedDirection].map(({ id, name }) => (

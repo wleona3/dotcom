@@ -1,87 +1,46 @@
 import React, { ReactElement } from "react";
-import { DirectionId, Route } from "../../../__v3api";
+import { useDispatch, useSelector } from "react-redux";
+import { Route } from "../../../__v3api";
 import {
   SimpleStopMap,
   RoutePatternsByDirection,
   ServiceInSelector,
-  ScheduleNote as ScheduleNoteType,
-  SelectedOrigin
+  ScheduleNote as ScheduleNoteType
 } from "../__schedule";
 import Modal from "../../../components/Modal";
 import OriginModalContent from "./OriginModalContent";
 import ScheduleModalContent from "./ScheduleModalContent";
-import { changeDirection, changeOrigin } from "./actions";
-
-export type Mode = "origin" | "schedule";
+import {
+  closeModal,
+  getDirection,
+  getModalMode,
+  getOrigin
+} from "../../store/schedule-store";
 
 interface Props {
-  closeModal: () => void;
-  initialMode: Mode;
-  initialDirection: DirectionId;
-  initialOrigin: SelectedOrigin;
   route: Route;
   routePatternsByDirection: RoutePatternsByDirection;
   scheduleNote: ScheduleNoteType | null;
   services: ServiceInSelector[];
   stops: SimpleStopMap;
   today: string;
-  updateURL: (origin: SelectedOrigin, direction?: DirectionId) => void;
 }
 
 const ScheduleFinderModal = ({
-  closeModal,
-  initialMode,
-  initialDirection,
-  initialOrigin,
   route,
   routePatternsByDirection,
   scheduleNote,
   services,
   stops,
-  today,
-  updateURL
+  today
 }: Props): ReactElement => {
-  const handleChangeDirection = (newDirection: DirectionId): void => {
-    changeDirection(newDirection);
-    changeOrigin(null);
-    updateURL(initialOrigin, newDirection);
-  };
-
-  const handleChangeOrigin = (newOrigin: SelectedOrigin): void => {
-    changeOrigin(newOrigin);
-    updateURL(newOrigin, initialDirection);
-  };
-
-  const originModalContent = (): ReactElement => {
-    const origin = initialOrigin;
-    const direction = initialDirection;
-    return (
-      <OriginModalContent
-        handleChangeOrigin={handleChangeOrigin}
-        selectedOrigin={origin}
-        stops={stops[direction] || []}
-      />
-    );
-  };
-
-  const scheduleModalContent = (scheduleOrigin: string): ReactElement => (
-    <ScheduleModalContent
-      handleChangeDirection={handleChangeDirection}
-      handleChangeOrigin={handleChangeOrigin}
-      route={route}
-      routePatternsByDirection={routePatternsByDirection}
-      scheduleNote={scheduleNote}
-      selectedDirection={initialDirection}
-      selectedOrigin={scheduleOrigin}
-      services={services}
-      stops={stops}
-      today={today}
-    />
+  const initialMode = useSelector(getModalMode);
+  const initialDirection = useSelector(getDirection);
+  const initialOrigin = useSelector(getOrigin);
+  const scheduleDispatch = useDispatch();
+  const originStop = stops[initialDirection].find(
+    stop => stop.id === initialOrigin
   );
-
-  const direction = initialDirection;
-  const origin = initialOrigin;
-  const originStop = stops[direction].find(stop => stop.id === origin);
 
   return (
     <Modal
@@ -93,20 +52,31 @@ const ScheduleFinderModal = ({
           initialMode === "origin"
             ? "Choose Origin Stop"
             : `Schedules on the ${route.name} ${
-                route.direction_names[direction]
-              } to ${route.direction_destinations[direction]}${
+                route.direction_names[initialDirection]
+              } to ${route.direction_destinations[initialDirection]}${
                 originStop ? ` from ${originStop.name}` : ""
               }`
       }}
       className={
         initialMode === "origin" ? "schedule-finder__origin-modal" : ""
       }
-      closeModal={closeModal}
+      closeModal={() => {
+        scheduleDispatch(closeModal());
+      }}
     >
-      {initialMode === "origin" && originModalContent()}
-      {initialMode === "schedule" &&
-        origin !== null &&
-        scheduleModalContent(origin)}
+      {initialMode === "origin" && (
+        <OriginModalContent stops={stops[initialDirection] || []} />
+      )}
+      {initialMode === "schedule" && initialOrigin !== null && (
+        <ScheduleModalContent
+          route={route}
+          routePatternsByDirection={routePatternsByDirection}
+          scheduleNote={scheduleNote}
+          services={services}
+          stops={stops}
+          today={today}
+        />
+      )}
     </Modal>
   );
 };

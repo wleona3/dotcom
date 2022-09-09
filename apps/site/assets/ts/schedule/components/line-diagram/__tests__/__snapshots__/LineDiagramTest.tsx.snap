@@ -1,337 +1,670 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`LineDiagram renders and matches snapshot 1`] = `
-"<LineDiagramAndStopListPage lineDiagram={{...}} route={{...}} directionId={1}>
-  <h3 className=\\"m-schedule-diagram__heading\\">
+<DocumentFragment>
+  <h3
+    class="m-schedule-diagram__heading"
+  >
     Stops
   </h3>
-  <SearchBox id=\\"stop-search\\" labelText=\\"Search for a stop\\" onChange={[Function: bound dispatchAction]} className=\\"m-schedule-diagram__filter\\">
-    <div className=\\"m-schedule-diagram__filter c-form__input-container\\">
-      <label htmlFor=\\"stop-search\\" className=\\"sr-only\\">
-        Search for a stop
-      </label>
-      <input className=\\"c-form__input\\" id=\\"stop-search\\" type=\\"text\\" onChange={[Function: onChange]} value=\\"\\" placeholder=\\"Search for a stop\\" />
-      <button className=\\"c-form__submit-btn\\" aria-label=\\"search\\" type=\\"button\\" onClick={[Function: onClick]}>
-        <span className=\\"notranslate c-svg__icon-search-reverse-default\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-      </button>
+  <div
+    class="m-schedule-diagram__filter c-form__input-container"
+  >
+    <label
+      class="sr-only"
+      for="stop-search"
+    >
+      Search for a stop
+    </label>
+    <input
+      class="c-form__input"
+      id="stop-search"
+      placeholder="Search for a stop"
+      type="text"
+      value=""
+    />
+    <button
+      aria-label="search"
+      class="c-form__submit-btn"
+      type="button"
+    >
+      <span
+        aria-hidden="false"
+        class="notranslate c-svg__icon-search-reverse-default"
+      >
+        SVG
+      </span>
+    </button>
+  </div>
+  <div
+    class="m-schedule-diagram u-no-crowding-data"
+  >
+    <div
+      class="m-schedule-diagram__vehicle"
+      style="top: -25px; left: 7px;"
+    >
+      <span
+        data-animation="false"
+        data-html="true"
+        data-original-title="<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 1 at stop 1</div>"
+        data-placement="right"
+        data-selector="true"
+        data-toggle="tooltip"
+        data-trigger="hover focus"
+      >
+        <span
+          aria-hidden="false"
+          class="notranslate m-schedule-diagram__vehicle--icon"
+        >
+          SVG
+        </span>
+      </span>
     </div>
-  </SearchBox>
-  <Provider store={{...}}>
-    <LineDiagramWithStops stops={{...}} handleStopClick={[Function: handleStopClick]} liveData={{...}}>
-      <div className=\\"m-schedule-diagram u-no-crowding-data\\">
-        <Diagram lineDiagram={{...}} liveData={{...}}>
-          <LiveVehicleIconSet stop={{...}} liveData={{...}} />
-          <LiveVehicleIconSet stop={{...}} liveData={{...}}>
-            <VehicleIcons stop={{...}} vehicles={{...}}>
-              <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
-                <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 1 at stop 1</div>\\" tooltipOptions={{...}}>
-                  <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 1 at stop 1</div>\\">
-                    <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+    <div
+      class="m-schedule-diagram__vehicle"
+      style="top: -50px; left: 7px;"
+    >
+      <span
+        data-animation="false"
+        data-html="true"
+        data-original-title="<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 2 at stop 1</div>"
+        data-placement="right"
+        data-selector="true"
+        data-toggle="tooltip"
+        data-trigger="hover focus"
+      >
+        <span
+          aria-hidden="false"
+          class="notranslate m-schedule-diagram__vehicle--icon"
+        >
+          SVG
+        </span>
+      </span>
+    </div>
+    <div
+      class="m-schedule-diagram__vehicle"
+      style="top: -50px; left: 7px;"
+    >
+      <span
+        data-animation="false"
+        data-html="true"
+        data-original-title="<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 3 at stop 2</div>"
+        data-placement="right"
+        data-selector="true"
+        data-toggle="tooltip"
+        data-trigger="hover focus"
+      >
+        <span
+          aria-hidden="false"
+          class="notranslate m-schedule-diagram__vehicle--icon"
+        >
+          SVG
+        </span>
+      </span>
+    </div>
+    <svg
+      aria-labelledby="diagram-title diagram-desc"
+      class="line-diagram-svg bus"
+      height="100%"
+      role="img"
+      style="left: 5px;"
+      width="40px"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title
+        id="diagram-title"
+      >
+        Line diagram for route 1
+      </title>
+      <desc
+        id="diagram-desc"
+      >
+        4 stops going undefined to undefined
+      </desc>
+      <defs>
+        <pattern
+          height="10"
+          id="diagonalHatch"
+          patternTransform="rotate(45 0 0)"
+          patternUnits="userSpaceOnUse"
+          width="10"
+        >
+          <line
+            class="line-diagram-svg__line"
+            stroke-width="16px"
+            y2="8"
+          />
+        </pattern>
+      </defs>
+      <line
+        class="line-diagram-svg__line"
+        stroke="url(#shuttle)"
+        stroke-width="10px"
+        x1="11px"
+        x2="11px"
+        y1="0px"
+        y2="0px"
+      />
+      <line
+        class="line-diagram-svg__line"
+        stroke-width="10px"
+        x1="11px"
+        x2="11px"
+        y1="0px"
+        y2="0px"
+      />
+      <line
+        class="line-diagram-svg__line"
+        stroke-width="10px"
+        x1="11px"
+        x2="11px"
+        y1="0px"
+        y2="0px"
+      />
+      <circle
+        class="line-diagram-svg__stop"
+        cx="11px"
+        cy="0px"
+        data-shuttle="false"
+        r="4px"
+      />
+      <circle
+        class="line-diagram-svg__stop"
+        cx="11px"
+        cy="0px"
+        data-shuttle="false"
+        r="4px"
+      />
+      <circle
+        class="line-diagram-svg__stop"
+        cx="11px"
+        cy="0px"
+        data-shuttle="false"
+        r="4px"
+      />
+      <circle
+        class="line-diagram-svg__stop"
+        cx="11px"
+        cy="0px"
+        data-shuttle="false"
+        r="4px"
+      />
+    </svg>
+    <ol>
+      <li
+        class="m-schedule-diagram__stop"
+        style="padding-left: 36px;"
+      >
+        <section
+          class="m-schedule-diagram__content"
+        >
+          <header
+            class="m-schedule-diagram__stop-heading"
+          >
+            <h4
+              class="m-schedule-diagram__stop-link notranslate"
+            >
+              <a
+                href="/stops/line-origin"
+              >
+                <span>
+                  Origin
+                </span>
+              </a>
+            </h4>
+            <div
+              class="m-schedule-diagram__features"
+            >
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Parking"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <i
+                  aria-hidden="false"
+                  class="fa fa-square-parking notranslate m-schedule-diagram__feature-icon"
+                />
+              </span>
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Accessible"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon"
+                >
+                  SVG
+                </span>
+              </span>
+            </div>
+          </header>
+          <div
+            class="m-schedule-diagram__stop-details"
+          >
+            <div
+              class="m-schedule-diagram__connections"
+            />
+            <div
+              class="m-schedule-diagram__alert"
+            >
+              Detour
+            </div>
+          </div>
+          <footer
+            class="m-schedule-diagram__footer"
+          >
+            <button
+              class="btn btn-link"
+              type="button"
+            >
+              View schedule
+            </button>
+          </footer>
+        </section>
+      </li>
+      <li
+        class="m-schedule-diagram__stop"
+        style="padding-left: 36px;"
+      >
+        <section
+          class="m-schedule-diagram__content"
+        >
+          <header
+            class="m-schedule-diagram__stop-heading"
+          >
+            <h4
+              class="m-schedule-diagram__stop-link notranslate"
+            >
+              <a
+                href="/stops/line-stop1"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-alerts-triangle"
+                >
+                  SVG
+                </span>
+                <span
+                  class="sr-only"
+                >
+                  Service alert or delay
+                </span>
+                 
+                <span>
+                  Stop 1
+                </span>
+              </a>
+            </h4>
+            <div
+              class="m-schedule-diagram__features"
+            >
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Accessible"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon"
+                >
+                  SVG
+                </span>
+              </span>
+            </div>
+          </header>
+          <div
+            class="m-schedule-diagram__stop-details"
+          >
+            <div
+              class="m-schedule-diagram__connections"
+            >
+              <a
+                data-animation="false"
+                data-html="false"
+                data-original-title="Orange Line"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+                href="/schedules/Orange/line"
+              >
+                <span
+                  class="m-schedule-diagram__connection"
+                >
+                  <span
+                    aria-hidden="false"
+                    class="notranslate c-svg__icon"
+                  >
+                    SVG
                   </span>
-                </TooltipWrapper>
-              </div>
-              <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
-                <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 2 at stop 1</div>\\" tooltipOptions={{...}}>
-                  <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 2 at stop 1</div>\\">
-                    <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+                </span>
+              </a>
+              <a
+                data-animation="false"
+                data-html="false"
+                data-original-title="Green Line C"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+                href="/schedules/Green-C/line"
+              >
+                <span
+                  class="m-schedule-diagram__connection"
+                >
+                  <span
+                    aria-hidden="false"
+                    class="notranslate c-svg__icon"
+                  >
+                    SVG
                   </span>
-                </TooltipWrapper>
-              </div>
-            </VehicleIcons>
-          </LiveVehicleIconSet>
-          <LiveVehicleIconSet stop={{...}} liveData={{...}}>
-            <VehicleIcons stop={{...}} vehicles={{...}}>
-              <div className=\\"m-schedule-diagram__vehicle\\" style={{...}}>
-                <TooltipWrapper tooltipText=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 3 at stop 2</div>\\" tooltipOptions={{...}}>
-                  <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"right\\" data-animation={false} data-html={true} data-selector=\\"true\\" data-original-title=\\"<div class=\\"m-schedule-diagram__vehicle-tooltip\\">tooltip for vehicle 3 at stop 2</div>\\">
-                    <span className=\\"notranslate m-schedule-diagram__vehicle--icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
+                </span>
+              </a>
+            </div>
+            <div
+              class="m-schedule-diagram__predictions"
+            >
+              <div
+                class="m-schedule-diagram__prediction notranslate"
+              >
+                <div>
+                  Dest1
+                </div>
+                <div
+                  class="m-schedule-diagram__prediction-time"
+                >
+                  2   min
+                </div>
+                <div
+                  class="m-schedule-diagram__prediction-crowding"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable"
+                  >
+                    SVG
                   </span>
-                </TooltipWrapper>
+                </div>
               </div>
-            </VehicleIcons>
-          </LiveVehicleIconSet>
-          <LiveVehicleIconSet stop={{...}} liveData={{...}} />
-          <svg xmlns=\\"http://www.w3.org/2000/svg\\" role=\\"img\\" aria-labelledby=\\"diagram-title diagram-desc\\" className=\\"line-diagram-svg bus\\" width=\\"40px\\" height=\\"100%\\" style={{...}}>
-            <title id=\\"diagram-title\\">
-              Line diagram for
-               
-              route 1
-            </title>
-            <desc id=\\"diagram-desc\\">
-              4 stops going Outbound to Begin
-            </desc>
-            <defs>
-              <pattern id=\\"diagonalHatch\\" width=\\"10\\" height=\\"10\\" patternTransform=\\"rotate(45 0 0)\\" patternUnits=\\"userSpaceOnUse\\">
-                <line className=\\"line-diagram-svg__line\\" y2={8} strokeWidth=\\"16px\\" />
-              </pattern>
-            </defs>
-            <Line from={{...}} to={{...}} shuttle={false}>
-              <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"0px\\" y2=\\"0px\\" stroke=\\"url(#shuttle)\\" />
-            </Line>
-            <Line from={{...}} to={{...}} shuttle={false}>
-              <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"0px\\" y2=\\"0px\\" />
-            </Line>
-            <Line from={{...}} to={{...}} shuttle={false}>
-              <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"0px\\" y2=\\"0px\\" />
-            </Line>
-            <Stop stop={{...}} shuttle={false}>
-              <circle className=\\"line-diagram-svg__stop\\" r=\\"4px\\" cx=\\"11px\\" cy=\\"0px\\" data-shuttle={false} />
-            </Stop>
-            <Stop stop={{...}} shuttle={false}>
-              <circle className=\\"line-diagram-svg__stop\\" r=\\"4px\\" cx=\\"11px\\" cy=\\"0px\\" data-shuttle={false} />
-            </Stop>
-            <Stop stop={{...}} shuttle={false}>
-              <circle className=\\"line-diagram-svg__stop\\" r=\\"4px\\" cx=\\"11px\\" cy=\\"0px\\" data-shuttle={false} />
-            </Stop>
-            <Stop stop={{...}} shuttle={false}>
-              <circle className=\\"line-diagram-svg__stop\\" r=\\"4px\\" cx=\\"11px\\" cy=\\"0px\\" data-shuttle={false} />
-            </Stop>
-          </svg>
-        </Diagram>
-        <ol>
-          <StopCard stop={{...}} onClick={[Function: handleStopClick]} liveData={[undefined]}>
-            <li className=\\"m-schedule-diagram__stop\\" style={{...}}>
-              <section className=\\"m-schedule-diagram__content\\">
-                <GlxOpen pageType=\\"line-diagram\\" stopId=\\"line-origin\\" />
-                <header className=\\"m-schedule-diagram__stop-heading\\">
-                  <h4 className=\\"m-schedule-diagram__stop-link notranslate\\">
-                    <a href=\\"/stops/line-origin\\">
-                      <MatchHighlight text=\\"Origin\\" matchQuery={[undefined]}>
-                        <span>
-                          Origin
-                        </span>
-                      </MatchHighlight>
-                    </a>
-                  </h4>
-                  <div className=\\"m-schedule-diagram__features\\">
-                    <TooltipWrapper tooltipText=\\"Parking\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Parking\\">
-                        <i className=\\"fa fa-square-parking notranslate m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" />
-                      </span>
-                    </TooltipWrapper>
-                    <TooltipWrapper tooltipText=\\"Accessible\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Accessible\\">
-                        <span className=\\"notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      </span>
-                    </TooltipWrapper>
-                  </div>
-                </header>
-                <div className=\\"m-schedule-diagram__stop-details\\">
-                  <div className=\\"m-schedule-diagram__connections\\" />
-                  <div className=\\"m-schedule-diagram__alert\\">
-                    Detour
-                  </div>
+              <div
+                class="m-schedule-diagram__prediction notranslate"
+              >
+                <div>
+                  Dest2
                 </div>
-                <footer className=\\"m-schedule-diagram__footer\\">
-                  <button className=\\"btn btn-link\\" type=\\"button\\" onClick={[Function: onClick]}>
-                    View schedule
-                  </button>
-                </footer>
-              </section>
-            </li>
-          </StopCard>
-          <StopCard stop={{...}} onClick={[Function: handleStopClick]} liveData={{...}}>
-            <li className=\\"m-schedule-diagram__stop\\" style={{...}}>
-              <section className=\\"m-schedule-diagram__content\\">
-                <GlxOpen pageType=\\"line-diagram\\" stopId=\\"line-stop1\\" />
-                <header className=\\"m-schedule-diagram__stop-heading\\">
-                  <h4 className=\\"m-schedule-diagram__stop-link notranslate\\">
-                    <a href=\\"/stops/line-stop1\\">
-                      <span className=\\"notranslate c-svg__icon-alerts-triangle\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      <span className=\\"sr-only\\">
-                        Service alert or delay
-                      </span>
-                       
-                      <MatchHighlight text=\\"Stop 1\\" matchQuery={[undefined]}>
-                        <span>
-                          Stop 1
-                        </span>
-                      </MatchHighlight>
-                    </a>
-                  </h4>
-                  <div className=\\"m-schedule-diagram__features\\">
-                    <TooltipWrapper tooltipText=\\"Accessible\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Accessible\\">
-                        <span className=\\"notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      </span>
-                    </TooltipWrapper>
-                  </div>
-                </header>
-                <div className=\\"m-schedule-diagram__stop-details\\">
-                  <div className=\\"m-schedule-diagram__connections\\">
-                    <TooltipWrapper href=\\"/schedules/Orange/line\\" tooltipText=\\"Orange Line\\" tooltipOptions={{...}}>
-                      <a href=\\"/schedules/Orange/line\\" data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={false} data-html={false} data-selector=\\"true\\" data-original-title=\\"Orange Line\\">
-                        <span className=\\"m-schedule-diagram__connection\\">
-                          <span className=\\"notranslate c-svg__icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                        </span>
-                      </a>
-                    </TooltipWrapper>
-                    <TooltipWrapper href=\\"/schedules/Green-C/line\\" tooltipText=\\"Green Line C\\" tooltipOptions={{...}}>
-                      <a href=\\"/schedules/Green-C/line\\" data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={false} data-html={false} data-selector=\\"true\\" data-original-title=\\"Green Line C\\">
-                        <span className=\\"m-schedule-diagram__connection\\">
-                          <span className=\\"notranslate c-svg__icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                        </span>
-                      </a>
-                    </TooltipWrapper>
-                  </div>
-                  <StopPredictions headsigns={{...}} isCommuterRail={false}>
-                    <div className=\\"m-schedule-diagram__predictions\\">
-                      <div className=\\"m-schedule-diagram__prediction notranslate\\">
-                        <div>
-                          Dest1
-                        </div>
-                        <div className=\\"m-schedule-diagram__prediction-time\\">
-                          2   min
-                        </div>
-                        <LiveCrowdingIcon crowding={{...}}>
-                          <div className=\\"m-schedule-diagram__prediction-crowding\\">
-                            <span className=\\"notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
-                          </div>
-                        </LiveCrowdingIcon>
-                      </div>
-                      <div className=\\"m-schedule-diagram__prediction notranslate\\">
-                        <div>
-                          Dest2
-                        </div>
-                        <div className=\\"m-schedule-diagram__prediction-time\\">
-                          5   min
-                        </div>
-                        <LiveCrowdingIcon crowding={{...}}>
-                          <div className=\\"m-schedule-diagram__prediction-crowding\\">
-                            <span className=\\"notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
-                          </div>
-                        </LiveCrowdingIcon>
-                      </div>
-                    </div>
-                  </StopPredictions>
+                <div
+                  class="m-schedule-diagram__prediction-time"
+                >
+                  5   min
                 </div>
-                <footer className=\\"m-schedule-diagram__footer\\">
-                  <button className=\\"btn btn-link\\" type=\\"button\\" onClick={[Function: onClick]}>
-                    View schedule
-                  </button>
-                </footer>
-              </section>
-            </li>
-          </StopCard>
-          <StopCard stop={{...}} onClick={[Function: handleStopClick]} liveData={{...}}>
-            <li className=\\"m-schedule-diagram__stop\\" style={{...}}>
-              <section className=\\"m-schedule-diagram__content\\">
-                <GlxOpen pageType=\\"line-diagram\\" stopId=\\"line-stop2\\" />
-                <header className=\\"m-schedule-diagram__stop-heading\\">
-                  <h4 className=\\"m-schedule-diagram__stop-link notranslate\\">
-                    <a href=\\"/stops/line-stop2\\">
-                      <span className=\\"notranslate c-svg__icon-alerts-triangle\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      <span className=\\"sr-only\\">
-                        Service alert or delay
-                      </span>
-                       
-                      <MatchHighlight text=\\"Stop 2\\" matchQuery={[undefined]}>
-                        <span>
-                          Stop 2
-                        </span>
-                      </MatchHighlight>
-                    </a>
-                  </h4>
-                  <div className=\\"m-schedule-diagram__features\\">
-                    <TooltipWrapper tooltipText=\\"Accessible\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Accessible\\">
-                        <span className=\\"notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      </span>
-                    </TooltipWrapper>
-                  </div>
-                </header>
-                <div className=\\"m-schedule-diagram__stop-details\\">
-                  <div className=\\"m-schedule-diagram__connections\\">
-                    <TooltipWrapper href=\\"/schedules/62/line\\" tooltipText=\\"Route 62\\" tooltipOptions={{...}}>
-                      <a href=\\"/schedules/62/line\\" data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={false} data-html={false} data-selector=\\"true\\" data-original-title=\\"Route 62\\">
-                        <span className=\\"c-icon__bus-pill--small m-schedule-diagram__connection u-bg--bus\\">
-                          62
-                        </span>
-                      </a>
-                    </TooltipWrapper>
-                    <TooltipWrapper href=\\"/schedules/67/line\\" tooltipText=\\"Route 67\\" tooltipOptions={{...}}>
-                      <a href=\\"/schedules/67/line\\" data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={false} data-html={false} data-selector=\\"true\\" data-original-title=\\"Route 67\\">
-                        <span className=\\"c-icon__bus-pill--small m-schedule-diagram__connection u-bg--bus\\">
-                          67
-                        </span>
-                      </a>
-                    </TooltipWrapper>
-                  </div>
-                  <StopPredictions headsigns={{...}} isCommuterRail={false}>
-                    <div className=\\"m-schedule-diagram__predictions\\">
-                      <div className=\\"m-schedule-diagram__prediction notranslate\\">
-                        <div>
-                          Dest2
-                        </div>
-                        <div className=\\"m-schedule-diagram__prediction-time\\">
-                          7   min
-                        </div>
-                        <LiveCrowdingIcon crowding={{...}}>
-                          <div className=\\"m-schedule-diagram__prediction-crowding\\">
-                            <span className=\\"notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable\\" aria-hidden=\\"true\\" dangerouslySetInnerHTML={{...}} />
-                          </div>
-                        </LiveCrowdingIcon>
-                      </div>
-                    </div>
-                  </StopPredictions>
+                <div
+                  class="m-schedule-diagram__prediction-crowding"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable"
+                  >
+                    SVG
+                  </span>
                 </div>
-                <footer className=\\"m-schedule-diagram__footer\\">
-                  <button className=\\"btn btn-link\\" type=\\"button\\" onClick={[Function: onClick]}>
-                    View schedule
-                  </button>
-                </footer>
-              </section>
-            </li>
-          </StopCard>
-          <StopCard stop={{...}} onClick={[Function: handleStopClick]} liveData={[undefined]}>
-            <li className=\\"m-schedule-diagram__stop\\" style={{...}}>
-              <section className=\\"m-schedule-diagram__content\\">
-                <GlxOpen pageType=\\"line-diagram\\" stopId=\\"line-destination\\" />
-                <header className=\\"m-schedule-diagram__stop-heading\\">
-                  <h4 className=\\"m-schedule-diagram__stop-link notranslate\\">
-                    <a href=\\"/stops/line-destination\\">
-                      <MatchHighlight text=\\"Destination\\" matchQuery={[undefined]}>
-                        <span>
-                          Destination
-                        </span>
-                      </MatchHighlight>
-                    </a>
-                  </h4>
-                  <div className=\\"m-schedule-diagram__features\\">
-                    <TooltipWrapper tooltipText=\\"Parking\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Parking\\">
-                        <i className=\\"fa fa-square-parking notranslate m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" />
-                      </span>
-                    </TooltipWrapper>
-                    <TooltipWrapper tooltipText=\\"Accessible\\" tooltipOptions={{...}}>
-                      <span href={[undefined]} data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={true} data-html={false} data-selector=\\"true\\" data-original-title=\\"Accessible\\">
-                        <span className=\\"notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                      </span>
-                    </TooltipWrapper>
-                  </div>
-                </header>
-                <div className=\\"m-schedule-diagram__stop-details\\">
-                  <div className=\\"m-schedule-diagram__connections\\">
-                    <TooltipWrapper href=\\"/schedules/BOAT-A/line\\" tooltipText=\\"Atlantis\\" tooltipOptions={{...}}>
-                      <a href=\\"/schedules/BOAT-A/line\\" data-toggle=\\"tooltip\\" data-trigger=\\"hover focus\\" data-placement=\\"bottom\\" data-animation={false} data-html={false} data-selector=\\"true\\" data-original-title=\\"Atlantis\\">
-                        <span className=\\"m-schedule-diagram__connection\\">
-                          <span className=\\"notranslate c-svg__icon-bus-small\\" aria-hidden=\\"false\\" dangerouslySetInnerHTML={{...}} />
-                        </span>
-                      </a>
-                    </TooltipWrapper>
-                  </div>
+              </div>
+            </div>
+          </div>
+          <footer
+            class="m-schedule-diagram__footer"
+          >
+            <button
+              class="btn btn-link"
+              type="button"
+            >
+              View schedule
+            </button>
+          </footer>
+        </section>
+      </li>
+      <li
+        class="m-schedule-diagram__stop"
+        style="padding-left: 36px;"
+      >
+        <section
+          class="m-schedule-diagram__content"
+        >
+          <header
+            class="m-schedule-diagram__stop-heading"
+          >
+            <h4
+              class="m-schedule-diagram__stop-link notranslate"
+            >
+              <a
+                href="/stops/line-stop2"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-alerts-triangle"
+                >
+                  SVG
+                </span>
+                <span
+                  class="sr-only"
+                >
+                  Service alert or delay
+                </span>
+                 
+                <span>
+                  Stop 2
+                </span>
+              </a>
+            </h4>
+            <div
+              class="m-schedule-diagram__features"
+            >
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Accessible"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon"
+                >
+                  SVG
+                </span>
+              </span>
+            </div>
+          </header>
+          <div
+            class="m-schedule-diagram__stop-details"
+          >
+            <div
+              class="m-schedule-diagram__connections"
+            >
+              <a
+                data-animation="false"
+                data-html="false"
+                data-original-title="Route 62"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+                href="/schedules/62/line"
+              >
+                <span
+                  class="c-icon__bus-pill--small m-schedule-diagram__connection u-bg--bus"
+                >
+                  62
+                </span>
+              </a>
+              <a
+                data-animation="false"
+                data-html="false"
+                data-original-title="Route 67"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+                href="/schedules/67/line"
+              >
+                <span
+                  class="c-icon__bus-pill--small m-schedule-diagram__connection u-bg--bus"
+                >
+                  67
+                </span>
+              </a>
+            </div>
+            <div
+              class="m-schedule-diagram__predictions"
+            >
+              <div
+                class="m-schedule-diagram__prediction notranslate"
+              >
+                <div>
+                  Dest2
                 </div>
-                <footer className=\\"m-schedule-diagram__footer\\">
-                  <button className=\\"btn btn-link\\" type=\\"button\\" onClick={[Function: onClick]}>
-                    View schedule
-                  </button>
-                </footer>
-              </section>
-            </li>
-          </StopCard>
-        </ol>
-      </div>
-    </LineDiagramWithStops>
-  </Provider>
-</LineDiagramAndStopListPage>"
+                <div
+                  class="m-schedule-diagram__prediction-time"
+                >
+                  7   min
+                </div>
+                <div
+                  class="m-schedule-diagram__prediction-crowding"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="notranslate c-svg__icon c-icon__crowding c-icon__crowding--crowding_unavailable"
+                  >
+                    SVG
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer
+            class="m-schedule-diagram__footer"
+          >
+            <button
+              class="btn btn-link"
+              type="button"
+            >
+              View schedule
+            </button>
+          </footer>
+        </section>
+      </li>
+      <li
+        class="m-schedule-diagram__stop"
+        style="padding-left: 36px;"
+      >
+        <section
+          class="m-schedule-diagram__content"
+        >
+          <header
+            class="m-schedule-diagram__stop-heading"
+          >
+            <h4
+              class="m-schedule-diagram__stop-link notranslate"
+            >
+              <a
+                href="/stops/line-destination"
+              >
+                <span>
+                  Destination
+                </span>
+              </a>
+            </h4>
+            <div
+              class="m-schedule-diagram__features"
+            >
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Parking"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <i
+                  aria-hidden="false"
+                  class="fa fa-square-parking notranslate m-schedule-diagram__feature-icon"
+                />
+              </span>
+              <span
+                data-animation="true"
+                data-html="false"
+                data-original-title="Accessible"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+              >
+                <span
+                  aria-hidden="false"
+                  class="notranslate c-svg__icon-acessible-default m-schedule-diagram__feature-icon"
+                >
+                  SVG
+                </span>
+              </span>
+            </div>
+          </header>
+          <div
+            class="m-schedule-diagram__stop-details"
+          >
+            <div
+              class="m-schedule-diagram__connections"
+            >
+              <a
+                data-animation="false"
+                data-html="false"
+                data-original-title="Atlantis"
+                data-placement="bottom"
+                data-selector="true"
+                data-toggle="tooltip"
+                data-trigger="hover focus"
+                href="/schedules/BOAT-A/line"
+              >
+                <span
+                  class="m-schedule-diagram__connection"
+                >
+                  <span
+                    aria-hidden="false"
+                    class="notranslate c-svg__icon-bus-small"
+                  >
+                    SVG
+                  </span>
+                </span>
+              </a>
+            </div>
+          </div>
+          <footer
+            class="m-schedule-diagram__footer"
+          >
+            <button
+              class="btn btn-link"
+              type="button"
+            >
+              View schedule
+            </button>
+          </footer>
+        </section>
+      </li>
+    </ol>
+  </div>
+</DocumentFragment>
 `;

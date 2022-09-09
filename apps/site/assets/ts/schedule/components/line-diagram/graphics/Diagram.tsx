@@ -1,5 +1,6 @@
 import { max } from "lodash";
 import React, { ReactElement } from "react";
+import { useSelector } from "react-redux";
 import { LineDiagramStop } from "../../__schedule";
 import {
   hasBranchLines,
@@ -14,7 +15,7 @@ import Stop from "./Stop";
 import { routeToModeName } from "../../../../helpers/css";
 import { LiveDataByStop } from "../__line-diagram";
 import VehicleIcons from "../VehicleIcons";
-import { getCurrentState } from "../../../store/ScheduleStore";
+import { getPageDirection } from "../../../store/schedule-store";
 import { DirectionId } from "../../../../__v3api";
 import { isAGreenLineRoute } from "../../../../models/route";
 import { BASE_LINE_WIDTH, DiagonalHatchPattern } from "./graphic-helpers";
@@ -81,11 +82,12 @@ const LiveVehicleIconSet = ({
 
 const Diagram = (props: DiagramProps): ReactElement<HTMLElement> | null => {
   const { lineDiagram, liveData, overrideStyle, overridePlacement } = props;
-  const { selectedDirection } = getCurrentState();
+  const selectedDirection = useSelector(getPageDirection);
   const width = diagramWidth(
     max(lineDiagram.map(ld => ld.stop_data.length)) || 1
   );
 
+  /* istanbul ignore next */
   const extraClassName =
     overrideStyle === "commuter-rail"
       ? "commuter-rail"

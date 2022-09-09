@@ -1,17 +1,10 @@
-import React from "react";
-import { shallow, mount } from "enzyme";
+import React, { PropsWithChildren } from "react";
+import * as redux from "react-redux";
 import { Route } from "../../../../__v3api";
 import { SimpleStopMap } from "../../__schedule";
 import ScheduleFinderForm from "../ScheduleFinderForm";
-import SelectContainer from "../SelectContainer";
-
-jest.mock("../../../../helpers/use-fetch", () => ({
-  __esModule: true,
-  hasData: () => false,
-  isLoading: () => true,
-  isNotStarted: () => false,
-  default: jest.fn().mockImplementation(() => [{ status: 2 }, jest.fn()])
-}));
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { createScheduleStore } from "../../../store/schedule-store";
 
 const route: Route = {
   description: "",
@@ -82,192 +75,107 @@ const stops: SimpleStopMap = {
   ]
 };
 
-const noCall = () => {
-  throw new Error("should not have been called");
-};
+// redux store/provider
+const store = createScheduleStore(0);
 
-describe("ScheduleFinderForm", () => {
-  it("matches snapshot", () => {
-    const wrapper = shallow(
-      <ScheduleFinderForm
-        onDirectionChange={noCall}
-        onOriginChange={noCall}
-        onOriginSelectClick={noCall}
-        onSubmit={noCall}
-        route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
-    );
+function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  return <redux.Provider store={store}>{children}</redux.Provider>;
+}
 
-    expect(wrapper).toMatchSnapshot();
+function renderWithProvider(ui: React.ReactElement) {
+  return render(ui, { wrapper: Wrapper });
+}
+
+test("<ScheduleFinderForm /> includes only valid directions in the direction picker", () => {
+  const { container } = renderWithProvider(
+    <ScheduleFinderForm route={oneDirectionRoute} stopsByDirection={stops} />
+  );
+
+  const directions = screen.getByLabelText("Choose a direction", {
+    exact: false
   });
+  expect(within(directions).queryByText(/INBOUND/)).toBeNull();
+  expect(within(directions).getByText(/OUTBOUND/)).toBeTruthy();
+});
 
-  it("includes only valid directions in the direction picker", () => {
-    const wrapper = shallow(
+describe("<ScheduleFinderForm />", () => {
+  const submitted = jest.fn();
+  beforeEach(() => {
+    renderWithProvider(
       <ScheduleFinderForm
-        onDirectionChange={noCall}
-        onOriginChange={noCall}
-        onOriginSelectClick={noCall}
-        onSubmit={noCall}
-        route={oneDirectionRoute}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
-    );
-
-    const directions = wrapper
-      .find("select")
-      .first()
-      .find("option");
-    expect(directions).toHaveLength(1);
-    expect(directions.text()).toContain("OUTBOUND");
-  });
-
-  it("shows an error if the form is submitted without an origin", () => {
-    const submitted = jest.fn();
-    const wrapper = shallow(
-      <ScheduleFinderForm
-        onDirectionChange={noCall}
-        onOriginChange={noCall}
-        onOriginSelectClick={noCall}
         onSubmit={submitted}
         route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
         stopsByDirection={stops}
       />
     );
-
-    wrapper.find("form").simulate("submit", { preventDefault: () => {} });
-
-    expect(wrapper.text()).toContain("Please provide an origin");
-    expect(submitted).not.toHaveBeenCalled();
-    expect(
-      wrapper
-        .find(SelectContainer)
-        .last()
-        .props().error
-    ).toEqual(true);
   });
 
-  it("calls the submit handler and clears the error", () => {
-    const submitted = jest.fn();
-    const wrapper = shallow(
-      <ScheduleFinderForm
-        onDirectionChange={noCall}
-        onOriginChange={noCall}
-        onOriginSelectClick={noCall}
-        onSubmit={submitted}
-        route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
+  test("shows an error if the form is submitted without an origin", () => {
+    expect(screen.queryByText("Please provide an origin")).toBeNull();
+
+    fireEvent(
+      screen.getByText("Get schedules"),
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true
+      })
     );
 
-    // Show the error first
-    wrapper.find("form").simulate("submit", { preventDefault: () => {} });
-    wrapper.setProps({ selectedOrigin: "123" });
-    wrapper.find("form").simulate("submit", { preventDefault: () => {} });
+    expect(screen.getByText("Please provide an origin")).toBeTruthy();
+  });
 
-    expect(wrapper.text()).not.toContain("Please provide an origin");
+  test("calls the submit handler and clears the error", () => {
+    fireEvent(
+      screen.getByText("Get schedules"),
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    expect(screen.getByText("Please provide an origin")).toBeTruthy();
+
+    const originSelect = screen.getByLabelText("Choose an origin stop", {
+      exact: false
+    });
+
+    fireEvent.change(originSelect, { target: { value: "123" } });
+
+    fireEvent(
+      screen.getByText("Get schedules"),
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true
+      })
+    );
+
+    expect(screen.queryByText("Please provide an origin")).toBeNull();
     expect(submitted).toHaveBeenCalledTimes(1);
   });
+});
 
-  it("calls the origin select handler and clears the error", () => {
-    const originClicked = jest.fn();
-    const wrapper = shallow(
-      <ScheduleFinderForm
-        onDirectionChange={noCall}
-        onOriginChange={noCall}
-        onOriginSelectClick={originClicked}
-        route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
-    );
+test("<ScheduleFinderForm /> calls the direction and origin change handlers", () => {
+  const useDispatchSpy = jest.spyOn(redux, "useDispatch");
+  const mockDispatchFn = jest.fn();
+  useDispatchSpy.mockReturnValue(mockDispatchFn);
 
-    // Show the error first
-    wrapper.find("form").simulate("submit", { preventDefault: () => {} });
-    // Click on the SelectContainer for the origin select
-    wrapper
-      .find("SelectContainer")
-      .last()
-      // @ts-ignore -- types for `invoke` are too restrictive?
-      .invoke("handleClick")();
+  renderWithProvider(
+    <ScheduleFinderForm route={route} stopsByDirection={stops} />
+  );
 
-    expect(wrapper.text()).not.toContain("Please provide an origin");
-    expect(originClicked).toHaveBeenCalledTimes(1);
+  const directionSelect = screen.getByLabelText("Choose a direction", {
+    exact: false
   });
-
-  it("calls the direction and origin change handlers", () => {
-    const directionChanged = jest.fn();
-    const originChanged = jest.fn();
-    const wrapper = shallow(
-      <ScheduleFinderForm
-        onDirectionChange={directionChanged}
-        onOriginChange={originChanged}
-        onOriginSelectClick={noCall}
-        onSubmit={noCall}
-        route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
-    );
-
-    wrapper
-      .find("select")
-      .first()
-      .simulate("change", { target: { value: 1 } });
-    wrapper
-      .find("select")
-      .last()
-      .simulate("change", { target: { value: "123" } });
-
-    expect(directionChanged).toHaveBeenCalledWith(1);
-    expect(originChanged).toHaveBeenCalledWith("123");
+  const originSelect = screen.getByLabelText("Choose an origin stop", {
+    exact: false
   });
-
-  it("detects click and keyUp events in SelectContainer elements", () => {
-    const originSpy = jest.fn();
-
-    const wrapper = mount(
-      <ScheduleFinderForm
-        onDirectionChange={() => {}}
-        onOriginChange={() => {}}
-        onOriginSelectClick={originSpy}
-        onSubmit={noCall}
-        route={route}
-        selectedDirection={0}
-        selectedOrigin={null}
-        stopsByDirection={stops}
-      />
-    );
-
-    // detect click event:
-    wrapper
-      .find(SelectContainer)
-      .at(1)
-      .simulate("click");
-
-    expect(originSpy).toHaveBeenCalledTimes(1);
-
-    // detect keyUp event:
-    originSpy.mockRestore();
-
-    wrapper
-      .find(".c-select-custom__container")
-      .at(1)
-      .simulate("keyUp", { key: "Enter" });
-
-    expect(originSpy).toHaveBeenCalledTimes(1);
-
-    originSpy.mockRestore();
-    wrapper.unmount();
+  fireEvent.change(directionSelect, { target: { value: "1" } });
+  expect(mockDispatchFn).toHaveBeenLastCalledWith({
+    payload: { scheduleFinderDirection: 1 },
+    type: "CHANGE_SF_DIRECTION"
+  });
+  fireEvent.change(originSelect, { target: { value: "123" } });
+  expect(mockDispatchFn).toHaveBeenLastCalledWith({
+    payload: { scheduleFinderOrigin: "123" },
+    type: "CHANGE_SF_ORIGIN"
   });
 });
