@@ -3,14 +3,14 @@
  */
 
 export const getParam = (key: string): string | null => {
-  const params = new URLSearchParams(window?.location.search ?? undefined);
+  const params = new URLSearchParams(window.location.search);
   return params.get(key);
 };
 
 export const updateParams = (
   updatedParams: Record<string, string | null>
 ): void => {
-  const params = new URLSearchParams(window?.location.search ?? undefined);
+  const params = new URLSearchParams(window.location.search);
   Object.entries(updatedParams).forEach(([key, value]) => {
     if (value) {
       params.set(key, value);
@@ -19,7 +19,7 @@ export const updateParams = (
     }
   });
 
-  window?.history.replaceState(
+  window.history.replaceState(
     {},
     "",
     `${window.location.pathname}?${params.toString()}`
