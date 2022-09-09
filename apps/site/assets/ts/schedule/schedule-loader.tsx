@@ -2,30 +2,32 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { isEmpty } from "lodash";
-import { updateParams } from "../helpers/use-params";
+import { Store } from "redux";
 import Map from "./components/Map";
-import { SchedulePageData, SelectedOrigin } from "./components/__schedule";
+import { SchedulePageData } from "./components/__schedule";
 import { MapData } from "../leaflet/components/__mapdata";
-import { DirectionId } from "../__v3api";
 import ScheduleLoader from "./components/ScheduleLoader";
-import {
-  store,
-  createScheduleStore,
-  getCurrentState
-} from "./store/ScheduleStore";
+import { createScheduleStore } from "./store/schedule-store";
 import { isABusRoute } from "../models/route";
 import currentLineSuspensions from "../helpers/line-suspensions";
 import AdditionalLineInfo from "./components/AdditionalLineInfo";
 import UpcomingHolidays from "./components/UpcomingHolidays";
 import ContentTeasers from "./components/ContentTeasers";
 import ScheduleNote from "./components/ScheduleNote";
+import ScheduleFinder from "./components/ScheduleFinder";
+import { routeToModeName } from "../helpers/css";
 
 const renderMap = ({
   route_patterns: routePatternsByDirection,
   direction_id: directionId,
   route
 }: SchedulePageData): void => {
-  const routePatterns = routePatternsByDirection[directionId];
+  let routePatterns = routePatternsByDirection[directionId];
+  if (!routePatterns) {
+    // special case for unidirectional routes. if there's no route patterns
+    // defined for the selected direction, just find any route pattern.
+    [routePatterns] = Object.values(routePatternsByDirection);
+  }
   const defaultRoutePattern = routePatterns.slice(0, 1)[0];
   const currentShapes = isABusRoute(route)
     ? [defaultRoutePattern.shape_id]
@@ -49,21 +51,9 @@ const renderMap = ({
   );
 };
 
-export const updateURL = (
-  origin: SelectedOrigin,
-  direction?: DirectionId
-): void => {
-  // eslint-disable-next-line camelcase
-  const newQuery = {
-    "schedule_finder[direction_id]":
-      direction !== undefined ? direction.toString() : null,
-    "schedule_finder[origin]": origin ?? null
-  };
-  updateParams(newQuery);
-};
-
 export const renderAdditionalLineInformation = (
-  schedulePageData: SchedulePageData
+  schedulePageData: SchedulePageData,
+  store: Store
 ): void => {
   const {
     route,
@@ -75,7 +65,10 @@ export const renderAdditionalLineInformation = (
     fares,
     fare_link: fareLink,
     hours,
-    holidays
+    holidays,
+    services,
+    stops,
+    today
   } = schedulePageData;
 
   const routeIsSuspended =
@@ -109,25 +102,43 @@ export const renderAdditionalLineInformation = (
   if (scheduleNote && !routeIsSuspended) {
     // this should probably just be server rendered
     ReactDOM.render(
-      <ScheduleNote
-        className="m-schedule-page__schedule-notes--desktop"
-        scheduleNote={scheduleNote}
-      />,
+      <>
+        <ScheduleNote
+          className="m-schedule-page__schedule-notes--desktop"
+          scheduleNote={scheduleNote}
+        />
+        {/* Extra ScheduleFinder here so modal shows on subway pages. maybe should move elsewhere */}
+        <Provider store={store}>
+          <ScheduleFinder
+            route={route}
+            stops={stops}
+            services={services}
+            routePatternsByDirection={routePatternsByDirection}
+            today={today}
+            scheduleNote={scheduleNote}
+          />
+        </Provider>
+      </>,
       document.getElementById("react-schedule-note-root")
     );
   }
+
+  const isFerryRoute = routeToModeName(route) === "ferry";
 
   if (!scheduleNote) {
     const scheduleFinderRoot = document.getElementById(
       "react-schedule-finder-root"
     );
-    if (scheduleFinderRoot) {
+    if (scheduleFinderRoot && !isFerryRoute) {
       ReactDOM.render(
         <Provider store={store}>
-          <ScheduleLoader
-            component="SCHEDULE_FINDER"
-            schedulePageData={schedulePageData}
-            updateURL={updateURL}
+          <ScheduleFinder
+            route={route}
+            stops={stops}
+            services={services}
+            routePatternsByDirection={routePatternsByDirection}
+            today={today}
+            scheduleNote={null}
           />
         </Provider>,
         scheduleFinderRoot
@@ -136,34 +147,22 @@ export const renderAdditionalLineInformation = (
   }
 };
 
-const renderDirectionAndMap = (
-  schedulePageData: SchedulePageData,
-  root: HTMLElement
-): void => {
-  const currentState = getCurrentState();
-  if (!!currentState && Object.keys(currentState).length !== 0) {
-    ReactDOM.render(
-      <Provider store={store}>
-        <ScheduleLoader
-          component="SCHEDULE_DIRECTION"
-          schedulePageData={schedulePageData}
-          updateURL={updateURL}
-        />
-      </Provider>,
-      root
-    );
-  }
-};
-
 export const renderDirectionOrMap = (
-  schedulePageData: SchedulePageData
+  schedulePageData: SchedulePageData,
+  store: Store
 ): void => {
   const root = document.getElementById("react-schedule-direction-root");
   if (!root) {
     renderMap(schedulePageData);
     return;
   }
-  renderDirectionAndMap(schedulePageData, root);
+
+  ReactDOM.render(
+    <Provider store={store}>
+      <ScheduleLoader schedulePageData={schedulePageData} />
+    </Provider>,
+    root
+  );
 };
 
 const render = (): void => {
@@ -177,11 +176,14 @@ const render = (): void => {
     route_patterns: routePatterns
   } = schedulePageData;
 
-  createScheduleStore(directionId);
-  renderAdditionalLineInformation(schedulePageData);
+  /**
+   * Create redux store that will be used to manage selected direction, origin, etc
+   */
+  const store = createScheduleStore(directionId);
+  renderAdditionalLineInformation(schedulePageData, store);
 
   if (!isEmpty(routePatterns)) {
-    renderDirectionOrMap(schedulePageData);
+    renderDirectionOrMap(schedulePageData, store);
   }
 };
 
