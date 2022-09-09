@@ -164,17 +164,3 @@ export interface UserInput {
   date: string;
   direction: DirectionId;
 }
-
-export type StoreAction =
-  | "INITIALIZE"
-  | "CHANGE_DIRECTION"
-  | "CHANGE_ORIGIN"
-  | "OPEN_MODAL"
-  | "CLOSE_MODAL";
-
-export type ComponentToRender =
-  | "ADDITIONAL_LINE_INFORMATION"
-  | "SCHEDULE_NOTE"
-  | "SCHEDULE_FINDER"
-  | "SCHEDULE_DIRECTION"
-  | "";
