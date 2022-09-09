@@ -38,6 +38,8 @@ const LineDiagramWithStops = (
   const { shuttledStopsLists, crStopsLists } =
     currentLineSuspensions(stops[0].route_stop.route?.id ?? "") || {};
 
+  /* istanbul ignore next */
+
   const crDiagrams =
     crStopsLists && Object.entries(crStopsLists["0"]).length > 0
       ? Object.values(crStopsLists["0"]).map(stopsList => {
@@ -53,6 +55,8 @@ const LineDiagramWithStops = (
           );
         })
       : null;
+
+  /* istanbul ignore next */
 
   const shuttleDiagrams =
     shuttledStopsLists && Object.entries(shuttledStopsLists["0"]).length > 0
@@ -81,7 +85,7 @@ const LineDiagramWithStops = (
         {!(shuttledStopsLists || crStopsLists) ? (
           <Diagram lineDiagram={stops} liveData={liveData} />
         ) : (
-          <>
+          /* istanbul ignore next */ <>
             {crDiagrams}
             {shuttleDiagrams}
           </>
