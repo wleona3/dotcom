@@ -17,6 +17,7 @@ interface SuspendedStopsList {
   [directionId: string]: string[];
 }
 
+/* istanbul ignore next */
 export const shuttleForStop = (
   stopId: string,
   shuttleStopsList: SuspendedStopsInfo

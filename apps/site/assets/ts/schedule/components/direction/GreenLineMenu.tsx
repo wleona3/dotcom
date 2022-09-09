@@ -132,6 +132,7 @@ export const GreenLineItem = ({
         });
       }}
       onKeyDown={(e: ReactKeyboardEvent) => {
+        /* istanbul ignore next */
         handleNavigation(e, routeIds);
       }}
       ref={item => item && focused && item.focus()}

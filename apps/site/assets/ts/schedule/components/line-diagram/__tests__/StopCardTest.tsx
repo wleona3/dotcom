@@ -132,7 +132,7 @@ const liveDataWithPrediction = {
   headsigns: [predictionHeadsign],
   vehicles: []
 };
-it.only("indicates predictions if available", () => {
+it("indicates predictions if available", () => {
   const wrapper = mount(
     <redux.Provider store={store}>
       <StopCard
