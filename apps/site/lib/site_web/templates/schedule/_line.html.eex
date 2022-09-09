@@ -28,15 +28,7 @@
           <div id="react-schedule-direction-root"></div>
 
           <%= if Routes.Route.type_atom(@route.type) == :ferry do %>
-            <div id="react-schedule-finder-root">
-              <%= Site.React.render("ScheduleFinder", %{
-                directionId: @direction_id,
-                route: Routes.Route.to_json_safe(@route),
-                stops: @schedule_page_data.stops,
-                services: @schedule_page_data.services,
-                routePatternsByDirection: @schedule_page_data.route_patterns
-              }) %>
-            </div>
+            <div id="react-schedule-finder-root"></div>
           <% end %>
 
           <div class="line-map-container">
@@ -67,15 +59,7 @@
           <% end %>
         </div>
         <%= if is_nil(@schedule_page_data[:schedule_note]) and Routes.Route.type_atom(@route.type) != :ferry do %>
-          <div id="react-schedule-finder-root">
-            <%= Site.React.render("ScheduleFinder", %{
-              directionId: @direction_id,
-              route: Routes.Route.to_json_safe(@route),
-              stops: @schedule_page_data.stops,
-              services: @schedule_page_data.services,
-              routePatternsByDirection: @schedule_page_data.route_patterns
-            }) %>
-          </div>
+          <div id="react-schedule-finder-root"></div>
         <% end %>
       <% end %>
     </div>

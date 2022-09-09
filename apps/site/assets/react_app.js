@@ -6,7 +6,6 @@ import TransitNearMe from "../assets/ts/tnm/components/TransitNearMe";
 import StopPage from "../assets/ts/stop/components/StopPage";
 import AdditionalLineInfo from "../assets/ts/schedule/components/AdditionalLineInfo";
 import ScheduleNote from "../assets/ts/schedule/components/ScheduleNote";
-import ScheduleFinder from "../assets/ts/schedule/components/ScheduleFinder";
 import TripPlannerResults from "../assets/ts/trip-plan-results/components/TripPlannerResults";
 import ProjectsPage from "../assets/ts/projects/components/ProjectsPage";
 import LiveCrowdingIcon from "./ts/schedule/components/line-diagram/LiveCrowdingIcon";
@@ -55,7 +54,6 @@ epipeBomb();
 const logMemoryUsage = setInterval(memoryUsage, 60000);
 
 const Components = {
-  ScheduleFinder,
   ScheduleNote,
   AdditionalLineInfo,
   StopPage,
