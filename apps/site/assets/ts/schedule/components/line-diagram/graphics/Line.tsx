@@ -1,14 +1,12 @@
-import React, { ReactElement } from "react";
-import { useSelector } from "react-redux";
+import React, { ReactElement, useContext } from "react";
 import { LineDiagramStop } from "../../__schedule";
 import {
   areOnDifferentBranchLines,
   isMergeStop,
   isBranchTerminusStop
 } from "../line-diagram-helpers";
+import { StopRefContext } from "./useStopPositions";
 import {
-  StopCoord,
-  CoordState,
   BRANCH_LINE_WIDTH,
   BASE_LINE_WIDTH,
   BRANCH_SPACING
@@ -24,12 +22,9 @@ const Line = ({
   to,
   shuttle
 }: PathGraphicsProps): ReactElement | null => {
-  const fromCoords: StopCoord | null = useSelector(
-    (state: CoordState) => state[from.route_stop.id]
-  );
-  const toCoords: StopCoord | null = useSelector(
-    (state: CoordState) => state[to.route_stop.id]
-  );
+  const getCoord = useContext(StopRefContext)[2];
+  const fromCoords = getCoord(from.route_stop.id);
+  const toCoords = getCoord(to.route_stop.id);
   if (!fromCoords || !toCoords) return null;
   if (isMergeStop(to) && from.stop_data.length === to.stop_data.length) {
     return null;

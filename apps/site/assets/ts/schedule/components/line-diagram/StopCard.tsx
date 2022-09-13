@@ -15,7 +15,7 @@ import {
 import { Alert, Route } from "../../../__v3api";
 import MatchHighlight from "../../../components/MatchHighlight";
 import StopFeatures from "./StopFeatures";
-import { StopRefContext } from "./LineDiagramWithStops";
+import { StopRefContext } from "./graphics/useStopPositions";
 import { effectNameForAlert } from "../../../components/Alerts";
 import GlxOpen from "../../../components/GlxOpen";
 import currentLineSuspensions, {
@@ -83,7 +83,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
     ? diagramWidth(1)
     : diagramWidth(Math.max(stopData.length, numlines));
 
-  const refs = useContext(StopRefContext)[0];
+  const [setupStopRef] = useContext(StopRefContext);
 
   const diversionAlert = stopAlerts.find(
     alert => isDiversion(alert) && isCurrentAlert(alert)
@@ -108,7 +108,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
         )}
         <header
           className="m-schedule-diagram__stop-heading"
-          ref={el => refs.set(routeStop.id, el)}
+          ref={el => setupStopRef(routeStop.id)(el)}
         >
           <h4 className="m-schedule-diagram__stop-link notranslate">
             <a href={`/stops/${routeStop.id}`}>

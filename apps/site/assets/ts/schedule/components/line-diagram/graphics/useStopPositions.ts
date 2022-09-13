@@ -1,14 +1,14 @@
-import { useDispatch } from "react-redux";
-import { useRef, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+  useLayoutEffect
+} from "react";
 import { LineDiagramStop } from "../../__schedule";
 import { isMergeStop } from "../line-diagram-helpers";
-import { BASE_LINE_WIDTH, BRANCH_SPACING } from "./graphic-helpers";
-
-export type RefMap = Map<string, HTMLElement | null>;
-
-const stopById = (stopId: string): ((stop: LineDiagramStop) => boolean) =>
-  // eslint-disable-next-line camelcase
-  ({ route_stop }) => stopId === route_stop.id;
+import { BASE_LINE_WIDTH, BRANCH_SPACING, StopCoord } from "./graphic-helpers";
 
 const xCoordForStop = (stop: LineDiagramStop): number => {
   if (isMergeStop(stop)) {
@@ -18,39 +18,71 @@ const xCoordForStop = (stop: LineDiagramStop): number => {
   return BRANCH_SPACING * (stop.stop_data.length - 1) + BASE_LINE_WIDTH + 1;
 };
 
+type RefMapSetter = (stopId: string) => (el: HTMLElement | null) => void;
+type RefMapUpdator = () => void;
+type CoordGet = (stopId: string) => StopCoord | null;
+export const StopRefContext = createContext<
+  [RefMapSetter, RefMapUpdator, CoordGet]
+>([() => () => {}, () => {}, () => null]);
+
 export default function useStopPositions(
   stops: LineDiagramStop[]
-): [RefMap, () => void] {
-  const stopRefsMap = useRef(new Map() as RefMap);
-  const dispatchStopCoords = useDispatch();
-  const updateAllStops = useCallback((): void => {
-    stopRefsMap.current.forEach((el, stopId) => {
-      const stop = stops.find(stopById(stopId));
-      if (!stop) {
-        return;
-      }
+): [RefMapSetter, RefMapUpdator, CoordGet] {
+  const stopRefsMap = useRef(new Map());
+  const initialCoordState = useRef<{
+    [stopId: string]: StopCoord | null;
+  }>({});
 
-      const x = xCoordForStop(stop);
-      let coordinates = null;
-      if (el) {
-        const { offsetTop, offsetHeight } = el;
-        const y = offsetTop + offsetHeight / 2;
-        coordinates = [x, y];
-      }
-
-      dispatchStopCoords({
-        type: "set",
-        stop: stopId,
-        coords: coordinates
-      });
-    });
-  }, [dispatchStopCoords, stopRefsMap, stops]);
-
+  // only if stops change!
   useEffect(() => {
-    updateAllStops();
+    stops.forEach(stop => {
+      const stopId = stop.route_stop.id;
+      stopRefsMap.current.set(stopId, null);
+      initialCoordState.current[stopId] = null;
+    });
+  }, [initialCoordState, stops]);
+
+  const [stopCoordState, setStopCoordState] = useState(
+    initialCoordState.current
+  );
+
+  const updateAllStops = useCallback(
+    () =>
+      window.requestAnimationFrame((): void => {
+        setStopCoordState(state => {
+          const newState = { ...state };
+          stops.forEach(stop => {
+            const stopId = stop.route_stop.id;
+            const el = stopRefsMap.current.get(stopId);
+            if (el) {
+              const { offsetTop, offsetHeight } = el;
+              const y = offsetTop + offsetHeight / 2;
+              const x = xCoordForStop(stop);
+              if (x && y) {
+                newState[stopId] = [x, y];
+              } else {
+                newState[stopId] = null;
+              }
+            } else {
+              newState[stopId] = null;
+            }
+          });
+          return newState;
+        });
+      }),
+    [stops]
+  );
+
+  useLayoutEffect(() => {
     window.addEventListener("resize", updateAllStops);
     return () => window.removeEventListener("resize", updateAllStops);
   }, [updateAllStops]);
 
-  return [stopRefsMap.current, updateAllStops];
+  const setupStopRef: RefMapSetter = stopId => el => {
+    stopRefsMap.current.set(stopId, el);
+  };
+
+  const getCoord: CoordGet = stopId => stopCoordState[stopId];
+
+  return [setupStopRef, updateAllStops, getCoord];
 }

@@ -3,7 +3,7 @@ import React, { ReactElement, useState, useContext } from "react";
 import ExpandableBlock from "../../../components/ExpandableBlock";
 import { LineDiagramStop } from "../__schedule";
 import { CommonLineDiagramProps } from "./__line-diagram";
-import { StopRefContext } from "./LineDiagramWithStops";
+import { StopRefContext } from "./graphics/useStopPositions";
 import { diagramWidth } from "./line-diagram-helpers";
 import {
   CIRC_DIAMETER,
@@ -60,11 +60,6 @@ const ExpandableBranch = (
   const [isExpanded, setIsExpanded] = useState(false);
   const updateAllStopCoords = useContext(StopRefContext)[1];
 
-  // reset all the coordinates.
-  React.useEffect(() => {
-    updateAllStopCoords();
-  }, [isExpanded, updateAllStopCoords]);
-
   return (
     <div className="m-schedule-diagram__expander">
       <ExpandableBlock
@@ -75,6 +70,7 @@ const ExpandableBranch = (
         initiallyExpanded={isExpanded}
         notifyExpanded={(blockIsExpanded: boolean) => {
           setIsExpanded(blockIsExpanded);
+          updateAllStopCoords();
         }}
         preventScroll
         id={`${stops[0].route_stop.branch}`}
