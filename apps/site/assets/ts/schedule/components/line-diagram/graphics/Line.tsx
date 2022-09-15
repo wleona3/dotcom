@@ -1,16 +1,16 @@
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement } from "react";
 import { LineDiagramStop } from "../../__schedule";
 import {
   areOnDifferentBranchLines,
   isMergeStop,
   isBranchTerminusStop
 } from "../line-diagram-helpers";
-import { StopRefContext } from "./useStopPositions";
 import {
   BRANCH_LINE_WIDTH,
   BASE_LINE_WIDTH,
   BRANCH_SPACING
 } from "./graphic-helpers";
+import { useStopPositionCoordinates } from "../contexts/StopPositionContext";
 
 interface PathGraphicsProps {
   from: LineDiagramStop;
@@ -22,9 +22,8 @@ const Line = ({
   to,
   shuttle
 }: PathGraphicsProps): ReactElement | null => {
-  const getCoord = useContext(StopRefContext)[2];
-  const fromCoords = getCoord(from.route_stop.id);
-  const toCoords = getCoord(to.route_stop.id);
+  const fromCoords = useStopPositionCoordinates(from.route_stop.id);
+  const toCoords = useStopPositionCoordinates(to.route_stop.id);
   if (!fromCoords || !toCoords) return null;
   if (isMergeStop(to) && from.stop_data.length === to.stop_data.length) {
     return null;

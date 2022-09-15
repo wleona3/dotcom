@@ -1,15 +1,15 @@
 import React, { ReactElement } from "react";
-import { Provider, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useFilteredList from "../../../hooks/useFilteredList";
 import SearchBox from "../../../components/SearchBox";
 import { LineDiagramStop, RouteStop } from "../__schedule";
 import { DirectionId, Route } from "../../../__v3api";
-import { createLineDiagramCoordStore } from "./graphics/graphic-helpers";
 import StopCard from "./StopCard";
 import LineDiagramWithStops from "./LineDiagramWithStops";
 import useRealtime from "../../../hooks/useRealtime";
 import currentLineSuspensions from "../../../helpers/line-suspensions";
 import { openScheduleModalWithOrigin } from "../../store/schedule-store";
+import { StopPositionProvider } from "./contexts/StopPositionContext";
 
 interface LineDiagramProps {
   lineDiagram: LineDiagramStop[];
@@ -27,9 +27,6 @@ const LineDiagramAndStopListPage = ({
 }: LineDiagramProps): ReactElement<HTMLElement> | null => {
   const currentLineSuspension = currentLineSuspensions(route.id);
   const scheduleDispatch = useDispatch();
-  // also track the location of text to align the diagram points to
-  const lineDiagramCoordStore = createLineDiagramCoordStore(lineDiagram);
-
   const handleStopClick = (stop: RouteStop): void => {
     scheduleDispatch(openScheduleModalWithOrigin(stop.id));
   };
@@ -86,13 +83,13 @@ const LineDiagramAndStopListPage = ({
           )}
         </ol>
       ) : (
-        <Provider store={lineDiagramCoordStore}>
+        <StopPositionProvider stops={lineDiagram}>
           <LineDiagramWithStops
             stops={lineDiagram}
             handleStopClick={handleStopClick}
             liveData={liveData}
           />
-        </Provider>
+        </StopPositionProvider>
       )}
     </>
   );

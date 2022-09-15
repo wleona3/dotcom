@@ -1,6 +1,6 @@
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement } from "react";
 import { LineDiagramStop } from "../../__schedule";
-import { StopRefContext } from "./useStopPositions";
+import { useStopPositionCoordinates } from "../contexts/StopPositionContext";
 import { CIRC_RADIUS } from "./graphic-helpers";
 
 const Stop = ({
@@ -10,8 +10,7 @@ const Stop = ({
   stop: LineDiagramStop;
   shuttle?: boolean;
 }): ReactElement<SVGCircleElement> | null => {
-  const getCoord = useContext(StopRefContext)[2];
-  const coords = getCoord(stop.route_stop.id);
+  const coords = useStopPositionCoordinates(stop.route_stop.id);
   if (!coords) return null;
   const [x, y] = coords;
   return (

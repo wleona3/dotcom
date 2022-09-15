@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement } from "react";
 import { LineDiagramStop, RouteStop } from "../__schedule";
 import { isACommuterRailRoute, isAGreenLineRoute } from "../../../models/route";
 import { LiveData } from "./__line-diagram";
@@ -15,13 +15,13 @@ import {
 import { Alert, Route } from "../../../__v3api";
 import MatchHighlight from "../../../components/MatchHighlight";
 import StopFeatures from "./StopFeatures";
-import { StopRefContext } from "./graphics/useStopPositions";
 import { effectNameForAlert } from "../../../components/Alerts";
 import GlxOpen from "../../../components/GlxOpen";
 import currentLineSuspensions, {
   shuttleForStop,
   suspensionStopConnections
 } from "../../../helpers/line-suspensions";
+import { useStopRefs } from "./contexts/StopPositionContext";
 
 interface StopCardProps {
   stop: LineDiagramStop;
@@ -83,7 +83,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
     ? diagramWidth(1)
     : diagramWidth(Math.max(stopData.length, numlines));
 
-  const [setupStopRef] = useContext(StopRefContext);
+  const stopRefMap = useStopRefs();
 
   const diversionAlert = stopAlerts.find(
     alert => isDiversion(alert) && isCurrentAlert(alert)
@@ -108,7 +108,7 @@ const StopCard = (props: StopCardProps): ReactElement<HTMLElement> => {
         )}
         <header
           className="m-schedule-diagram__stop-heading"
-          ref={el => setupStopRef(routeStop.id)(el)}
+          ref={el => stopRefMap.set(routeStop.id, el)}
         >
           <h4 className="m-schedule-diagram__stop-link notranslate">
             <a href={`/stops/${routeStop.id}`}>

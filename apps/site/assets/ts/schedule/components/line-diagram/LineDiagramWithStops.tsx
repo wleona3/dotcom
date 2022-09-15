@@ -3,19 +3,16 @@ import { hasBranchLines } from "./line-diagram-helpers";
 import Diagram from "./graphics/Diagram";
 import StopListWithBranches from "./StopListWithBranches";
 import { CommonLineDiagramProps } from "./__line-diagram";
-import useStopPositions, { StopRefContext } from "./graphics/useStopPositions";
 import StopCard from "./StopCard";
 import { hasPredictionTime } from "../../../models/prediction";
 import currentLineSuspensions from "../../../helpers/line-suspensions";
 import { BASE_LINE_WIDTH, BRANCH_SPACING } from "./graphics/graphic-helpers";
+import { useStopPositionReset } from "./contexts/StopPositionContext";
 
 const LineDiagramWithStops = (
   props: CommonLineDiagramProps
 ): ReactElement<HTMLElement> => {
   const { stops, handleStopClick, liveData } = props;
-
-  // create a ref for each stop - we will use this to track the location of the stop so we can place the line diagram bubbles
-  const stopPositions = useStopPositions(stops);
 
   const anyCrowding = Object.values(
     liveData || {}
@@ -70,42 +67,40 @@ const LineDiagramWithStops = (
         })
       : null;
 
-  const updateAllStops = stopPositions[1];
+  const updateAllStops = useStopPositionReset();
   useLayoutEffect(() => {
     updateAllStops();
   }, [liveData, updateAllStops]);
 
   return (
-    <StopRefContext.Provider value={stopPositions}>
-      <div
-        className={`m-schedule-diagram ${
-          !anyCrowding ? "u-no-crowding-data" : ""
-        }`}
-      >
-        {!(shuttledStopsLists || crStopsLists) ? (
-          <Diagram lineDiagram={stops} liveData={liveData} />
-        ) : (
-          /* istanbul ignore next */ <>
-            {crDiagrams}
-            {shuttleDiagrams}
-          </>
-        )}
-        {hasBranchLines(stops) ? (
-          <StopListWithBranches {...props} />
-        ) : (
-          <ol>
-            {stops.map(stop => (
-              <StopCard
-                key={stop.route_stop.id}
-                stop={stop}
-                onClick={handleStopClick}
-                liveData={liveData?.[stop.route_stop.id]}
-              />
-            ))}
-          </ol>
-        )}
-      </div>
-    </StopRefContext.Provider>
+    <div
+      className={`m-schedule-diagram ${
+        !anyCrowding ? "u-no-crowding-data" : ""
+      }`}
+    >
+      {!(shuttledStopsLists || crStopsLists) ? (
+        <Diagram lineDiagram={stops} liveData={liveData} />
+      ) : (
+        /* istanbul ignore next */ <>
+          {crDiagrams}
+          {shuttleDiagrams}
+        </>
+      )}
+      {hasBranchLines(stops) ? (
+        <StopListWithBranches {...props} />
+      ) : (
+        <ol>
+          {stops.map(stop => (
+            <StopCard
+              key={stop.route_stop.id}
+              stop={stop}
+              onClick={handleStopClick}
+              liveData={liveData?.[stop.route_stop.id]}
+            />
+          ))}
+        </ol>
+      )}
+    </div>
   );
 };
 

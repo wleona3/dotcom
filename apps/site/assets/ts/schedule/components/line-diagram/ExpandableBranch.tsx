@@ -1,9 +1,8 @@
 import { max, times } from "lodash";
-import React, { ReactElement, useState, useContext } from "react";
+import React, { ReactElement, useState } from "react";
 import ExpandableBlock from "../../../components/ExpandableBlock";
 import { LineDiagramStop } from "../__schedule";
 import { CommonLineDiagramProps } from "./__line-diagram";
-import { StopRefContext } from "./graphics/useStopPositions";
 import { diagramWidth } from "./line-diagram-helpers";
 import {
   CIRC_DIAMETER,
@@ -12,6 +11,7 @@ import {
 } from "./graphics/graphic-helpers";
 import { routeToModeName } from "../../../helpers/css";
 import StopCard from "./StopCard";
+import { useStopPositionReset } from "./contexts/StopPositionContext";
 
 const BranchToggle = (
   stops: LineDiagramStop[],
@@ -58,7 +58,7 @@ const ExpandableBranch = (
 ): ReactElement<HTMLElement> => {
   const { stops, handleStopClick, liveData } = props;
   const [isExpanded, setIsExpanded] = useState(false);
-  const updateAllStopCoords = useContext(StopRefContext)[1];
+  const updateAllStopCoords = useStopPositionReset();
 
   return (
     <div className="m-schedule-diagram__expander">

@@ -1,6 +1,7 @@
 import { first, last } from "lodash";
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement } from "react";
 import { LineDiagramStop } from "../../__schedule";
+import { useStopPositionCoordinates } from "../contexts/StopPositionContext";
 import {
   getTreeDirection,
   isBranchTerminusStop,
@@ -8,7 +9,7 @@ import {
   lineDiagramIndexes,
   isStopOnMainLine
 } from "../line-diagram-helpers";
-import { StopRefContext } from "./useStopPositions";
+
 import { StopCoord, BASE_LINE_WIDTH, MERGE_RADIUS } from "./graphic-helpers";
 import Line from "./Line";
 
@@ -33,15 +34,16 @@ const Merges = ({ lineDiagram }: MergeGraphicsProps): ReactElement | null => {
     return [from, to];
   });
 
-  const getCoord = useContext(StopRefContext)[2];
-  if (!getCoord(lineDiagram[0].route_stop.id)) return null;
+  const allCoordinates = useStopPositionCoordinates();
+  if (!allCoordinates || !allCoordinates[lineDiagram[0].route_stop.id])
+    return null;
 
   const mergeBends = stopGaps.map(([from, to]) => {
     // if outward, start with from and construct array of tos
     // if inward, start with to and construct array of froms
     const mergeStop = branchingOutward ? from : to;
     const mergeStopIndex = lineDiagram.indexOf(mergeStop);
-    const mergeStopCoords = getCoord(mergeStop.route_stop.id);
+    const mergeStopCoords = allCoordinates[mergeStop.route_stop.id];
     if (!mergeStopCoords) return null;
 
     // usually there's just one terminus to draw the merge to... except for the GL at Kenmore.
@@ -64,10 +66,10 @@ const Merges = ({ lineDiagram }: MergeGraphicsProps): ReactElement | null => {
       if (!nextStop && !terminus) return null;
       // try the next stop on the branch first. if the branch is collapsed the
       // coordinates will be null as the next stop is hidden, so use terminus
-      const nextStopVisible = !!getCoord(nextStop!.route_stop.id);
+      const nextStopVisible = !!allCoordinates[nextStop!.route_stop.id];
       const nextStopCoords = nextStopVisible
-        ? getCoord(nextStop!.route_stop.id)
-        : getCoord(terminus!.route_stop.id);
+        ? allCoordinates[nextStop!.route_stop.id]
+        : allCoordinates[terminus!.route_stop.id];
 
       const [x, y] = nextStopCoords as StopCoord;
       const [mX, mY] = mergeStopCoords;
