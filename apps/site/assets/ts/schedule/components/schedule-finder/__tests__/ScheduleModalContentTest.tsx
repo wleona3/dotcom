@@ -1,14 +1,9 @@
-import React, { PropsWithChildren } from "react";
-// import renderer, { act } from "react-test-renderer";
+import React from "react";
 import { EnhancedRoute, Route } from "../../../../__v3api";
 import ScheduleModalContent, { fetchData } from "../ScheduleModalContent";
 import { ServiceInSelector, SimpleStop, SimpleStopMap } from "../../__schedule";
-import ScheduleNote from "../../ScheduleNote";
-// import { UpcomingDepartures } from "../upcoming-departures/UpcomingDepartures";
-import { mount } from "enzyme";
-import { createScheduleStore } from "../../../store/schedule-store";
-import { Provider } from "react-redux";
-import { render, screen, act } from "@testing-library/react";
+import { screen, act } from "@testing-library/react";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 
 const today = "2019-12-05";
 const route: EnhancedRoute = {
@@ -83,16 +78,6 @@ const ferryRoute = {
   type: 4
 } as Route;
 
-// redux store/provider
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  const store = createScheduleStore(0);
-  return <Provider store={store}>{children}</Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 jest.mock("../upcoming-departures/UpcomingDepartures", () => ({
   __esModule: true,
   default: () => {
@@ -131,7 +116,7 @@ beforeAll(() => {
 
 test("<ScheduleModalContent /> renders with schedule note if present", async () => {
   await act(async () => {
-    await renderWithProvider(
+    await renderWithScheduleStoreProvider(
       <ScheduleModalContent
         route={route}
         stops={stops}
@@ -148,7 +133,7 @@ test("<ScheduleModalContent /> renders with schedule note if present", async () 
 
 test("<ScheduleModalContent /> fetches data", async () => {
   await act(async () => {
-    await renderWithProvider(
+    await renderWithScheduleStoreProvider(
       <ScheduleModalContent
         route={route}
         stops={stops}
@@ -170,7 +155,7 @@ test("<ScheduleModalContent /> fetches data", async () => {
 
 test("<ScheduleModalContent /> doesn't show UpcomingDepartures for ferry", async () => {
   await act(async () => {
-    await renderWithProvider(
+    await renderWithScheduleStoreProvider(
       <ScheduleModalContent
         route={ferryRoute}
         stops={stops}
@@ -202,7 +187,7 @@ test.each`
   "<ScheduleModalContent /> renders with UpcomingDepartures for today's service",
   async ({ testToday, service, isMatch }) => {
     await act(async () => {
-      await renderWithProvider(
+      await renderWithScheduleStoreProvider(
         <ScheduleModalContent
           route={busRoute}
           stops={stops}

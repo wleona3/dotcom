@@ -1,17 +1,13 @@
-import { render, screen } from "@testing-library/react";
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
+import { screen } from "@testing-library/react";
+import React from "react";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 import { Route } from "../../../../__v3api";
 import {
   changeScheduleFinderOrigin,
   createScheduleStore,
   openOriginModal
 } from "../../../store/schedule-store";
-import {
-  RoutePatternsByDirection,
-  SelectedOrigin,
-  ServiceInSelector
-} from "../../__schedule";
+import { RoutePatternsByDirection, ServiceInSelector } from "../../__schedule";
 import * as routePatternsByDirectionData from "../../__tests__/test-data/routePatternsByDirectionData.json";
 import ScheduleFinderModal from "../ScheduleFinderModal";
 
@@ -138,12 +134,9 @@ const stops = {
 // redux store/provider
 const store = createScheduleStore(0);
 store.dispatch(changeScheduleFinderOrigin("123")); // initializes origin value
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
 
 function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
+  return renderWithScheduleStoreProvider(ui, store);
 }
 
 jest.mock("../OriginModalContent", () => ({

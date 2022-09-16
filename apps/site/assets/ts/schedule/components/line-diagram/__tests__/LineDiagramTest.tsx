@@ -1,21 +1,16 @@
-import React, { PropsWithChildren } from "react";
+import React from "react";
+import { AnyAction, Store } from "redux";
 import * as swr from "swr";
-import { mount, ReactWrapper } from "enzyme";
 import { cloneDeep, merge } from "lodash";
 import LineDiagramAndStopListPage from "../LineDiagram";
 import { EnhancedRoute, RouteType } from "../../../../__v3api";
-import {
-  LineDiagramStop,
-  RoutePatternsByDirection,
-  SimpleStop
-} from "../../__schedule";
-import * as routePatternsByDirection from "../../__tests__/test-data/routePatternsByDirectionData.json";
+import { LineDiagramStop, SimpleStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
 import simpleLiveData from "./lineDiagramData/live-data.json";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { createScheduleStore } from "../../../store/schedule-store";
-import { Provider } from "react-redux";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -71,18 +66,8 @@ const stops = lineDiagram.map(({ route_stop }) => ({
 
 const directionId = 1;
 
-// redux store/provider
-const store = createScheduleStore(0);
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 test("LineDiagram renders and matches snapshot", () => {
-  let { asFragment } = renderWithProvider(
+  let { asFragment } = renderWithScheduleStoreProvider(
     <LineDiagramAndStopListPage
       lineDiagram={lineDiagram}
       route={route as EnhancedRoute}
@@ -93,14 +78,17 @@ test("LineDiagram renders and matches snapshot", () => {
 });
 
 describe("LineDiagram", () => {
+  let store: Store<any, AnyAction>;
   beforeEach(() => {
-    renderWithProvider(
+    store = createScheduleStore(0);
+    renderWithScheduleStoreProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={route as EnhancedRoute}
         directionId={directionId}
       />
-    );
+    ),
+      store;
   });
 
   test("includes buttons to open the Schedule Finder modal", () => {
@@ -142,7 +130,7 @@ test.each`
 `(
   "LineDiagram names stops or stations for route type $type",
   ({ type, name }) => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={
@@ -172,7 +160,7 @@ test.each`
     // don't mock the return value here,
     // we just want to check if it's called
     const useSWRSpy = jest.spyOn(swr, "default");
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <LineDiagramAndStopListPage
         lineDiagram={lineDiagram}
         route={

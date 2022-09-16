@@ -1,6 +1,5 @@
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
-import { render, screen } from "@testing-library/react";
+import React from "react";
+import { screen } from "@testing-library/react";
 import lineDiagramData from "./test-data/lineDiagramData.json"; // Not a full line diagram
 import {
   LineDiagramStop,
@@ -9,15 +8,10 @@ import {
   ShapesById
 } from "../__schedule";
 import { DirectionId, EnhancedRoute, Route } from "../../../__v3api";
-import { createScheduleStore } from "../../store/schedule-store";
 import { MapData, StaticMapData } from "../../../leaflet/components/__mapdata";
 import ScheduleLoader from "../ScheduleLoader";
-import ScheduleFinder from "../ScheduleFinder";
-import ScheduleFinderModal from "../schedule-finder/ScheduleFinderModal";
-import ScheduleNote from "../ScheduleNote";
-import * as scheduleStoreModule from "../../store/schedule-store";
-import * as scheduleLoader from "../../schedule-loader";
 import * as routePatternsByDirectionData from "./test-data/routePatternsByDirectionData.json";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
 
 const stops = {
   "1": [
@@ -261,12 +255,6 @@ jest.mock("../ScheduleFinder", () => ({
   }
 }));
 
-// redux store/provider
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  const store = createScheduleStore(0);
-  return <Provider store={store}>{children}</Provider>;
-}
-
 // stub out surrounding HTML document structure with included data
 const stubHtml = document.createElement("section");
 const jsMap = document.createElement("script");
@@ -280,9 +268,8 @@ staticMap.innerHTML = JSON.stringify(staticMapData);
 [jsMap, staticMap].forEach(node => stubHtml.appendChild(node));
 
 function renderWithProvider(ui: React.ReactElement) {
-  render(ui, {
-    baseElement: document.body.appendChild(stubHtml),
-    wrapper: Wrapper
+  renderWithScheduleStoreProvider(ui, undefined, {
+    baseElement: document.body.appendChild(stubHtml)
   });
 }
 

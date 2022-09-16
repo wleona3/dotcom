@@ -1,12 +1,6 @@
-import {
-  fireEvent,
-  MatcherOptions,
-  render,
-  screen
-} from "@testing-library/react";
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
-import { createScheduleStore } from "../../../store/schedule-store";
+import { fireEvent, screen } from "@testing-library/react";
+import React from "react";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 import OriginModalContent from "../OriginModalContent";
 
 const stops = [
@@ -30,20 +24,9 @@ const stops = [
   }
 ];
 
-// redux store/provider
-const store = createScheduleStore(0);
-
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 describe("<OriginModalContent />", () => {
   beforeEach(() => {
-    renderWithProvider(<OriginModalContent stops={stops} />);
+    renderWithScheduleStoreProvider(<OriginModalContent stops={stops} />);
   });
   test("shows <OriginListItem /> each stop", () => {
     for (const stop of stops) {
@@ -62,7 +45,7 @@ describe("<OriginModalContent />", () => {
 });
 
 test("<OriginModalContent /> allows list filtering", () => {
-  const { container } = renderWithProvider(
+  const { container } = renderWithScheduleStoreProvider(
     <OriginModalContent stops={stops} />
   );
   const numStopsListed = () =>

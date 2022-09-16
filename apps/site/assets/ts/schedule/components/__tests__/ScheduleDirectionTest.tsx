@@ -1,6 +1,5 @@
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import React from "react";
+import { screen, cleanup, fireEvent } from "@testing-library/react";
 import {
   closeRoutePatternMenuAction,
   menuReducer as reducer,
@@ -20,7 +19,7 @@ import {
 } from "../__schedule";
 import lineDiagramData from "./test-data/lineDiagramData.json"; // Not a full line diagram
 import * as routePatternsByDirectionData from "./test-data/routePatternsByDirectionData.json";
-import { createScheduleStore } from "../../store/schedule-store";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
 
 const body =
   '<div id="body-wrapper"><div id="react-root"></div><div id="map-root"></div></div>';
@@ -284,49 +283,45 @@ const getVariantComponent = () => (
     busVariantId="pattern-3"
   />
 );
-const store = createScheduleStore(0);
-// redux store/provider
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
 
 afterEach(cleanup);
 
 test("<ScheduleDirection /> renders a bus component", () => {
-  const { asFragment } = renderWithProvider(getComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(getComponent());
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> renders a subway component", () => {
-  const { asFragment } = renderWithProvider(getSubwayComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(getSubwayComponent());
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> renders a CR component", () => {
-  const { asFragment } = renderWithProvider(getCRComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(getCRComponent());
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> can render green line", () => {
-  const { asFragment } = renderWithProvider(getGreenLineComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(
+    getGreenLineComponent()
+  );
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> respects the initially selected pattern ID, if specified", () => {
-  const { asFragment } = renderWithProvider(getVariantComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(getVariantComponent());
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> renders with a static map", () => {
-  const { asFragment } = renderWithProvider(getStaticMapComponent());
+  const { asFragment } = renderWithScheduleStoreProvider(
+    getStaticMapComponent()
+  );
   expect(asFragment()).toMatchSnapshot();
 });
 
 test("<ScheduleDirection /> not allow changing direction when no route patterns", () => {
-  const { container, asFragment } = renderWithProvider(
+  const { container, asFragment } = renderWithScheduleStoreProvider(
     getSingleDirectionComponent()
   );
   expect(asFragment()).toMatchSnapshot();
@@ -335,7 +330,7 @@ test("<ScheduleDirection /> not allow changing direction when no route patterns"
 
 test("<ScheduleDirection /> can change direction", () => {
   window.history.replaceState = jest.fn();
-  renderWithProvider(getComponent());
+  renderWithScheduleStoreProvider(getComponent());
   expect(screen.queryByText("Inbound", { exact: false })).toBeTruthy();
   expect(screen.queryByText("Outbound", { exact: false })).toBeFalsy();
   fireEvent.click(screen.getByText("Change Direction", { exact: false }));
@@ -351,7 +346,7 @@ test("<ScheduleDirection /> can change direction", () => {
 
 test("<ScheduleDirection /> can change route pattern", () => {
   window.history.replaceState = jest.fn();
-  renderWithProvider(getComponent());
+  renderWithScheduleStoreProvider(getComponent());
   fireEvent.click(screen.getByText("Change Direction", { exact: false })); // shows clickable route pattern options
 
   fireEvent.click(screen.getByRole("button", { name: "Pattern 1" }));
@@ -434,7 +429,9 @@ afterAll(() => {
 });
 
 test("<ScheduleDirection /> can change route for green line", () => {
-  const { container } = renderWithProvider(getGreenLineComponent());
+  const { container } = renderWithScheduleStoreProvider(
+    getGreenLineComponent()
+  );
   const btn = container.querySelector(
     ".m-schedule-direction__route-pattern--clickable"
   )!;

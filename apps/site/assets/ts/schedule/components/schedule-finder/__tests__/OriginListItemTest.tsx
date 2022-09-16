@@ -1,11 +1,6 @@
-import {
-  fireEvent,
-  MatcherOptions,
-  render,
-  screen
-} from "@testing-library/react";
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
+import { fireEvent, screen } from "@testing-library/react";
+import React from "react";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 import { createScheduleStore } from "../../../store/schedule-store";
 import OriginListItem from "../OriginListItem";
 
@@ -28,17 +23,6 @@ const lastStop = {
   zone: null
 };
 
-// redux store/provider
-const store = createScheduleStore(0);
-
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 const mockDispatch = jest.fn();
 jest.mock("react-redux", () => ({
   ...jest.requireActual("react-redux"),
@@ -47,7 +31,7 @@ jest.mock("react-redux", () => ({
 
 describe("<OriginListItem />", () => {
   test("shows stop info", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <OriginListItem stop={stopWithZone} lastStop={lastStop} />
     );
 
@@ -58,14 +42,16 @@ describe("<OriginListItem />", () => {
   });
 
   test("disabled for last stop", () => {
-    renderWithProvider(<OriginListItem stop={lastStop} lastStop={lastStop} />);
+    renderWithScheduleStoreProvider(
+      <OriginListItem stop={lastStop} lastStop={lastStop} />
+    );
 
     const btn = screen.getByRole("button");
     expect(btn.classList.contains("disabled")).toBeTruthy();
   });
 
   test("disabled for closed stop", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <OriginListItem stop={closedStop} lastStop={lastStop} />
     );
 
@@ -74,8 +60,10 @@ describe("<OriginListItem />", () => {
   });
 
   test("renders checkmark when matching selected origin state", () => {
-    renderWithProvider(
-      <OriginListItem stop={stopWithZone} lastStop={lastStop} />
+    const store = createScheduleStore(0);
+    renderWithScheduleStoreProvider(
+      <OriginListItem stop={stopWithZone} lastStop={lastStop} />,
+      store
     );
     expect(screen.queryByText("SVG", { trim: true })).toBeNull();
     store.dispatch({
@@ -86,7 +74,7 @@ describe("<OriginListItem />", () => {
   });
 
   test("changes origin on click", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <OriginListItem stop={stopWithZone} lastStop={lastStop} />
     );
 
@@ -99,7 +87,7 @@ describe("<OriginListItem />", () => {
   });
 
   test("changes origin on Enter keyUp", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <OriginListItem stop={stopWithZone} lastStop={lastStop} />
     );
 

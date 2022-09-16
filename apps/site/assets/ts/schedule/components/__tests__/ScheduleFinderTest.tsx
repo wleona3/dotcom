@@ -1,10 +1,10 @@
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import ScheduleFinder from "../ScheduleFinder";
 import { EnhancedRoute } from "../../../__v3api";
 import { RoutePatternsByDirection, ServiceInSelector } from "../__schedule";
 import * as scheduleStoreModule from "../../store/schedule-store";
-import { Provider } from "react-redux";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
 
 const scheduleNoteData = {
   offpeak_service: "8-12 minutes",
@@ -184,16 +184,6 @@ const ferryRoute: EnhancedRoute = {
   type: 4
 };
 
-const store = scheduleStoreModule.createScheduleStore(0);
-// redux store/provider
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <Provider store={store}>{children}</Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 jest.mock("../schedule-finder/ScheduleFinderForm", () => ({
   __esModule: true,
   default: () => {
@@ -209,7 +199,7 @@ jest.mock("../schedule-finder/ScheduleFinderModal", () => ({
 
 describe("<ScheduleFinder />", () => {
   test("shows <ScheduleFinderForm /> when no schedule note", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
@@ -223,7 +213,7 @@ describe("<ScheduleFinder />", () => {
   });
 
   test("hides <ScheduleFinderForm /> when there is a schedule note", () => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
@@ -237,7 +227,7 @@ describe("<ScheduleFinder />", () => {
   });
 
   test("uses different layout for ferry", () => {
-    const { container } = renderWithProvider(
+    const { container } = renderWithScheduleStoreProvider(
       <ScheduleFinder
         route={ferryRoute}
         stops={stops}
@@ -254,7 +244,8 @@ describe("<ScheduleFinder />", () => {
   });
 
   test("shows <ScheduleFinderModal /> depending on modalOpen state", () => {
-    renderWithProvider(
+    const store = scheduleStoreModule.createScheduleStore(0);
+    renderWithScheduleStoreProvider(
       <ScheduleFinder
         route={route}
         stops={stops}
@@ -262,7 +253,8 @@ describe("<ScheduleFinder />", () => {
         routePatternsByDirection={routePatternsByDirection}
         today={today}
         scheduleNote={null}
-      />
+      />,
+      store
     );
 
     expect(screen.queryByText("ScheduleFinderModal")).toBeNull();

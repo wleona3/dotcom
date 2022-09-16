@@ -1,10 +1,10 @@
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import * as redux from "react-redux";
 import { Route } from "../../../../__v3api";
 import { SimpleStopMap } from "../../__schedule";
 import ScheduleFinderForm from "../ScheduleFinderForm";
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { createScheduleStore } from "../../../store/schedule-store";
+import { fireEvent, screen, within } from "@testing-library/react";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
 
 const route: Route = {
   description: "",
@@ -75,19 +75,8 @@ const stops: SimpleStopMap = {
   ]
 };
 
-// redux store/provider
-const store = createScheduleStore(0);
-
-function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-  return <redux.Provider store={store}>{children}</redux.Provider>;
-}
-
-function renderWithProvider(ui: React.ReactElement) {
-  return render(ui, { wrapper: Wrapper });
-}
-
 test("<ScheduleFinderForm /> includes only valid directions in the direction picker", () => {
-  const { container } = renderWithProvider(
+  const { container } = renderWithScheduleStoreProvider(
     <ScheduleFinderForm route={oneDirectionRoute} stopsByDirection={stops} />
   );
 
@@ -101,7 +90,7 @@ test("<ScheduleFinderForm /> includes only valid directions in the direction pic
 describe("<ScheduleFinderForm />", () => {
   const submitted = jest.fn();
   beforeEach(() => {
-    renderWithProvider(
+    renderWithScheduleStoreProvider(
       <ScheduleFinderForm
         onSubmit={submitted}
         route={route}
@@ -158,7 +147,7 @@ test("<ScheduleFinderForm /> calls the direction and origin change handlers", ()
   const mockDispatchFn = jest.fn();
   useDispatchSpy.mockReturnValue(mockDispatchFn);
 
-  renderWithProvider(
+  renderWithScheduleStoreProvider(
     <ScheduleFinderForm route={route} stopsByDirection={stops} />
   );
 
