@@ -4,7 +4,7 @@ import { EnhancedRoute } from "../../../__v3api";
 import { RoutePatternsByDirection, ServiceInSelector } from "../__schedule";
 import * as scheduleStoreModule from "../../store/schedule-store";
 import { screen } from "@testing-library/react";
-import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/test-helpers";
 
 const scheduleNoteData = {
   offpeak_service: "8-12 minutes",

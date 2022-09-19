@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DiagonalHatchPattern renders 1`] = `
+<DocumentFragment>
+  <pattern
+    height="10"
+    id="diagonalHatch"
+    patterntransform="rotate(45 0 0)"
+    patternunits="userSpaceOnUse"
+    width="10"
+  >
+    <line
+      class="line-diagram-svg__line"
+      stroke-width="16px"
+      y2="8"
+    />
+  </pattern>
+</DocumentFragment>
+`;
+
+exports[`DiagonalHatchPattern renders with custom id 1`] = `
+<DocumentFragment>
+  <pattern
+    height="10"
+    id="barberpole"
+    patterntransform="rotate(45 0 0)"
+    patternunits="userSpaceOnUse"
+    width="10"
+  >
+    <line
+      class="line-diagram-svg__line"
+      stroke-width="16px"
+      y2="8"
+    />
+  </pattern>
+</DocumentFragment>
+`;

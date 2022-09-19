@@ -10,7 +10,7 @@ import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full l
 import simpleLiveData from "./lineDiagramData/live-data.json";
 import { fireEvent, screen } from "@testing-library/react";
 import { createScheduleStore } from "../../../store/schedule-store";
-import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/test-helpers";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];

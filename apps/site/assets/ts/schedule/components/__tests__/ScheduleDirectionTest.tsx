@@ -19,7 +19,7 @@ import {
 } from "../__schedule";
 import lineDiagramData from "./test-data/lineDiagramData.json"; // Not a full line diagram
 import * as routePatternsByDirectionData from "./test-data/routePatternsByDirectionData.json";
-import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/test-helpers";
 
 const body =
   '<div id="body-wrapper"><div id="react-root"></div><div id="map-root"></div></div>';

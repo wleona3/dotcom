@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import React from "react";
-import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/test-helpers";
 import OriginModalContent from "../OriginModalContent";
 
 const stops = [

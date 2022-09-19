@@ -1,17 +1,15 @@
-import React, { MutableRefObject } from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
+import React from "react";
 import { cloneDeep, merge } from "lodash";
 import { RouteType } from "../../../../__v3api";
 import { LineDiagramStop, CrowdingType } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
 import LineDiagramWithStops from "../LineDiagramWithStops";
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
-import StopListWithBranches from "../StopListWithBranches";
-import * as UseStopPositions from "../graphics/useStopPositions";
 import * as simpleLiveData from "./lineDiagramData/live-data.json";
 import { LiveDataByStop } from "../__line-diagram";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
+import { screen } from "@testing-library/dom";
+import * as StopPositionContext from "../contexts/StopPositionContext";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -60,8 +58,6 @@ const liveDataWithCrowding = (cloneDeep(
 ) as unknown) as LiveDataByStop;
 (liveDataWithCrowding["line-stop2"].headsigns[0].time_data_with_crowding_list[0]
   .crowding as CrowdingType) = "not_crowded";
-const store = createLineDiagramCoordStore(lineDiagram);
-const spy = jest.spyOn(UseStopPositions, "default");
 
 // mock the redux state so that snapshot has positioned stops
 const mockState = lineDiagram.reduce(
@@ -71,62 +67,60 @@ const mockState = lineDiagram.reduce(
   }),
   {}
 );
-jest
-  .spyOn(redux, "useSelector")
-  .mockImplementation(selector => selector(mockState));
+
+const spy = jest.spyOn(StopPositionContext, "useStopPositionReset");
 
 describe("LineDiagramWithStops", () => {
-  let wrapper: ReactWrapper;
+  let asFragment: () => DocumentFragment, container: HTMLElement;
   beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <LineDiagramWithStops
-          stops={lineDiagram}
-          handleStopClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
-    );
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
+    ({ asFragment, container } = mockedRenderWithStopPositionContext(
+      <LineDiagramWithStops
+        stops={lineDiagram}
+        handleStopClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagram,
+      mockState
+    ));
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
-  it("uses the useStopPositions hook", () => {
+  it("uses the useStopPositionReset hook", () => {
     expect(spy).toHaveBeenCalled();
   });
 
   it("shows <StopListWithBranches /> if the line has branches", () => {
-    // wrapper's line diagram has no branches
-    expect(wrapper.find(StopListWithBranches)).toHaveLength(0);
-    const wrapperWithBranches = mount(
-      <redux.Provider store={store}>
-        <LineDiagramWithStops
-          stops={lineDiagramBranchingOut}
-          handleStopClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
+    expect(screen.getByTestId("branch")).toHaveLength(0);
+    mockedRenderWithStopPositionContext(
+      <LineDiagramWithStops
+        stops={lineDiagramBranchingOut}
+        handleStopClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagramBranchingOut,
+      mockState
     );
-    expect(wrapperWithBranches.find(StopListWithBranches)).toHaveLength(1);
+    expect(screen.getByTestId("branch")).toHaveLength(1);
   });
 
   it("toggles u-no-crowding-data class if crowding present", () => {
-    expect(wrapper.exists(".u-no-crowding-data")).toBeTruthy();
-    const wrapperWithCrowding = mount(
-      <redux.Provider store={store}>
-        <LineDiagramWithStops
-          stops={lineDiagram}
-          handleStopClick={handleStopClick}
-          liveData={liveDataWithCrowding}
-        />
-      </redux.Provider>
+    expect(container.querySelector(".u-no-crowding-data")).toBeTruthy();
+    const {
+      container: containerWithCrowding
+    } = mockedRenderWithStopPositionContext(
+      <LineDiagramWithStops
+        stops={lineDiagram}
+        handleStopClick={handleStopClick}
+        liveData={liveDataWithCrowding}
+      />,
+      lineDiagram,
+      mockState
     );
-    expect(wrapperWithCrowding.exists(".u-no-crowding-data")).toBeFalsy();
+    expect(
+      containerWithCrowding.querySelector(".u-no-crowding-data")
+    ).toBeFalsy();
   });
 });

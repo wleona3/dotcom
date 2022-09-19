@@ -1,72 +1,58 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import {
   LineDiagramVehicle,
   RouteStop,
-  LineDiagramStop,
-  RouteStopRoute
+  LineDiagramStop
 } from "../../__schedule";
 import VehicleIcons from "../VehicleIcons";
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
-import {
-  Prediction,
-  PredictedOrScheduledTime,
-  PredictedOrScheduledTimeWithCrowding,
-  HeadsignWithCrowding
-} from "../../../../__v3api";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
+import { StopCoordState } from "../contexts/StopPositionContext";
 
-// mock the redux state
-jest.spyOn(redux, "useSelector").mockImplementation(selector =>
-  selector({
-    "test-stop": [12, 80]
-  })
-);
+const mockState: StopCoordState = {
+  "test-stop": [12, 80]
+};
 const stop = { id: "test-stop", name: "Test Stop" } as RouteStop;
+const lineDiagramStop: LineDiagramStop = {
+  stop_data: [],
+  route_stop: stop,
+  alerts: []
+};
 const vehicles = [
   { id: "vehicle-1", status: "in_transit", tooltip: "vehicle 1 tooltip text" },
   { id: "vehicle-2", status: "incoming", tooltip: "vehicle 2 tooltip text" },
   { id: "vehicle-3", status: "stopped", tooltip: "vehicle 3 tooltip text" }
 ] as LineDiagramVehicle[];
-const store = createLineDiagramCoordStore([
-  { route_stop: stop } as LineDiagramStop
-]);
-
-const tooltipText = (wrapper: ReactWrapper) =>
-  wrapper.find("[tooltipText]").prop("tooltipText");
 
 describe("VehicleIcons with no vehicles", () => {
   it("doesn't render", () => {
-    const wrapper = mount(
-      <redux.Provider store={store}>
-        <VehicleIcons stop={stop} vehicles={null} />
-      </redux.Provider>
+    const { container } = mockedRenderWithStopPositionContext(
+      <VehicleIcons stop={stop} vehicles={null} />,
+      [lineDiagramStop],
+      mockState
     );
 
-    expect(wrapper.html()).toBeFalsy();
+    expect(container.innerHTML).toBeFalsy();
   });
 });
 
 describe("VehicleIcons with vehicles", () => {
-  let wrapper: ReactWrapper;
-  beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <VehicleIcons stop={stop} vehicles={vehicles} />
-      </redux.Provider>
-    );
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
+  let asFragment: () => DocumentFragment, container: HTMLElement;
+  beforeAll(() => {
+    ({ asFragment, container } = mockedRenderWithStopPositionContext(
+      <VehicleIcons stop={stop} vehicles={vehicles} />,
+      [lineDiagramStop],
+      mockState
+    ));
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it("renders each vehicle", () => {
-    const vehicleNodes = wrapper.find(".m-schedule-diagram__vehicle");
+    const vehicleNodes = container.querySelectorAll(
+      ".m-schedule-diagram__vehicle"
+    );
     expect(vehicleNodes).toHaveLength(vehicles.length);
   });
 
@@ -76,8 +62,10 @@ describe("VehicleIcons with vehicles", () => {
     ${1}  | ${"vehicle 2 tooltip text"}
     ${2}  | ${"vehicle 3 tooltip text"}
   `("positions vehicles according to status $status", ({ index, tooltip }) => {
-    const node = wrapper.find(".m-schedule-diagram__vehicle").at(index);
-    expect(tooltipText(node)).toContain(tooltip);
+    const node = container.querySelectorAll(".m-schedule-diagram__vehicle")[
+      index
+    ];
+    expect(node.querySelector("[tooltipText]")?.textContent).toContain(tooltip);
   });
 
   it.each`
@@ -88,8 +76,10 @@ describe("VehicleIcons with vehicles", () => {
   `(
     "positions vehicles according to status $status",
     ({ index, expectedPosition }) => {
-      const node = wrapper.find(".m-schedule-diagram__vehicle").at(index);
-      const { top } = node.get(0).props.style; // e.g. "30px"
+      const node = container.querySelectorAll<HTMLElement>(
+        ".m-schedule-diagram__vehicle"
+      )[index];
+      const { top } = node.style; // e.g. "30px"
       const top_number = parseInt(top.substring(0, 2)); // e.g. 30
       expect(top_number).toEqual(expectedPosition);
     }
@@ -97,20 +87,23 @@ describe("VehicleIcons with vehicles", () => {
 });
 
 it("VehicleIcons includes the vehicle crowding status if available", () => {
-  const wrapper = mount(
-    <redux.Provider store={store}>
-      <VehicleIcons
-        stop={stop}
-        vehicles={[
-          {
-            id: "v1",
-            status: "incoming",
-            crowding: "some_crowding",
-            tooltip: "tooltip text"
-          }
-        ]}
-      />
-    </redux.Provider>
+  const { container } = mockedRenderWithStopPositionContext(
+    <VehicleIcons
+      stop={stop}
+      vehicles={[
+        {
+          id: "v1",
+          status: "incoming",
+          crowding: "some_crowding",
+          tooltip: "tooltip text"
+        }
+      ]}
+    />,
+    [lineDiagramStop],
+    mockState
   );
-  expect(tooltipText(wrapper)).toContain("Some crowding");
+  const node = container.querySelector(".m-schedule-diagram__vehicle");
+  expect(node!.querySelector("[tooltipText]")?.textContent).toContain(
+    "Some crowding"
+  );
 });

@@ -1,29 +1,64 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Line component between stops with branches renders and matches snapshot 1`] = `
-"<Provider store={{...}}>
-  <Line from={{...}} to={{...}}>
-    <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"17px\\" y2=\\"24px\\" />
-    <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"27px\\" x2=\\"27px\\" y1=\\"17px\\" y2=\\"24px\\" />
-    <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"16px\\" x1=\\"43px\\" x2=\\"43px\\" y1=\\"17px\\" y2=\\"24px\\" />
-  </Line>
-</Provider>"
+<DocumentFragment>
+  <svg>
+    <line
+      class="line-diagram-svg__line"
+      stroke-width="10px"
+      x1="11px"
+      x2="11px"
+      y1="17px"
+      y2="24px"
+    />
+    <line
+      class="line-diagram-svg__line"
+      stroke-width="10px"
+      x1="27px"
+      x2="27px"
+      y1="17px"
+      y2="24px"
+    />
+    <line
+      class="line-diagram-svg__line"
+      stroke-width="16px"
+      x1="43px"
+      x2="43px"
+      y1="17px"
+      y2="24px"
+    />
+  </svg>
+</DocumentFragment>
 `;
 
 exports[`Line component between stops with disruptions renders and matches snapshot 1`] = `
-"<Provider store={{...}}>
-  <Line from={{...}} to={{...}}>
-    <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"17px\\" y2=\\"24px\\" stroke=\\"url(#shuttle)\\" />
-  </Line>
-</Provider>"
+<DocumentFragment>
+  <svg>
+    <line
+      class="line-diagram-svg__line"
+      stroke="url(#shuttle)"
+      stroke-width="10px"
+      x1="11px"
+      x2="11px"
+      y1="17px"
+      y2="24px"
+    />
+  </svg>
+</DocumentFragment>
 `;
 
 exports[`Line component renders and matches snapshot 1`] = `
-"<Provider store={{...}}>
+<DocumentFragment>
   <svg>
-    <Line from={{...}} to={{...}}>
-      <line className=\\"line-diagram-svg__line\\" strokeWidth=\\"10px\\" x1=\\"11px\\" x2=\\"11px\\" y1=\\"17px\\" y2=\\"24px\\" stroke=\\"url(#shuttle)\\" />
-    </Line>
+    <line
+      class="line-diagram-svg__line"
+      stroke="url(#shuttle)"
+      stroke-width="10px"
+      x1="11px"
+      x2="11px"
+      y1="17px"
+      y2="24px"
+    />
   </svg>
-</Provider>"
+</DocumentFragment>
 `;

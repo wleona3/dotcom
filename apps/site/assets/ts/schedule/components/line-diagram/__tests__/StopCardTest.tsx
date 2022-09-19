@@ -1,6 +1,4 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import { cloneDeep, merge } from "lodash";
 import {
   RouteType,
@@ -11,10 +9,9 @@ import {
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
 import StopCard from "../StopCard";
 import { TripPrediction } from "../../__trips";
-import StopPredictions from "../StopPredictions";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -58,51 +55,49 @@ lineDiagramBranchingIn.forEach(({ route_stop }) => {
 
 const handleStopClick = () => {};
 const liveData = { headsigns: [], vehicles: [] };
-const store = createLineDiagramCoordStore(lineDiagram);
 
 describe("StopCard", () => {
-  let wrapper: ReactWrapper;
+  let asFragment: () => DocumentFragment, container: HTMLElement;
   beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <StopCard
-          stop={lineDiagram[0]}
-          onClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
-    );
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
+    ({ asFragment, container } = mockedRenderWithStopPositionContext(
+      <StopCard
+        stop={lineDiagram[0]}
+        onClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagram
+    ));
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it("includes a button to open Schedule Finder on each stop", () => {
-    expect(wrapper.exists(".m-schedule-diagram__footer > button")).toBeTruthy();
     expect(
-      wrapper.find(".m-schedule-diagram__footer > button").text()
+      container.querySelector(".m-schedule-diagram__footer > button")
+    ).toBeTruthy();
+    expect(
+      container.querySelector(".m-schedule-diagram__footer > button")
+        ?.textContent
     ).toContain("View schedule");
   });
 
   it("has a tooltip for a transit connection", () => {
-    const stopConnections = wrapper.find(".m-schedule-diagram__connections a");
+    const stopConnections = container.querySelectorAll<HTMLElement>(
+      ".m-schedule-diagram__connections a"
+    );
     stopConnections.forEach(connectionLink => {
-      const props = connectionLink.props();
-      expect(props.title).toBeTruthy();
-      expect(Object.entries(props)).toContainEqual(["data-toggle", "tooltip"]);
+      expect(connectionLink.dataset.toggle).toEqual("tooltip");
+      expect(connectionLink.dataset.originalTitle).toContain("Route");
     });
   });
 
   it("indicates detours, stop closures, etc", () => {
-    expect(wrapper.exists(".m-schedule-diagram__alert")).toBeTruthy();
-    expect(wrapper.find(".m-schedule-diagram__alert").text()).toContain(
-      "Detour"
-    );
+    expect(container.querySelector(".m-schedule-diagram__alert")).toBeTruthy();
+    expect(
+      container.querySelector(".m-schedule-diagram__alert")?.textContent
+    ).toContain("Detour");
   });
 });
 
@@ -133,24 +128,31 @@ const liveDataWithPrediction = {
   vehicles: []
 };
 it("indicates predictions if available", () => {
-  const wrapper = mount(
-    <redux.Provider store={store}>
-      <StopCard
-        stop={lineDiagram[2]}
-        onClick={handleStopClick}
-        liveData={liveDataWithPrediction}
-      />
-    </redux.Provider>
+  const { asFragment, container } = mockedRenderWithStopPositionContext(
+    <StopCard
+      stop={lineDiagram[2]}
+      onClick={handleStopClick}
+      liveData={liveDataWithPrediction}
+    />,
+    lineDiagram
   );
 
-  expect(wrapper.exists(StopPredictions)).toBeTruthy();
-  const predictions = wrapper.find(StopPredictions);
-  expect(predictions.text()).toContain("Somewhere");
+  it("renders and matches snapshot", () => {
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  const predictions = container.querySelector(
+    ".m-schedule-diagram__predictions"
+  );
+  expect(predictions).toBeTruthy();
+  expect(predictions?.textContent).toContain("Somewhere");
   expect(
-    predictions.find(".m-schedule-diagram__prediction-time").text()
+    predictions!.querySelector(".m-schedule-diagram__prediction-time")
+      ?.textContent
   ).toContain("14");
   expect(
-    predictions.find(".m-schedule-diagram__prediction-time").text()
+    predictions!.querySelector(".m-schedule-diagram__prediction-time")
+      ?.textContent
   ).toContain("min");
 });
 
@@ -163,16 +165,16 @@ it.each`
 `(
   "shows $expectedAlerts high priority or high severity alerts for stop $index",
   ({ index, expectedAlerts }) => {
-    const wrapperWithAlerts = mount(
-      <redux.Provider store={store}>
-        <StopCard
-          stop={lineDiagram[index]}
-          onClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
+    const { container } = mockedRenderWithStopPositionContext(
+      <StopCard
+        stop={lineDiagram[index]}
+        onClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagram
     );
-    const alerts = wrapperWithAlerts.find(
+
+    const alerts = container.querySelectorAll(
       ".m-schedule-diagram__stop-link .c-svg__icon-alerts-triangle"
     );
     expect(alerts.length).toEqual(expectedAlerts);
@@ -188,26 +190,28 @@ it.each`
 `(
   "has appropriate tooltip content for stop $index",
   ({ index, expectedNames, expectedFeatures }) => {
-    const wrapper = mount(
-      <redux.Provider store={store}>
-        <StopCard
-          stop={lineDiagram[index]}
-          onClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
+    const { container } = mockedRenderWithStopPositionContext(
+      <StopCard
+        stop={lineDiagram[index]}
+        onClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagram
     );
 
-    const connections = wrapper.find(".m-schedule-diagram__connections");
-
-    const names = connections.find("a").map(c => c.props().title);
+    const connections = container.querySelector(
+      ".m-schedule-diagram__connections"
+    );
+    const names = Array.from(connections!.querySelectorAll("a")).map(
+      c => c.dataset.originalTitle
+    );
     expect(names).toEqual(expectedNames);
 
-    const features = wrapper.find(".m-schedule-diagram__features");
+    const features = container.querySelector(".m-schedule-diagram__features");
 
-    const featureNames = features
-      .find("span[data-toggle='tooltip']")
-      .map(c => c.props().title);
+    const featureNames = Array.from(
+      features!.querySelectorAll<HTMLElement>("span[data-toggle='tooltip']")
+    ).map(c => c.dataset.originalTitle);
     expect(featureNames).toEqual(expectedFeatures);
   }
 );

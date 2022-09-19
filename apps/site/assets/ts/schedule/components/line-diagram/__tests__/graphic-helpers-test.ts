@@ -1,9 +1,12 @@
-import { coordReducer, CoordAction } from "../graphics/graphic-helpers";
+import { render } from "@testing-library/react";
+import { DiagonalHatchPattern } from "../graphics/graphic-helpers";
 
-const action = { stop: "xyz", coords: [123, 45] } as CoordAction;
-it("coordReducer updates value", () => {
-  expect(coordReducer({ xyz: [1, 2], abc: [10, 20] }, action)).toEqual({
-    xyz: [123, 45],
-    abc: [10, 20]
-  });
+test("DiagonalHatchPattern renders", () => {
+  const { asFragment } = render(DiagonalHatchPattern());
+  expect(asFragment()).toMatchSnapshot();
+});
+
+test("DiagonalHatchPattern renders with custom id", () => {
+  const { asFragment } = render(DiagonalHatchPattern("barberpole"));
+  expect(asFragment()).toMatchSnapshot();
 });

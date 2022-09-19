@@ -4,7 +4,7 @@ import { Route } from "../../../../__v3api";
 import { SimpleStopMap } from "../../__schedule";
 import ScheduleFinderForm from "../ScheduleFinderForm";
 import { fireEvent, screen, within } from "@testing-library/react";
-import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/test-helpers";
 
 const route: Route = {
   description: "",

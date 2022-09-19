@@ -55,7 +55,7 @@ export const Branch = (props: CommonLineDiagramProps): React.ReactElement => {
       {stops.length > 2 ? (
         <ExpandableBranch key={`${stops[0].route_stop.id}-branch`} {...props} />
       ) : (
-        <ol>
+        <ol data-testid="branch">
           {stops.map(stop => (
             <StopCard
               key={stop.route_stop.id}

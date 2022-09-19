@@ -1,14 +1,12 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import { cloneDeep, merge } from "lodash";
 import { RouteType } from "../../../../__v3api";
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
-import StopListWithBranches from "../StopListWithBranches";
 import ExpandableBranch from "../ExpandableBranch";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
+import { fireEvent, screen } from "@testing-library/dom";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -52,44 +50,29 @@ lineDiagramBranchingIn.forEach(({ route_stop }) => {
 
 const handleStopClick = () => {};
 const liveData = {};
-const store = createLineDiagramCoordStore(lineDiagram);
-
 describe("ExpandableBranch", () => {
-  let wrapper: ReactWrapper;
+  let asFragment: () => DocumentFragment, container: HTMLElement;
   beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <ExpandableBranch
-          stops={lineDiagram}
-          handleStopClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
-    );
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
+    ({ asFragment, container } = mockedRenderWithStopPositionContext(
+      <ExpandableBranch
+        stops={lineDiagram}
+        handleStopClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagram
+    ));
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
-  it("expands a branch", () => {
-    let moreStops = wrapper.find(
+  it("expands a branch", async () => {
+    let moreStops = container.querySelector(
       ".c-expandable-block__panel .m-schedule-diagram__stop"
     );
-    expect(moreStops.exists()).toBeFalsy();
-    wrapper
-      .find(
-        ".m-schedule-diagram__expander .c-expandable-block__header[role='button']"
-      )
-      .first()
-      .simulate("click");
-    moreStops = wrapper.find(
-      ".c-expandable-block__panel .m-schedule-diagram__stop"
-    ); // update the reference so the test finds it
-    expect(moreStops.exists()).toBeTruthy();
+    expect(moreStops).toBeFalsy();
+    fireEvent.click(await screen.findByRole("button"));
+    expect(moreStops).toBeTruthy();
   });
 });

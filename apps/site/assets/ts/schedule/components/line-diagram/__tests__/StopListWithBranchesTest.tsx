@@ -1,15 +1,12 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
+import { screen } from "@testing-library/dom";
 import { cloneDeep, merge } from "lodash";
 import { RouteType } from "../../../../__v3api";
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
-import StopListWithBranches, { Branch } from "../StopListWithBranches";
-import StopCard from "../StopCard";
-import ExpandableBranch from "../ExpandableBranch";
+import StopListWithBranches from "../StopListWithBranches";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -53,42 +50,52 @@ lineDiagramBranchingIn.forEach(({ route_stop }) => {
 
 const handleStopClick = () => {};
 const liveData = {};
-const store = createLineDiagramCoordStore(lineDiagram);
 
+test("StopListWithBranches renders and matches snapshot", () => {
+  const { asFragment } = mockedRenderWithStopPositionContext(
+    <StopListWithBranches
+      stops={lineDiagramBranchingIn}
+      handleStopClick={handleStopClick}
+      liveData={liveData}
+    />,
+    lineDiagramBranchingIn
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
 describe("StopListWithBranches", () => {
-  let wrapper: ReactWrapper;
+  let container: HTMLElement;
   beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <StopListWithBranches
-          stops={lineDiagramBranchingIn}
-          handleStopClick={handleStopClick}
-          liveData={liveData}
-        />
-      </redux.Provider>
-    );
+    ({ container } = mockedRenderWithStopPositionContext(
+      <StopListWithBranches
+        stops={lineDiagramBranchingIn}
+        handleStopClick={handleStopClick}
+        liveData={liveData}
+      />,
+      lineDiagramBranchingIn
+    ));
   });
 
-  afterEach(() => {
-    wrapper.unmount();
-  });
-
-  it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
-  });
-
-  it("renders branches as well as individual stops", () => {
-    expect(wrapper.find(ExpandableBranch)).toHaveLength(1);
-    expect(wrapper.find(StopCard)).toHaveLength(10);
+  it("renders expandable branches as well as individual stops", () => {
+    expect(
+      container.querySelectorAll(".m-schedule-diagram__expander")
+    ).toHaveLength(1);
+    expect(
+      container.querySelectorAll(".m-schedule-diagram__stop")
+    ).toHaveLength(10);
   });
 
   it("renders short branches as expanded", () => {
-    const branches = wrapper.find(Branch);
+    const branches = screen.queryAllByTestId("branch");
     expect(branches).toHaveLength(2);
-    const shortBranch = branches.first();
-    const longBranch = branches.last();
-    expect(longBranch.exists(ExpandableBranch)).toBeTruthy();
-    expect(shortBranch.exists(ExpandableBranch)).toBeFalsy();
+    const shortBranch = branches[0];
+    const longBranch = branches[1];
+    expect(
+      longBranch.querySelector(".m-schedule-diagram__expander")
+    ).toBeDefined();
+    expect(
+      shortBranch.querySelector(".m-schedule-diagram__expander")
+    ).toBeNull();
   });
 
   describe("where branching inward", () => {
@@ -106,15 +113,14 @@ describe("StopListWithBranches", () => {
     `(
       "shows branch name $expectedBranchNaming at stop $index",
       ({ index, expectedBranchNaming }) => {
-        const branchNameNode = wrapper
-          .find(".m-schedule-diagram__stop")
-          .at(index)
-          .find(".u-small-caps");
+        const branchNameNode = container
+          .querySelectorAll(".m-schedule-diagram__stop")
+          [index].querySelector(".u-small-caps")!;
 
         if (expectedBranchNaming) {
-          expect(branchNameNode.text()).toEqual(expectedBranchNaming);
+          expect(branchNameNode.textContent).toEqual(expectedBranchNaming);
         } else {
-          expect(branchNameNode.exists()).toBeFalsy();
+          expect(branchNameNode).toBeNull();
         }
       }
     );

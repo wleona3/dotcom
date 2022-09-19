@@ -47,7 +47,8 @@ module.exports = {
     "/node_modules/",
     "./ts-build",
     "./tnm/__tests__/setupTests.ts",
-    "./tnm/__tests__/helpers"
+    "./tnm/__tests__/helpers",
+    "./__tests__/test-helpers.tsx"
   ],
   moduleNameMapper: {
     "\\.svg$": "<rootDir>/tnm/__tests__/helpers/svgStubber.js"

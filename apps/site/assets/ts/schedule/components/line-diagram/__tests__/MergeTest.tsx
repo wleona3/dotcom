@@ -1,15 +1,12 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
 import Merges from "../graphics/Merge";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 const lineDiagramWithBranching = (outwardLineDiagram as unknown) as LineDiagramStop[];
 
-const store = createLineDiagramCoordStore(lineDiagramWithBranching);
 // mock the redux state so that snapshot has positioned stops
 const mockState = [...lineDiagram, ...lineDiagramWithBranching].reduce(
   (acc, stop, index) => ({
@@ -19,53 +16,55 @@ const mockState = [...lineDiagram, ...lineDiagramWithBranching].reduce(
   {}
 );
 
-jest
-  .spyOn(redux, "useSelector")
-  .mockImplementation(selector => selector(mockState));
-
 describe("Merge component", () => {
-  let wrapper: ReactWrapper;
+  let asFragment: () => DocumentFragment, container: HTMLElement;
   beforeAll(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <svg>
-          <Merges lineDiagram={lineDiagramWithBranching} />
-        </svg>
-      </redux.Provider>
-    );
+    ({ asFragment, container } = mockedRenderWithStopPositionContext(
+      <svg>
+        <Merges lineDiagram={lineDiagramWithBranching} />
+      </svg>,
+      lineDiagramWithBranching,
+      mockState
+    ));
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it("shows an SVG group for the merge point", () => {
-    expect(wrapper.exists("g.line-diagram-svg__merge")).toBeTruthy();
+    expect(container.querySelector("g.line-diagram-svg__merge")).toBeTruthy();
     expect(
-      wrapper.exists("g.line-diagram-svg__merge line.line-diagram-svg__line")
+      container.querySelector(
+        "g.line-diagram-svg__merge line.line-diagram-svg__line"
+      )
     ).toBeTruthy();
-    expect(wrapper.exists("g.line-diagram-svg__merge path")).toBeTruthy();
+    expect(
+      container.querySelector("g.line-diagram-svg__merge path")
+    ).toBeTruthy();
   });
 
   it("shows nothing when there are no branches", () => {
-    const wrapperNoBranches = mount(
-      <redux.Provider store={store}>
-        <svg>
-          <Merges lineDiagram={lineDiagram} />
-        </svg>
-      </redux.Provider>
+    const {
+      container: containerNoBranches
+    } = mockedRenderWithStopPositionContext(
+      <svg>
+        <Merges lineDiagram={lineDiagram} />
+      </svg>,
+      lineDiagram,
+      mockState
     );
 
     expect(
-      wrapperNoBranches.exists("g.line-diagram-svg__merge")
+      containerNoBranches.querySelector("g.line-diagram-svg__merge")
     ).not.toBeTruthy();
     expect(
-      wrapperNoBranches.exists(
+      containerNoBranches.querySelector(
         "g.line-diagram-svg__merge line.line-diagram-svg__line"
       )
     ).not.toBeTruthy();
     expect(
-      wrapperNoBranches.exists("g.line-diagram-svg__merge path")
+      containerNoBranches.querySelector("g.line-diagram-svg__merge path")
     ).not.toBeTruthy();
   });
 });

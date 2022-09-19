@@ -18,7 +18,7 @@ import {
 import { isMergeStop } from "../line-diagram-helpers";
 
 type refType = HTMLElement | null;
-interface StopCoordState {
+export interface StopCoordState {
   [k: string]: StopCoord | null;
 }
 interface ContextValues {
@@ -105,7 +105,7 @@ const useStopPositions = (stops: LineDiagramStop[]): ContextValues => {
  * stopCoordState: an object containing updated values for pixel location
  * resetAllCoordinates: a function to recalculate coordinates for every stop
  */
-const StopPositionContext = createContext<ContextValues>({
+export const StopPositionContext = createContext<ContextValues>({
   stopCoordState: {},
   resetAllCoordinates: () => {},
   stopRefMap: new Map()

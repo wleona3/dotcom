@@ -1,50 +1,36 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
-import {
-  createLineDiagramCoordStore,
-  CIRC_RADIUS
-} from "../graphics/graphic-helpers";
 import Stop from "../graphics/Stop";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
+import { CIRC_RADIUS } from "../graphics/graphic-helpers";
+
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 
-const [testX, testY] = [7, 17];
-const store = createLineDiagramCoordStore([lineDiagram[0]]);
-// mock the redux state
-const mockState = {
-  [lineDiagram[0].route_stop.id]: [testX, testY]
-};
+test("Stop component renders and matches snapshot", () => {
+  const { asFragment } = mockedRenderWithStopPositionContext(
+    <svg>
+      <Stop stop={lineDiagram[0]} />
+    </svg>,
+    [lineDiagram[0]]
+  );
 
-jest
-  .spyOn(redux, "useSelector")
-  .mockImplementation(selector => selector(mockState));
+  expect(asFragment()).toMatchSnapshot();
+});
 
-describe("Stop component", () => {
-  let wrapper: ReactWrapper;
-  beforeAll(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <svg>
-          <Stop stop={lineDiagram[0]} />
-        </svg>
-      </redux.Provider>
-    );
-  });
+test("Stop component shows an SVG circle for the stop", () => {
+  const { container } = mockedRenderWithStopPositionContext(
+    <svg>
+      <Stop stop={lineDiagram[0]} />
+    </svg>,
+    [lineDiagram[0]]
+  );
 
-  it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
-  });
-
-  it("shows an SVG circle for the stop", () => {
-    expect(wrapper.exists("circle.line-diagram-svg__stop")).toBeTruthy();
-  });
-
-  it("circle has expected props", () => {
-    const { r, cx, cy } = wrapper.find("circle.line-diagram-svg__stop").props();
-    expect(r).toEqual(`${CIRC_RADIUS}px`);
-    expect(cx).toEqual(`${testX}px`);
-    expect(cy).toEqual(`${testY}px`);
-  });
+  const circle = container.getElementsByTagName("circle")[0];
+  expect(circle).toBeDefined();
+  expect(circle.classList).toContain("line-diagram-svg__stop");
+  expect(circle.getAttribute("r")).toEqual(`${CIRC_RADIUS}px`);
+  // mocked values
+  expect(circle.getAttribute("cx")).toEqual("13px");
+  expect(circle.getAttribute("cy")).toEqual("7px");
 });

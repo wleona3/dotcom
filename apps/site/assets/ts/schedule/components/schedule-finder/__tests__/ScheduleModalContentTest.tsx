@@ -3,7 +3,7 @@ import { EnhancedRoute, Route } from "../../../../__v3api";
 import ScheduleModalContent, { fetchData } from "../ScheduleModalContent";
 import { ServiceInSelector, SimpleStop, SimpleStopMap } from "../../__schedule";
 import { screen, act } from "@testing-library/react";
-import { renderWithScheduleStoreProvider } from "../../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../../__tests__/test-helpers";
 
 const today = "2019-12-05";
 const route: EnhancedRoute = {

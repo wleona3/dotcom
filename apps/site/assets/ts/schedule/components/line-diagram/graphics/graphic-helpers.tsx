@@ -14,7 +14,7 @@ export interface CoordState {
 
 export const DiagonalHatchPattern = (
   id?: string | undefined
-): React.SVGProps<SVGPatternElement> => (
+): React.ReactElement => (
   <pattern
     id={id ?? "diagonalHatch"}
     width="10"

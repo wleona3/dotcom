@@ -1,17 +1,12 @@
 import React from "react";
-import * as redux from "react-redux";
-import { mount, ReactWrapper } from "enzyme";
 import { cloneDeep, merge } from "lodash";
 import { RouteType } from "../../../../__v3api";
 import { LineDiagramStop } from "../../__schedule";
 import simpleLineDiagram from "./lineDiagramData/simple.json"; // not a full line diagram
 import outwardLineDiagram from "./lineDiagramData/outward.json"; // not a full line diagram
-import simpleLiveData from "./lineDiagramData/live-data.json";
-import LineDiagramWithStops from "../LineDiagramWithStops";
-import { createLineDiagramCoordStore } from "../graphics/graphic-helpers";
 import Diagram from "../graphics/Diagram";
 import { LiveDataByStop } from "../__line-diagram";
-import VehicleIcons from "../VehicleIcons";
+import { mockedRenderWithStopPositionContext } from "../../../../__tests__/test-helpers";
 
 const lineDiagram = (simpleLineDiagram as unknown) as LineDiagramStop[];
 let lineDiagramBranchingOut = (outwardLineDiagram as unknown) as LineDiagramStop[];
@@ -54,7 +49,7 @@ lineDiagramBranchingIn.forEach(({ route_stop }) => {
 });
 
 const liveData = {};
-const store = createLineDiagramCoordStore(lineDiagramBranchingOut);
+
 // mock the redux state
 const mockState = [...lineDiagram, ...lineDiagramBranchingOut].reduce(
   (acc, stop, index) => ({
@@ -63,9 +58,6 @@ const mockState = [...lineDiagram, ...lineDiagramBranchingOut].reduce(
   }),
   {}
 );
-jest
-  .spyOn(redux, "useSelector")
-  .mockImplementation(selector => selector(mockState));
 
 test("<Diagram /> filters out incoming <VehicleIcons /> at first stop", () => {
   const liveDataVehiclesArrivingToOrigin: LiveDataByStop = {
@@ -93,19 +85,19 @@ test("<Diagram /> filters out incoming <VehicleIcons /> at first stop", () => {
       ]
     }
   };
-  const wrapper = mount(
-    <redux.Provider store={store}>
-      <Diagram
-        lineDiagram={lineDiagram}
-        liveData={liveDataVehiclesArrivingToOrigin}
-      />
-    </redux.Provider>
+  const { container } = mockedRenderWithStopPositionContext(
+    <Diagram
+      lineDiagram={lineDiagram}
+      liveData={liveDataVehiclesArrivingToOrigin}
+    />,
+    lineDiagram,
+    mockState
   );
-  expect(wrapper.find(VehicleIcons)).toHaveLength(1);
-  const iconHtml = wrapper
-    .find(VehicleIcons)
-    .first()
-    .html();
+  const vehicleIconElements = container.querySelectorAll(
+    ".m-schedule-diagram__vehicle"
+  );
+  expect(vehicleIconElements).toHaveLength(1);
+  const iconHtml = vehicleIconElements[0].innerHTML;
   expect(iconHtml).toContain("tooltip for stopped vehicle at stop 1");
   expect(iconHtml).not.toContain("tooltip for vehicle 1 incoming to stop 1");
   expect(iconHtml).not.toContain("tooltip for vehicle 2 in_transit at stop 1");
@@ -117,45 +109,47 @@ describe.each`
   ${lineDiagramBranchingOut} | ${"with branches going outward"} | ${"bus"}
   ${lineDiagramBranchingIn}  | ${"with branches going inward"}  | ${"commuter-rail"}
 `("Diagram $situation", ({ source, css }) => {
-  let wrapper: ReactWrapper;
+  let asFragment: () => DocumentFragment, container: HTMLElement;
   beforeEach(() => {
-    wrapper = mount(
-      <redux.Provider store={store}>
-        <Diagram lineDiagram={source} liveData={liveData} />
-      </redux.Provider>
+    mockedRenderWithStopPositionContext(
+      <Diagram lineDiagram={source} liveData={liveData} />,
+      source,
+      mockState
     );
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
   });
 
   it("renders and matches snapshot", () => {
-    expect(wrapper.debug()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it("uses the route color CSS class", () => {
-    expect(wrapper.exists(`.line-diagram-svg.${css}`)).toBeTruthy();
+    expect(container.querySelector(`.line-diagram-svg.${css}`)).toBeTruthy();
   });
 
   it("shows an SVG", () => {
-    expect(wrapper.exists("svg.line-diagram-svg")).toBeTruthy();
-    expect(wrapper.exists("line.line-diagram-svg__line")).toBeTruthy();
-    expect(wrapper.exists("circle.line-diagram-svg__stop")).toBeTruthy();
-    expect(wrapper.find("circle.line-diagram-svg__stop")).toHaveLength(
-      source.length
-    );
+    expect(container.querySelector("svg.line-diagram-svg")).toBeTruthy();
+    expect(container.querySelector("line.line-diagram-svg__line")).toBeTruthy();
+    expect(
+      container.querySelector("circle.line-diagram-svg__stop")
+    ).toBeTruthy();
+    expect(
+      container.querySelectorAll("circle.line-diagram-svg__stop")
+    ).toHaveLength(source.length);
   });
 
   it("shows no merge if no branches", () => {
     if (source === lineDiagram) {
       // no branches expected
-      expect(wrapper.exists("g.line-diagram-svg__merge")).toBeFalsy();
-      expect(wrapper.exists("g.line-diagram-svg__merge path")).toBeFalsy();
+      expect(container.querySelector("g.line-diagram-svg__merge")).toBeFalsy();
+      expect(
+        container.querySelector("g.line-diagram-svg__merge path")
+      ).toBeFalsy();
     } else {
       // has branches
-      expect(wrapper.exists("g.line-diagram-svg__merge")).toBeTruthy();
-      expect(wrapper.exists("g.line-diagram-svg__merge path")).toBeTruthy();
+      expect(container.querySelector("g.line-diagram-svg__merge")).toBeTruthy();
+      expect(
+        container.querySelector("g.line-diagram-svg__merge path")
+      ).toBeTruthy();
     }
   });
 });

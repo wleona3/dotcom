@@ -11,7 +11,7 @@ import { DirectionId, EnhancedRoute, Route } from "../../../__v3api";
 import { MapData, StaticMapData } from "../../../leaflet/components/__mapdata";
 import ScheduleLoader from "../ScheduleLoader";
 import * as routePatternsByDirectionData from "./test-data/routePatternsByDirectionData.json";
-import { renderWithScheduleStoreProvider } from "../../../__tests__/util";
+import { renderWithScheduleStoreProvider } from "../../../__tests__/test-helpers";
 
 const stops = {
   "1": [

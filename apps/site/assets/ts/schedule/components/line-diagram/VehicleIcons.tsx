@@ -1,10 +1,10 @@
 import React from "react";
 import { renderToString } from "react-dom/server";
-import { useSelector } from "react-redux";
 import { RouteStop, LineDiagramVehicle } from "../__schedule";
 import CrowdingPill from "./CrowdingPill";
 import { TooltipWrapper, vehicleArrowIcon } from "../../../helpers/icon";
-import { StopCoord, CoordState, CIRC_RADIUS } from "./graphics/graphic-helpers";
+import { CIRC_RADIUS } from "./graphics/graphic-helpers";
+import { useStopPositionCoordinates } from "./contexts/StopPositionContext";
 
 interface VehicleIconsProps {
   stop: RouteStop;
@@ -18,9 +18,7 @@ const VehicleIcons = ({
   stop,
   vehicles
 }: VehicleIconsProps): JSX.Element | null => {
-  const coords: StopCoord | null = useSelector(
-    (state: CoordState) => state[stop.id]
-  );
+  const coords = useStopPositionCoordinates(stop.id);
   if (!vehicles || !coords) return null;
   const [x, y] = coords;
   const left = `${x - CIRC_RADIUS}px`;
