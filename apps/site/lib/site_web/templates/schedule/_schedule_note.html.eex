@@ -1,0 +1,37 @@
+<div class="m-schedule-page__schedule-notes--desktop">
+  <%= if @schedule_note.alternate_text do %>
+    <h3 class="m-schedule-page__schedule-note-title">
+      <div class="m-schedule-page__schedule-note-icon">
+        <%= img_tag static_url(SiteWeb.Endpoint, "/images/icon-schedule-finder.svg")%>
+      </div>
+      Schedule Note
+    </h3>
+    <div class="m-schedule-page__schedule-note m-schedule-page__schedule-note--alternate">
+      <%= raw @schedule_note.alternate_text %>
+    </div>
+  <% else %>
+    <%=
+      SiteWeb.PartialView.render(
+        "_expandable_block.html",
+        Map.merge(assigns, %{
+          header: %{text: "Weekday Schedule", iconSvgText: nil},
+          content: service_description(@schedule_note.peak_service, true, @schedule_note.exceptions),
+          id: "peak-service-block",
+          initially_expanded: true,
+        })
+      )
+    %>
+
+    <%=
+      SiteWeb.PartialView.render(
+        "_expandable_block.html",
+        Map.merge(assigns, %{
+          header: %{text: "Weekend Schedule", iconSvgText: nil},
+          content: "#{service_description(@schedule_note.offpeak_service, false, @schedule_note.exceptions)} #{exceptions_description(@schedule_note.exceptions)}",
+          id: "offpeak-service-block",
+          initially_expanded: false,
+        })
+      )
+    %>
+  <% end %>
+</div>

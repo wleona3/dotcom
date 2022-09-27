@@ -26,7 +26,13 @@
   id="<%= panel_id %>"
   aria-labelledby="<%= header_id %>"
 >
-<%= render @view_module, @view_template, assigns %>
+  <%= if assigns[:view_module] do %>
+    <%= render @view_module, @view_template, assigns %>
+  <% else %>
+    <div>
+      <%= @content %>
+    </div>
+  <% end %>
 </div>
 <noscript>
   <%= if not @initially_expanded do %>
@@ -37,7 +43,13 @@
       id="<%= panel_id %>"
       aria-labelledby="<%= header_id %>"
     >
-    <%= render @view_module, @view_template, assigns %>
+    <%= if assigns[:view_module] do %>
+      <%= render @view_module, @view_template, assigns %>
+    <% else %>
+      <div>
+        <%= @content %>
+      </div>
+    <% end %>
     </div>
   <% end %>
 </noscript>

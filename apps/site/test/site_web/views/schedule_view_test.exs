@@ -464,4 +464,37 @@ defmodule SiteWeb.ScheduleViewTest do
              )
     end
   end
+
+  describe "service_description/3" do
+    test "always returns a description string for service without exceptions for peak service" do
+      assert service_description("8 \u2013 15 minutes", true, []) ==
+               "Trains every 8 \u2013 15 minutes"
+    end
+
+    test "returns a description string for off-peak service without exceptions" do
+      assert service_description("8 \u2013 15 minutes", false, []) ==
+               "Trains every 8 \u2013 15 minutes"
+    end
+
+    test "returns a description string for off-peak service with exceptions" do
+      assert service_description("8 \u2013 15 minutes", false, [
+               %{
+                 type: "weekend mornings and late night",
+                 service: "26 minutes"
+               }
+             ]) ==
+               "Trains every 8 \u2013 15 minutes except weekend mornings and late night"
+    end
+  end
+
+  describe "exceptions_description/1" do
+    test "returns a string describing the exceptions" do
+      assert exceptions_description([
+               %{
+                 type: "weekend mornings and late night",
+                 service: "26 minutes"
+               }
+             ]) == "Trains every 26 minutes weekend mornings and late night"
+    end
+  end
 end

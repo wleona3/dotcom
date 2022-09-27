@@ -12,6 +12,7 @@ defmodule SiteWeb.ScheduleView do
   alias Plug.Conn
   alias Routes.Route
   alias Site.MapHelpers
+  alias Site.ScheduleNote
   alias SiteWeb.PartialView.{HeaderTab, HeaderTabs, SvgIconWithCircle}
   alias Stops.Stop
 
@@ -407,4 +408,30 @@ defmodule SiteWeb.ScheduleView do
   def json_safe_route(route) do
     Route.to_json_safe(route)
   end
+
+  @spec service_description(String.t(), boolean(), [ScheduleNote.exception()]) :: String.t()
+  def service_description(service, peak?, excetpions)
+  def service_description(service, true, _), do: service_string(service)
+  def service_description(service, false, []), do: service_string(service)
+
+  def service_description(service, false, exceptions),
+    do: "#{service_string(service)} except #{exceptions_string(exceptions)}"
+
+  @spec exceptions_description([ScheduleNote.exception()]) :: String.t()
+  def exceptions_description(exceptions),
+    do: exceptions |> Enum.map(&exception_description/1) |> Enum.join(" ")
+
+  @spec service_string(String.t()) :: String.t()
+  defp service_string(service), do: "Trains every #{service}"
+
+  @spec exceptions_string([ScheduleNote.exception()]) :: String.t()
+  defp exceptions_string(exceptions),
+    do: exceptions |> Enum.map(&exception_string/1) |> Enum.join(", ")
+
+  @spec exception_string(ScheduleNote.exception()) :: String.t()
+  defp exception_string(%{type: type}), do: type
+
+  @spec exception_description(ScheduleNote.exception()) :: String.t()
+  defp exception_description(%{service: service, type: type}),
+    do: service_string("#{service} #{type}")
 end
