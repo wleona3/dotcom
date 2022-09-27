@@ -13,11 +13,11 @@ defmodule Site.ScheduleNote do
           service: String.t()
         }
 
-  defstruct peak_service: "", offpeak_service: "", exceptions: [], alternate_text: nil
+  defstruct peak_service: nil, offpeak_service: nil, exceptions: [], alternate_text: nil
 
   @type t :: %__MODULE__{
-          peak_service: String.t(),
-          offpeak_service: String.t(),
+          peak_service: String.t() | nil,
+          offpeak_service: String.t() | nil,
           exceptions: [exception],
           alternate_text: String.t() | nil
         }
@@ -27,14 +27,14 @@ defmodule Site.ScheduleNote do
     schedule_note(route)
   end
 
-  def schedule_note(%Route{id: "Red"}) do
+  defp schedule_note(%Route{id: "Red"}) do
     %__MODULE__{
       peak_service: "8 \u2013 15 minutes",
       offpeak_service: "8 \u2013 15 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Mattapan"}) do
+  defp schedule_note(%Route{id: "Mattapan"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "13 minutes",
@@ -47,59 +47,57 @@ defmodule Site.ScheduleNote do
     }
   end
 
-  def schedule_note(%Route{id: "Orange"}) do
+  defp schedule_note(%Route{id: "Orange"}) do
     %__MODULE__{
       peak_service: "6 \u2013 11 minutes",
       offpeak_service: "9 \u2013 13 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Blue"}) do
+  defp schedule_note(%Route{id: "Blue"}) do
     %__MODULE__{
       peak_service: "7 \u2013 9 minutes",
       offpeak_service: "9 \u2013 15 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Green"}) do
+  defp schedule_note(%Route{id: "Green"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "6 \u2013 12 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Green-B"}) do
+  defp schedule_note(%Route{id: "Green-B"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "6 \u2013 12 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Green-C"}) do
+  defp schedule_note(%Route{id: "Green-C"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "6 \u2013 12 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Green-D"}) do
+  defp schedule_note(%Route{id: "Green-D"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "6 \u2013 12 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "Green-E"}) do
+  defp schedule_note(%Route{id: "Green-E"}) do
     %__MODULE__{
       peak_service: "6 \u2013 12 minutes",
       offpeak_service: "6 \u2013 12 minutes"
     }
   end
 
-  def schedule_note(%Route{id: "CR-Foxboro"}) do
+  defp schedule_note(%Route{id: "CR-Foxboro"}) do
     %__MODULE__{
-      peak_service: nil,
-      offpeak_service: nil,
       alternate_text:
         HTML.safe_to_string(
           content_tag(:div, [
@@ -133,7 +131,7 @@ defmodule Site.ScheduleNote do
     }
   end
 
-  def schedule_note(_) do
+  defp schedule_note(_) do
     nil
   end
 end
