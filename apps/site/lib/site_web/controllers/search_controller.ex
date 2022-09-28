@@ -52,6 +52,7 @@ defmodule SiteWeb.SearchController do
 
   @spec query(Conn.t(), map) :: Conn.t()
   def query(%Conn{} = conn, params) do
+    IO.inspect(params, label: "\n params")
     %Api{
       host: conn.assigns[:algolia_host],
       index: "*",

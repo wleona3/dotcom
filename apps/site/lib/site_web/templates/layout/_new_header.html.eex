@@ -14,7 +14,8 @@
 
       <%= render "_new_nav_desktop.html", assigns %>
       <div class="search-wrapper">
-        <%= render SiteWeb.PageView, "_search_bar.html",
+        <div id="desktop-searchbar"></div>
+        <%# render SiteWeb.PageView, "_search_bar.html",
             conn: @conn,
             id: "header-desktop",
             placeholder: "Search for routes, info, and more"

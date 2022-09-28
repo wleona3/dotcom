@@ -9,6 +9,7 @@
 import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 import { handleNativeEscapeKeyPress } from "../helpers/keyboard-events";
 import { isLGDown } from "../helpers/media-breakpoints";
+import setupAlgoliaAutocompleteInput from "../ui/autocomplete";
 
 function undoOutline(this: HTMLElement): void {
   this.style.outline = "none";
@@ -102,19 +103,21 @@ export function setup(rootElement: HTMLElement): void {
 
   // Show the modal search veil and disable scrolling when focusing
   // the search input on tablet
-  const input = rootElement.querySelector("#search-header-desktop__input");
-  if (input) {
-    input.addEventListener("focus", () => {
-      if (isLGDown()) {
-        // eslint-disable-next-line no-param-reassign
-        rootElement.dataset.navOpen = "true";
-      }
-    });
-    input.addEventListener("blur", () => {
-      // eslint-disable-next-line no-param-reassign
-      delete rootElement.dataset.navOpen;
-    });
-  }
+  // const input = rootElement.querySelector("#search-header-desktop__input");
+  // if (input) {
+  //   input.addEventListener("focus", () => {
+  //     if (isLGDown()) {
+  //       // eslint-disable-next-line no-param-reassign
+  //       rootElement.dataset.navOpen = "true";
+  //     }
+  //   });
+  //   input.addEventListener("blur", () => {
+  //     // eslint-disable-next-line no-param-reassign
+  //     delete rootElement.dataset.navOpen;
+  //   });
+  // }
+  const desktopSearch = rootElement.querySelector<HTMLElement>("#desktop-searchbar");
+  if (desktopSearch) setupAlgoliaAutocompleteInput(desktopSearch);
 
   // removes focus outline in Safari from open accordions
   rootElement
