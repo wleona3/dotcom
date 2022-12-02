@@ -6,13 +6,19 @@ defmodule SiteWeb.PredictionsChannelTest do
   alias Phoenix.Socket
   alias Predictions.Prediction
   alias Routes.Route
+  alias Stops.Stop
   alias SiteWeb.{PredictionsChannel, UserSocket}
 
   @route_39 "39"
-  @prediction39 %Prediction{id: "prediction39", route: %Route{id: @route_39}}
+  @stop_fh "place-forhl"
+  @prediction39 %Prediction{
+    id: "prediction39",
+    route: %Route{id: @route_39},
+    stop: %Stop{id: @stop_fh}
+  }
 
   setup do
-    reassign_env(:site, :predictions_subscribe_fn, fn route_id ->
+    reassign_env(:site, :predictions_subscribe_fn, fn route_id, _ ->
       case route_id do
         @route_39 ->
           [@prediction39]
@@ -33,7 +39,11 @@ defmodule SiteWeb.PredictionsChannelTest do
            socket: socket
          } do
       assert {:ok, %{predictions: predictions}, %Socket{}} =
-               subscribe_and_join(socket, PredictionsChannel, "predictions:#{@route_39}")
+               subscribe_and_join(
+                 socket,
+                 PredictionsChannel,
+                 "predictions:#{@route_39}@#{@stop_fh}"
+               )
 
       assert predictions == [@prediction39]
     end
@@ -44,7 +54,7 @@ defmodule SiteWeb.PredictionsChannelTest do
       predictions = [@prediction39]
 
       {:ok, _, socket} =
-        subscribe_and_join(socket, PredictionsChannel, "predictions:#{@route_39}")
+        subscribe_and_join(socket, PredictionsChannel, "predictions:#{@route_39}@#{@stop_fh}")
 
       assert {:noreply, _socket} =
                PredictionsChannel.handle_info(
