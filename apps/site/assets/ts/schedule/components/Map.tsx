@@ -1,11 +1,5 @@
-import React, {
-  ReactElement,
-  useReducer,
-  useEffect,
-  Dispatch,
-  useRef
-} from "react";
-import { initChannel, stopChannel, SocketEvent } from "./Channel";
+import React, { ReactElement, useRef } from "react";
+import { SocketEvent } from "../../app/channels";
 import Map from "../../leaflet/components/Map";
 import getBounds from "../../leaflet/bounds";
 import {
@@ -13,6 +7,7 @@ import {
   MapMarker as Marker
 } from "../../leaflet/components/__mapdata";
 import CrowdingPill from "./line-diagram/CrowdingPill";
+import useChannel from "../../hooks/useChannel";
 
 interface Props {
   channel: string;
@@ -24,33 +19,6 @@ interface Props {
 interface EventData {
   marker: Marker;
 }
-
-type Action = SocketEvent<EventData[]>;
-
-interface ActionWithChannel {
-  action: Action;
-  channel: string;
-}
-
-const setupChannels = (
-  channel: string,
-  dispatch: Dispatch<ActionWithChannel>
-): void => {
-  dispatch({ action: { event: "setChannel", data: [] }, channel });
-  /* istanbul ignore next */
-  initChannel<EventData[]>(channel, (action: Action) =>
-    dispatch({ action, channel })
-  );
-  /* istanbul ignore next */
-  initChannel<EventData[]>("vehicles:remove", (action: Action) =>
-    dispatch({ action, channel })
-  );
-};
-
-const stopChannels = (channel: string): void => {
-  stopChannel(channel);
-  stopChannel("vehicles:remove");
-};
 
 export const iconOpts = (
   icon: string | null
@@ -109,20 +77,21 @@ interface IdHash {
 const shouldRemoveMarker = (id: string | null, idHash: IdHash): boolean =>
   id !== null && idHash[id] === true;
 
-interface State {
+interface MapState {
   channel: string;
   markers: Marker[];
 }
 
+type MapAction<T> = SocketEvent<T> & { channel: string };
+
 export const reducer = (
-  state: State,
-  actionWithChannel: ActionWithChannel
-): State => {
-  const { action, channel } = actionWithChannel;
-  if (channel !== state.channel && action.event !== "setChannel") return state;
+  state: MapState,
+  action: MapAction<EventData[]>
+): MapState => {
+  // ignore changes from other channels
+  if (action.channel !== state.channel) return state;
+
   switch (action.event) {
-    case "setChannel":
-      return { ...state, channel, markers: [] };
     case "reset":
       return {
         ...state,
@@ -181,14 +150,15 @@ export default ({
   currentShapes,
   currentStops
 }: Props): ReactElement<HTMLElement> | null => {
-  const [state, dispatch] = useReducer(reducer, {
+  const state = useChannel<EventData, MapState, MapAction<EventData[]>>(
     channel,
-    markers: data.markers
-  });
-  useEffect(() => {
-    setupChannels(channel, dispatch);
-    return () => stopChannels(channel);
-  }, [channel, dispatch]);
+    reducer,
+    {
+      channel,
+      markers: []
+    }
+  );
+
   const stopMarkers = data.stop_markers
     ? data.stop_markers
         .filter(mark => currentStops.includes(mark.id as string))
