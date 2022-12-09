@@ -1,6 +1,6 @@
 defmodule Predictions.StreamSupervisor do
   @moduledoc """
-  DynamicSupervisor managing per-route streams of predictions from the API.
+  DynamicSupervisor managing streams of predictions from the API.
   """
 
   use DynamicSupervisor
@@ -48,6 +48,7 @@ defmodule Predictions.StreamSupervisor do
            ),
          api_stream_name <- api_stream_name(route_and_stop_id),
          sses_stream_name <- sses_stream_name(route_and_stop_id),
+         prediction_stream_name <- prediction_stream_name(route_and_stop_id),
          {:ok, _api_stream_pid} <-
            DynamicSupervisor.start_child(
              __MODULE__,
@@ -56,7 +57,7 @@ defmodule Predictions.StreamSupervisor do
          {:ok, _predictions_stream_pid} <-
            DynamicSupervisor.start_child(
              __MODULE__,
-             {Predictions.Stream, subscribe_to: api_stream_name}
+             {Predictions.Stream, name: prediction_stream_name, subscribe_to: api_stream_name}
            ) do
       Registry.register(:prediction_streams_registry, route_and_stop_id, sses_pid)
       {:ok, sses_pid}
@@ -87,4 +88,8 @@ defmodule Predictions.StreamSupervisor do
 
   @spec api_stream_name(PredictionsPubSub.prediction_key()) :: atom()
   defp api_stream_name(route_and_stop_id), do: :"predictions_api_stream_#{route_and_stop_id}"
+
+  @spec prediction_stream_name(PredictionsPubSub.prediction_key()) :: atom()
+  defp prediction_stream_name(route_and_stop_id),
+    do: :"predictions_data_stream_#{route_and_stop_id}"
 end
