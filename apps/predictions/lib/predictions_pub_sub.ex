@@ -38,7 +38,7 @@ defmodule Predictions.PredictionsPubSub do
   @spec subscribe(Route.id_t(), Stop.id_t()) :: [Prediction.t()]
   @spec subscribe(Route.id_t(), Stop.id_t(), GenServer.server()) :: [Prediction.t()]
   def subscribe(route_id, stop_id, server \\ __MODULE__) do
-    key = with_parent_stop_id(route_id, stop_id)
+    key = prediction_key(route_id, stop_id)
     StreamSupervisor.ensure_stream_is_started(key)
     {registry_key, predictions} = GenServer.call(server, {:subscribe, key})
     Registry.register(:prediction_subscriptions_registry, registry_key, key)
@@ -72,15 +72,19 @@ defmodule Predictions.PredictionsPubSub do
   def handle_info(
         {:reset,
          [
-           %Predictions.Prediction{route: %Routes.Route{id: route_id}, stop: %Stop{id: stop_id}}
+           %Predictions.Prediction{
+             route: %Routes.Route{id: route_id},
+             stop: %Stop{id: stop_id}
+           }
            | _
          ] = predictions},
         %__MODULE__{predictions_by_key: predictions_by_key} = state
       ) do
+    key = prediction_key(route_id, stop_id)
+
     new_state = %__MODULE__{
       state
-      | predictions_by_key:
-          Map.put(predictions_by_key, with_parent_stop_id(route_id, stop_id), predictions)
+      | predictions_by_key: Map.put(predictions_by_key, key, predictions)
     }
 
     broadcast(new_state)
@@ -93,20 +97,21 @@ defmodule Predictions.PredictionsPubSub do
          [
            %Predictions.Prediction{
              route: %Routes.Route{id: route_id},
-             stop: %Stops.Stop{id: stop_id}
+             stop: %Stop{id: stop_id}
            }
            | _
          ] = new_predictions},
         %__MODULE__{predictions_by_key: predictions_by_key} = state
       ) do
+    key = prediction_key(route_id, stop_id)
+
     new_predictions_by_key =
       Map.put(
         predictions_by_key,
-        with_parent_stop_id(route_id, stop_id),
+        key,
         predictions_for_key(
           predictions_by_key,
-          route_id,
-          stop_id
+          key
         ) ++
           new_predictions
       )
@@ -126,22 +131,23 @@ defmodule Predictions.PredictionsPubSub do
          [
            %Predictions.Prediction{
              route: %Routes.Route{id: route_id},
-             stop: %Stops.Stop{id: stop_id}
+             stop: %Stop{id: stop_id}
            }
            | _
          ] = updated_predictions},
         %__MODULE__{predictions_by_key: predictions_by_key} = state
       ) do
+    key = prediction_key(route_id, stop_id)
     updated_prediction_ids = Enum.map(updated_predictions, & &1.id)
 
     predictions_sans_old =
-      predictions_for_key(predictions_by_key, route_id, stop_id)
+      predictions_for_key(predictions_by_key, key)
       |> Enum.reject(&Enum.member?(updated_prediction_ids, &1.id))
 
     new_predictions_by_key =
       Map.put(
         predictions_by_key,
-        with_parent_stop_id(route_id, stop_id),
+        key,
         predictions_sans_old ++ updated_predictions
       )
 
@@ -160,22 +166,23 @@ defmodule Predictions.PredictionsPubSub do
          [
            %Predictions.Prediction{
              route: %Routes.Route{id: route_id},
-             stop: %Stops.Stop{id: stop_id}
+             stop: %Stop{id: stop_id}
            }
            | _
          ] = predictions_to_remove},
         %__MODULE__{predictions_by_key: predictions_by_key} = state
       ) do
+    key = prediction_key(route_id, stop_id)
     prediction_ids_to_remove = Enum.map(predictions_to_remove, & &1.id)
 
     predictions_sans_removed =
-      predictions_for_key(predictions_by_key, route_id, stop_id)
+      predictions_for_key(predictions_by_key, key)
       |> Enum.reject(&Enum.member?(prediction_ids_to_remove, &1.id))
 
     new_predictions_by_key =
       Map.put(
         predictions_by_key,
-        with_parent_stop_id(route_id, stop_id),
+        key,
         predictions_sans_removed
       )
 
@@ -189,17 +196,13 @@ defmodule Predictions.PredictionsPubSub do
     {:noreply, new_state}
   end
 
+  @spec prediction_key(Routes.Route.id_t(), Stops.Stop.id_t()) ::
+          String.t()
+  defp prediction_key(route_id, stop_id), do: "#{route_id}@#{stop_id}"
+
   @spec predictions_for_key(predictions_by_key(), prediction_key()) :: [Prediction.t()]
-  @spec predictions_for_key(predictions_by_key(), Routes.Route.id_t(), Stops.Stop.id_t()) :: [
-          Prediction.t()
-        ]
-
   defp predictions_for_key(predictions_by_key, route_and_stop_id) do
-    Map.get(predictions_by_key, with_parent_stop_id(route_and_stop_id), [])
-  end
-
-  defp predictions_for_key(predictions_by_key, route_id, stop_id) do
-    Map.get(predictions_by_key, with_parent_stop_id(route_id, stop_id), [])
+    Map.get(predictions_by_key, route_and_stop_id, [])
   end
 
   @spec broadcast(t()) :: :ok
@@ -217,19 +220,5 @@ defmodule Predictions.PredictionsPubSub do
        }) do
     new_predictions = predictions_for_key(predictions_by_key, route_and_stop_id)
     send(pid, {:new_predictions, new_predictions})
-  end
-
-  defp with_parent_stop_id(route_and_stop_id) do
-    [route_id, stop_id] = String.split(route_and_stop_id, "@")
-    with_parent_stop_id(route_id, stop_id)
-  end
-
-  defp with_parent_stop_id(route_id, stop_id) do
-    with %Stops.Stop{id: parent_stop_id} <- Stops.Repo.get_parent(stop_id) do
-      "#{route_id}@#{parent_stop_id}"
-    else
-      _ ->
-        "#{route_id}@#{stop_id}"
-    end
   end
 end
