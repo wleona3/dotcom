@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement, Reducer, useContext } from "react";
 import { effectNameForAlert } from "../../../components/Alerts";
 import GlxOpen from "../../../components/GlxOpen";
 import MatchHighlight from "../../../components/MatchHighlight";
@@ -20,7 +20,7 @@ import {
   isAGreenLineRoute,
   isSubwayRoute
 } from "../../../models/route";
-import { Alert, Route } from "../../../__v3api";
+import { Alert, DirectionId, Route } from "../../../__v3api";
 import { RouteStop, RouteStopRoute, StopId, StopTree } from "../__schedule";
 import { branchPosition, diagramWidth } from "./line-diagram-helpers";
 import StopConnections from "./StopConnections";
@@ -28,6 +28,8 @@ import StopFeatures from "./StopFeatures";
 import StopPredictions from "./StopPredictions";
 import { StopRefContext } from "./LineDiagramWithStops";
 import { LiveData } from "./__line-diagram";
+import useChannel from "../../../hooks/useChannel";
+import { SocketEvent } from "../../../app/channels";
 
 interface Props {
   stopTree: StopTree;
@@ -124,6 +126,100 @@ const Alert = (): JSX.Element => (
   </>
 );
 
+type RouteId = string;
+
+export interface Prediction {
+  id: string;
+  directionId: DirectionId;
+  isDeparting: boolean;
+  stopId: string;
+  time: Date;
+  track?: string;
+  tripId: string;
+}
+
+interface StopData {
+  id: string;
+}
+
+interface TripData {
+  id: string;
+}
+
+interface PredictionData {
+  id: string;
+  "departing?": boolean;
+  direction_id: DirectionId;
+  stop: StopData;
+  time: string;
+  track?: string;
+  trip: TripData;
+}
+
+const predictionFromData = (predictionData: PredictionData): Prediction => ({
+  id: predictionData.id,
+  directionId: predictionData.direction_id,
+  isDeparting: predictionData["departing?"],
+  stopId: predictionData.stop.id,
+  //@ts-ignore
+  time: new Date(predictionData.time),
+  //@ts-ignore
+  track: predictionData.track,
+  tripId: predictionData.trip.id
+});
+
+///
+interface PredictionData {
+  predictions: Prediction[];
+}
+
+interface ParsedPrediction extends Prediction {}
+
+interface PredictionState {
+  predictions: Prediction[];
+}
+
+type PredictionAction = SocketEvent<PredictionData[]>;
+
+// WELP. Because we set up the Prediction.Stream to process the Socket-type events (add, update, remove, etc), that means we don't need to deal with any of that HERE.
+// The stream awesomely just gives us a bunch of predictions at once.
+// BUT I have a feeling I'll have to re-do the useChannel hook typing maybe?
+/**
+ * Additional considerations for the new usePredictions hook, or maybe even for the socket?
+ * - take a directionId argument, and filter incoming predictions by that?
+ * - probably should sort by time by default
+ * - take a numResults argument to control how many predictions returned.
+ * - MAYBE the usePredictionsChannel should be called as usePredictionsChannel(routeId, stopId) and then the hook is responible for composing the proper name. yeah that seems better.
+ */
+const predictionsReducer: Reducer<PredictionState, PredictionAction> = (
+  oldPredictions,
+  newPredictions
+) => {
+  //@ts-expect-error
+  const parsedPredictions = newPredictions.predictions.map(predictionFromData);
+  return { predictions: parsedPredictions };
+};
+
+const usePredictionsChannel = (channel: string): ParsedPrediction[] => {
+  const { predictions } = useChannel<
+    PredictionData,
+    PredictionState,
+    PredictionAction
+  >(channel, predictionsReducer, { predictions: [] });
+  console.log("parsed predictions", predictions);
+  return predictions;
+};
+
+const NewStopPredictions = ({
+  channel
+}: {
+  channel: string;
+}): ReactElement<HTMLElement> => {
+  const predictions = usePredictionsChannel(channel);
+  // console.log(predictions);
+  return <div>Hi</div>;
+};
+
 const StopCard = ({
   stopTree,
   stopId,
@@ -181,6 +277,9 @@ const StopCard = ({
               </div>
             )
           )}
+          <NewStopPredictions
+            channel={`predictions:${routeStop.route?.id}@${stopId}`}
+          />
         </div>
 
         {!isEndNode(stopTree, stopId) &&
