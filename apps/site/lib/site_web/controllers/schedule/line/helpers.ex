@@ -7,8 +7,6 @@ defmodule SiteWeb.ScheduleController.Line.Helpers do
   alias RoutePatterns.RoutePattern
   alias Routes.Repo, as: RoutesRepo
   alias Routes.{Route, Shape}
-  alias Schedules.Repo, as: SchedulesRepo
-  alias Schedules.Trip
   alias Stops.Repo, as: StopsRepo
   alias Stops.{RouteStop, RouteStops, Stop}
 
@@ -73,7 +71,7 @@ defmodule SiteWeb.ScheduleController.Line.Helpers do
     |> do_get_branch_route_stops(direction_id, route_pattern_id)
     |> Enum.map(&RouteStop.list_from_route_pattern(&1, route, direction_id))
     |> make_trunks_consistent(route)
-    |> other_line_modifications(route)
+    # |> other_line_modifications(route)
     |> RouteStops.from_route_stop_groups()
   end
 
@@ -89,15 +87,15 @@ defmodule SiteWeb.ScheduleController.Line.Helpers do
     |> maybe_use_overarching_branch()
   end
 
-  @spec other_line_modifications([[RouteStop.t()]], Route.t()) :: [[RouteStop.t()]]
-  defp other_line_modifications(route_stop_lists, %Route{id: "CR-Providence"}) do
-    Enum.map(route_stop_lists, fn route_stops ->
-      # Pawtucket Falls not in service yet! Remove this soon!
-      Enum.reject(route_stops, &(&1.id == "place-NEC-1891"))
-    end)
-  end
+  # @spec other_line_modifications([[RouteStop.t()]], Route.t()) :: [[RouteStop.t()]]
+  # defp other_line_modifications(route_stop_lists, %Route{id: "CR-Providence"}) do
+  #   Enum.map(route_stop_lists, fn route_stops ->
+  #     # Pawtucket Falls not in service yet! Remove this soon!
+  #     Enum.reject(route_stops, &(&1.id == "place-NEC-1891"))
+  #   end)
+  # end
 
-  defp other_line_modifications(route_stop_lists, _), do: route_stop_lists
+  # defp other_line_modifications(route_stop_lists, _), do: route_stop_lists
 
   @routes_with_trunk_discrepancies ~w(CR-Franklin CR-Providence)
   @spec make_trunks_consistent([[RouteStop.t()]], Route.t()) :: [[RouteStop.t()]]
@@ -245,12 +243,12 @@ defmodule SiteWeb.ScheduleController.Line.Helpers do
   def filtered_by_typicality(route_patterns) do
     route_patterns
     |> filter_by_min_typicality()
-    |> Enum.filter(fn x ->
-      # TODO: Deprecate our use of shape priority entirely,
-      # because it's no longer supported in the V3 API
-      # For now, be less strict if using the most typical route pattern
-      if x.typicality == 1, do: true, else: x.shape_priority > 0
-    end)
+    # |> Enum.filter(fn x ->
+    #   # TODO: Deprecate our use of shape priority entirely,
+    #   # because it's no longer supported in the V3 API
+    #   # For now, be less strict if using the most typical route pattern
+    #   if x.typicality == 1, do: true, else: x.shape_priority > 0
+    # end)
   end
 
   # Filters route patterns by the smallest typicality found in the array
@@ -385,29 +383,13 @@ defmodule SiteWeb.ScheduleController.Line.Helpers do
   defp stops_for_route_pattern(route_pattern) do
     stops =
       route_pattern
-      |> trip_for_route_pattern()
-      |> shape_for_trip()
-      |> stops_for_shape()
+      |> Map.get(:representative_trip_id)
+      |> StopsRepo.by_trip()
+
+    # Enum.each(stops, &IO.inspect(&1.name, label: route_pattern.id))
 
     {route_pattern, stops}
   end
-
-  @spec trip_for_route_pattern(RoutePattern.t()) :: Trip.t() | nil
-  defp trip_for_route_pattern(%RoutePattern{representative_trip_id: representative_trip_id}),
-    do: SchedulesRepo.trip(representative_trip_id)
-
-  @spec shape_for_trip(Trip.t() | nil) :: Shape.t() | nil
-  defp shape_for_trip(nil), do: nil
-
-  defp shape_for_trip(%Trip{shape_id: shape_id}) do
-    shape_id
-    |> RoutesRepo.get_shape()
-    |> List.first()
-  end
-
-  @spec stops_for_shape(Shape.t() | nil) :: [Stop.t()]
-  defp stops_for_shape(nil), do: []
-  defp stops_for_shape(%Shape{stop_ids: stop_ids}), do: Enum.map(stop_ids, &StopsRepo.get!/1)
 
   @spec get_line_route_patterns(Route.id_t(), direction_id(), RoutePattern.id_t() | nil) :: [
           RoutePattern.t()

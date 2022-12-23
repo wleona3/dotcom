@@ -1,6 +1,6 @@
 defmodule Stops.Repo do
   @moduledoc """
-  Matches the Ecto API, but fetches Stops from the Stop Info API instead.
+  # Matches the Ecto API, but fetches Stops from the Stop Info API instead.
   """
   use RepoCache, ttl: :timer.hours(1)
   alias Stops.{Api, Stop}
@@ -80,6 +80,17 @@ defmodule Stops.Repo do
     # makes more sense for this than :get, since other functions in this
     # module will be working with those cache rows as well.
     cache(id, &Api.by_gtfs_id/1)
+  end
+
+  @spec by_trip(Schedules.Trip.id_t()) :: stops_response
+  def by_trip(nil), do: []
+  def by_trip(trip_id) do
+    cache(trip_id, fn trip_id ->
+      with %JsonApi{data: [trip]} <- V3Api.Trips.by_id(trip_id, [include: "stops"]),
+      %JsonApi.Item{relationships: %{"stops" => stops}} when is_list(stops) <- trip do
+        Enum.map(stops, &get(&1.id))
+      end
+    end)
   end
 
   @spec by_route(Route.id_t(), 0 | 1, Keyword.t()) :: stops_response
