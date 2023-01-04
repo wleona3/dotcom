@@ -4,6 +4,7 @@ import * as AlgoliaResult from "./algolia-result";
 
 // eslint-disable-next-line import/no-unresolved, import/extensions
 import * as QueryHelpers from "../ts/helpers/query";
+import { flatMap } from "lodash";
 
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
@@ -115,6 +116,7 @@ export default class AlgoliaAutocomplete {
                 return "No results.";
               },
               item({ item }) {
+                console.log("hit", item)
                 return item;
               }
             },
@@ -125,34 +127,45 @@ export default class AlgoliaAutocomplete {
               // console.log(item);
               return item;
             },
-            getItems() {
-              // if (query.length() > 3 || /\d/.test(query)) {
-              return getAlgoliaResults({
-                searchClient,
-                queries: [
-                  {
-                    indexName: "routes",
-                    query,
-                    params: {
-                      hitsPerPage: 5
-                    }
-                  },
-                  {
-                    indexName: "stops",
-                    query,
-                    params: {
-                      hitsPerPage: 5
-                    }
-                  },
-                  {
-                    indexName: "drupal",
-                    query,
-                    params: {
-                      hitsPerPage: 5
-                    }
+            async getItems({ query }) {
+              if (query.length < 3) { return []; }
+              const queries = [
+                {
+                  indexName: "routes",
+                  query,
+                  params: {
+                    hitsPerPage: 5
                   }
-                ]
+                },
+                {
+                  indexName: "stops",
+                  query,
+                  params: {
+                    hitsPerPage: 5
+                  }
+                },
+                {
+                  indexName: "drupal",
+                  query,
+                  params: {
+                    hitsPerPage: 5
+                  }
+                }
+              ];
+              console.log("queries to be sent:", queries)
+              // catch errors??
+              const response = await fetch("/search/query", {
+                method: "POST",
+                body: JSON.stringify({ requests: queries }),
+                // add caching??
+                headers: {
+                  'Content-Type': 'application/json'
+                },
               });
+              const {results: data} = await response.json();
+              console.log("data retrieved", data) // list of 3 objects - 1 for each indexName in queries.. will need to process further
+              const hits = flatMap(data, d => d.hits); // flatMap imported from lodash library
+              return hits;
             }
           }
         ];
