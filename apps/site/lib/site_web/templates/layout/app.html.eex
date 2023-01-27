@@ -101,6 +101,11 @@
           <%= raw Jason.encode!(@line_suspensions) %>
         </script>
       <% end %>
+      <%= if Application.get_env(:site, :dev_server?) do %>
+        <script defer src="<%= "#{Application.get_env(:site, :webpack_path)}/hydrator.js" %>"></script>
+      <% else %>
+        <script src="<%= static_url(@conn, "/js/hydrator.js") %>"></script>
+      <% end %>
     </div>
 
     <%# Load polyfills only if needed %>
