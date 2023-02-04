@@ -80,10 +80,10 @@ module.exports = {
       },
       {
         test: /\.svg$/,
+        type: 'asset/source',
         include: path.resolve(__dirname, 'static/'),
         exclude: [path.resolve(__dirname, 'static/fonts/')],
         use: [
-          { loader: "svg-inline-loader" },
           {
             loader: "svgo-loader",
             options: {
