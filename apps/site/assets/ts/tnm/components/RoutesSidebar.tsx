@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { modeByV3ModeType } from "../../components/ModeFilter";
 import { Dispatch } from "../state";
-import { Mode, RouteWithStopsWithDirections, Stop } from "../../__v3api";
+import { Alert, Mode, RouteWithStopsWithDirections, Stop } from "../../__v3api";
 import RouteCard from "./RouteCard";
 import RouteSidebarPills from "./RouteSidebarPills";
 import ModeFilterContainer from "./ModeFilterContainer";
@@ -21,6 +21,19 @@ interface FilterOptions {
   stopId: string | null;
   modes: Mode[];
 }
+
+export const fetchAlerts = (routeId: string): Promise<void> =>
+  window.fetch &&
+  window
+    .fetch(`/schedules/${routeId}/alerts`)
+    .then((response: Response) => {
+      if (response.ok) {
+        console.log(response);
+        return response.json();
+      }
+      throw new Error(response.statusText);
+    })
+    .catch(() => {});
 
 const filterDataByModes = (
   data: RouteWithStopsWithDirections[],
@@ -121,12 +134,14 @@ const RoutesSidebar = ({
       <div className="m-tnm-sidebar__inner">
         <SidebarTitle dispatch={dispatch} viewType="Routes" />
         <div className="m-tnm-sidebar__cards">
+          {fetchAlerts("24")}
           {filteredData.length > 0
             ? filteredData.map(route => (
                 <RouteCard
                   key={route.route.id}
                   route={route}
                   dispatch={dispatch}
+                  alerts={[]}
                 />
               ))
             : emptyMessage}

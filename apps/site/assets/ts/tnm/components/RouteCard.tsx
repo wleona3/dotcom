@@ -4,7 +4,8 @@ import StopCard from "../../components/StopCard";
 import {
   Direction,
   StopWithDirections,
-  RouteWithStopsWithDirections
+  RouteWithStopsWithDirections,
+  Alert
 } from "../../__v3api";
 import { Dispatch } from "../state";
 import { directionIsEmpty } from "../../components/Direction";
@@ -15,6 +16,7 @@ import { isABusRoute } from "../../models/route";
 interface Props {
   route: RouteWithStopsWithDirections;
   dispatch: Dispatch;
+  alerts: Alert[];
 }
 
 const everyDirectionIsEmpty = (directions: Direction[]): boolean =>
@@ -36,13 +38,17 @@ const filterStops = (
 
 const RouteCard = ({
   route,
-  dispatch
+  dispatch,
+  alerts
 }: Props): ReactElement<HTMLElement> | null => {
   const mode = modeByV3ModeType[route.route.type];
 
   if (routeIsEmpty(route)) {
     return null;
   }
+
+  console.log(alerts);
+  const hasAlert = alerts.length > 0;
 
   return (
     <div className="m-tnm-sidebar__route" data-mode={mode}>
