@@ -22,18 +22,22 @@ interface FilterOptions {
   modes: Mode[];
 }
 
-export const fetchAlerts = (routeId: string): Promise<void> =>
+let alerts: Alert[] = [];
+export const fetchAlerts = (routeId: string): Promise<void | Alert[]> =>
   window.fetch &&
   window
-    .fetch(`/schedules/${routeId}/alerts`)
-    .then((response: Response) => {
-      if (response.ok) {
-        console.log(response);
-        return response.json();
-      }
+    .fetch(`/api/alerts?route_ids=${routeId}`)
+    .then(response => {
+      if (response.ok) return response.json();
       throw new Error(response.statusText);
     })
-    .catch(() => {});
+    .then(result => {
+      console.log(result);
+      for (let alert in result) {
+        alerts.push((alert as unknown) as Alert);
+      }
+      return alerts;
+    });
 
 const filterDataByModes = (
   data: RouteWithStopsWithDirections[],
@@ -134,14 +138,13 @@ const RoutesSidebar = ({
       <div className="m-tnm-sidebar__inner">
         <SidebarTitle dispatch={dispatch} viewType="Routes" />
         <div className="m-tnm-sidebar__cards">
-          {fetchAlerts("24")}
           {filteredData.length > 0
-            ? filteredData.map(route => (
+            ? filteredData.map(async route => (
                 <RouteCard
                   key={route.route.id}
                   route={route}
                   dispatch={dispatch}
-                  alerts={[]}
+                  alerts={fetchAlerts(route.route.id)}
                 />
               ))
             : emptyMessage}
