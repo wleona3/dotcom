@@ -22,8 +22,7 @@ interface FilterOptions {
   modes: Mode[];
 }
 
-let alerts: Alert[] = [];
-export const fetchAlerts = (routeId: string): Promise<void | Alert[]> =>
+export const fetchAlerts = (routeId: string): Promise<Alert[]> =>
   window.fetch &&
   window
     .fetch(`/api/alerts?route_ids=${routeId}`)
@@ -32,6 +31,7 @@ export const fetchAlerts = (routeId: string): Promise<void | Alert[]> =>
       throw new Error(response.statusText);
     })
     .then(result => {
+      let alerts: Alert[] = [];
       console.log(result);
       for (let alert in result) {
         alerts.push((alert as unknown) as Alert);
@@ -144,7 +144,7 @@ const RoutesSidebar = ({
                   key={route.route.id}
                   route={route}
                   dispatch={dispatch}
-                  alerts={fetchAlerts(route.route.id)}
+                  alerts={Promise.resolve(fetchAlerts(route.route.id))}
                 />
               ))
             : emptyMessage}
