@@ -39,6 +39,7 @@ defmodule Feedback.Mailer do
       <PHONE>#{message.phone}</PHONE>
       <DESCRIPTION>#{ticket_number(message)}#{message.comments}</DESCRIPTION>
       <CUSTREQUIRERESP>#{no_request_response}</CUSTREQUIRERESP>
+      <SWARELATED>Yes</SWARELATED>
       <MBTASOURCE>Auto Ticket 2</MBTASOURCE>
     </INCIDENT>
     """
