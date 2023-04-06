@@ -315,6 +315,10 @@ export function getUrl(hit, index) {
       return _contentUrl(hit);
 
     case "locations":
+      // eslint-disable-next-line no-use-before-define
+      if (["Parking Lots", "Parking"].includes(getTitle(hit.hitTitle))) {
+        return "/parking";
+      }
       return "";
     case "usemylocation":
       return "#";
