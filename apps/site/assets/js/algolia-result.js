@@ -316,7 +316,7 @@ export function getUrl(hit, index) {
 
     case "locations":
       // eslint-disable-next-line no-use-before-define
-      if (["Parking Lots", "Parking"].includes(getTitle(hit.hitTitle))) {
+      if (["Parking Lots", "Parking"].includes(getTitle(hit, "locations"))) {
         return "/parking";
       }
       return "";
