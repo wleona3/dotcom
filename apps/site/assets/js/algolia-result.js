@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import hogan from "hogan.js";
 import _ from "lodash";
 import * as Icons from "./icons";
@@ -297,9 +296,9 @@ function _contentUrl(hit) {
 }
 
 export function getUrl(hit, index) {
-  // eslint-disable-next-line no-use-before-define
-  console.log(`title is ${getTitle(hit, "locations")}`);
-  console.log(hit);
+  if (["Parking lots", "Parking"].includes(hit.address)) {
+    return "/parking";
+  }
   switch (index) {
     case "stops":
       return `/stops/${hit.stop.id}`;
@@ -319,10 +318,6 @@ export function getUrl(hit, index) {
       return _contentUrl(hit);
 
     case "locations":
-      // eslint-disable-next-line no-use-before-define
-      if (["Parking Lots", "Parking"].includes(getTitle(hit, "locations"))) {
-        return "/parking";
-      }
       return "";
     case "usemylocation":
       return "#";
