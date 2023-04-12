@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import hogan from "hogan.js";
 import _ from "lodash";
 import * as Icons from "./icons";
@@ -296,6 +297,9 @@ function _contentUrl(hit) {
 }
 
 export function getUrl(hit, index) {
+  // eslint-disable-next-line no-use-before-define
+  console.log(`title is ${getTitle(hit, "locations")}`);
+  console.log(hit);
   switch (index) {
     case "stops":
       return `/stops/${hit.stop.id}`;
