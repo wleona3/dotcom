@@ -228,16 +228,16 @@ const departureTimeRow = (
           {formattedTimes.map((time, index) => {
             const classes = departureTimeClasses(time, index);
             return (
-              <>
+              <div
+                key={`${time.displayString}-departure-times`}
+                className="d-flex"
+              >
                 {time.isPrediction && (
                   <div className="me-4">
                     {SVGIcon("c-svg__icon--realtime fs-10", realtimeIcon)}
                   </div>
                 )}
-                <div
-                  key={`${time.displayString}-departure-times`}
-                  className="me-8"
-                >
+                <div className="me-8">
                   <div className={`${classes} u-nowrap`}>
                     {time.displayString}
                   </div>
@@ -247,7 +247,7 @@ const departureTimeRow = (
                     {!time.isTomorrow && !!time.trackName && time.trackName}
                   </div>
                 </div>
-              </>
+              </div>
             );
           })}
         </div>
