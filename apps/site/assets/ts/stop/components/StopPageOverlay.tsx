@@ -1,10 +1,12 @@
 import React, { ReactElement, useState } from "react";
-import { Route, Stop } from "../../__v3api";
+import { Stop } from "../../__v3api";
 import Modal from "../../components/Modal";
 import { ScheduleWithTimestamp } from "../../models/schedules";
+import { StopMapForRoute } from "./StopMapRedesign";
+import { RouteWithPolylines } from "../../hooks/useRoute";
 
 interface StopPageOverlayProps {
-  routes: Route[];
+  routes: RouteWithPolylines[];
   stop: Stop;
   schedules: ScheduleWithTimestamp[];
 }
@@ -32,7 +34,7 @@ StopPageOverlayProps): ReactElement<HTMLElement> => {
           ariaLabel={{ label: "schedules overlay" }}
           closeModal={modalClick}
         >
-          <div className="placeholder-map">imagine a map here</div>
+          <StopMapForRoute stop={stop} line={null} selectedVehicleId={null} />
           <div className="placeholder-departures">
             imagine stop departures here
           </div>
